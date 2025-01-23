@@ -38,20 +38,30 @@ struct CreditsView: View {
             }
             .listRowSeparator(.hidden)
             
-            Text("This app was inspired by my desire to help new reverts and non-Muslims learn about Islam and easily access the Quran and prayer times. I’m deeply grateful to my parents for instilling in me a love for the faith—may Allah reward them. I also extend my thanks to my teacher, Mr. Joe Silvey, who, though not Muslim, has been a constant ally, supporting our school's Muslim Student Association and helping us hold weekly Jummuah prayers.")
-                .font(.body)
-                .multilineTextAlignment(.leading)
+            Section {
+                Text("This app was inspired by my desire to help new reverts and non-Muslims learn about Islam and easily access the Quran and prayer times. I’m deeply grateful to my parents for instilling in me a love for the faith—may Allah reward them. I also extend my thanks to my teacher, Mr. Joe Silvey, who, though not Muslim, has been a constant ally, supporting our school's Muslim Student Association and helping us hold weekly Jummuah prayers.")
+                    .font(.body)
+                    .multilineTextAlignment(.leading)
+                
+                Link("View the source code on GitHub: github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times", destination: URL(string: "https://github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times")!)
+                    .font(.body)
+                    .foregroundColor(settings.accentColor.color)
+            }
             
-            Link("Credit for the Adhan calculations, which does everything offline on the device, goes to Batoul Apps", destination: URL(string: "https://github.com/batoulapps/adhan-swift")!)
-                .foregroundColor(settings.accentColor.color)
-                .font(.body)
+            Section {
+                Text("Version 1.3.3")
+                    .font(.caption)
+            }
             
-            Link("Credit for the 99 Names of Allah from KabDeveloper", destination: URL(string: "https://github.com/KabDeveloper/99-Names-Of-Allah/tree/main")!)
-                .foregroundColor(settings.accentColor.color)
-                .font(.body)
-            
-            Text("Version 1.3.2")
-                .font(.caption)
+            Section(header: Text("CREDITS")) {
+                Link("Credit for the Adhan calculations, which does everything offline on the device, goes to Batoul Apps", destination: URL(string: "https://github.com/batoulapps/adhan-swift")!)
+                    .foregroundColor(settings.accentColor.color)
+                    .font(.body)
+                
+                Link("Credit for the 99 Names of Allah from KabDeveloper", destination: URL(string: "https://github.com/KabDeveloper/99-Names-Of-Allah/tree/main")!)
+                    .foregroundColor(settings.accentColor.color)
+                    .font(.body)
+            }
 
             Section(header: Text("APPS BY ABUBAKR ELMALLAH")) {
                 HStack {
