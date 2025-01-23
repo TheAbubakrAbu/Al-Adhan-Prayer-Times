@@ -175,6 +175,8 @@
 		72CCAE8A2D42D56700871A6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		72CCAE8B2D42D56800871A6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		72CCAE8C2D42D56A00871A6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		72CCAE8D2D42D86A00871A6A /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		72CCAE8E2D42D86A00871A6A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -224,6 +226,8 @@
 		72728C892B3D18E500FAA3B3 = {
 			isa = PBXGroup;
 			children = (
+				72CCAE8D2D42D86A00871A6A /* LICENSE.txt */,
+				72CCAE8E2D42D86A00871A6A /* README.md */,
 				72F1EA3F2D421CAF008F6FBE /* Resources */,
 				72728C942B3D18E500FAA3B3 /* iPhone */,
 				72728CF52B3D51B200FAA3B3 /* Widget */,
