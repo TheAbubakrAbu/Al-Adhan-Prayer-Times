@@ -6,6 +6,8 @@ Welcome to **Al-Adhan**, a free, beginner-friendly Islamic prayer times app with
 
 I was a 17-year-old in high school when this app was published on the App Store on December 31, 2023.
 
+[Download Al-Adhan on the App Store here](https://apps.apple.com/us/app/al-adhan-prayer-times/id6475015493?platform=iphone)
+
 ## Overview
 
 Discover **Al-Adhan | Prayer Times**, your ultimate Islamic companion app designed to simplify and enhance Islamic prayers. Whether you're at home, traveling, or exploring new places, this app ensures you never miss a prayer!
