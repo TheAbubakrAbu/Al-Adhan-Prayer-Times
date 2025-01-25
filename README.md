@@ -1,7 +1,10 @@
 # Al-Adhan | Prayer Times
 
-A free, beginner-friendly Islamic prayer times app with unique Traveling Mode, qibla direction, and widgets.
-Published on the App Store on December 31, 2023.
+**Apple Ecosystem App** – Available on iPhone, iPad, Mac, and Apple Watch
+
+Welcome to **Al-Adhan**, a free, beginner-friendly Islamic prayer times app with unique Traveling Mode, qibla direction, and widgets.
+
+I was a 17-year-old in high school when this app was published on the App Store on December 31, 2023.
 
 ## Overview
 
@@ -30,13 +33,6 @@ Discover **Al-Adhan | Prayer Times**, your ultimate Islamic companion app design
 - **Tasbih Counter**: Track your dhikr effortlessly.
 - **99 Names of Allah**: Reflect on the beautiful attributes of Allah.
 - **Hijri Calendar Converter**: Seamlessly convert dates between Gregorian and Hijri calendars.
-
-### Customizable Experience
-
-- **Tailor the App to Your Preferences**:
-  - Choose your Madhab (Islamic school of thought).
-  - Select your preferred prayer calculation method.
-  - Personalize the app’s interface with accent colors and themes.
 
 ### Privacy and Accessibility
 
