@@ -14,33 +14,37 @@ Discover **Al-Adhan | Prayer Times**, your ultimate Islamic companion app design
 
 ## Features
 
-### Prayer Times and Qibla Direction
+### Prayer Times and Qibla Direction  
 
-- **Precise Prayer Times**: Accurate and reliable prayer time calculations based on your location.
-- **Real-Time Qibla Direction**: A built-in compass ensures you’re always facing the Kaaba.
+- **Accurate Prayer Times** – Reliable prayer time calculations based on your location, ensuring precision in every prayer.  
+- **Real-Time Qibla Direction** – A built-in compass ensures you are always facing the Kaaba.  
 
 ### Unique Traveling Mode
 
-- Shortens prayers automatically when traveling over 48 miles from home or allows manual activation for on-the-go worship.
+- **Automatic Activation** – Traveling Mode turns on automatically when you travel **over 48 miles (77 km) from home**.  
+- **Manual Control** – Easily enable Traveling Mode anytime for simplified worship while on the go.  
+- **Customizable Settings** – Adjust prayer calculations, Hanafi madhab, and prayer offsets to match your practice.  
 
 ### Widgets and Notifications
 
-- **Customizable Widgets**: Quickly access prayer times from your lock screen or home screen.
-- **Timely Notifications**: Stay informed with precise alerts for each prayer.
+- **Customizable Widgets** – Quickly access **prayer times from your lock screen or home screen** for instant updates.  
+- **Timely Notifications & Pre-Alerts** – Stay informed with **precise reminders before and at each prayer time**.  
 
-### Rich Cultural and Religious Tools
+### Essential Islamic Tools
 
-- **Arabic Learning Tools**: Learn the Arabic alphabet and improve your recitation skills.
-- **Adhkar and Duas**: Common supplications to enrich your spiritual practice.
-- **Tasbih Counter**: Track your dhikr effortlessly.
-- **99 Names of Allah**: Reflect on the beautiful attributes of Allah.
-- **Hijri Calendar Converter**: Seamlessly convert dates between Gregorian and Hijri calendars.
+- **Arabic Learning Tools** – Learn the **Arabic alphabet**, explore **letter forms**, and recognize **Quranic stopping signs** to improve your recitation.  
+- **Common Adhkar and Duas** – Strengthen your spiritual practice with **daily supplications and remembrances**.  
+- **Tasbih Counter** – Track your dhikr effortlessly with a built-in counter.  
+- **99 Names of Allah** – Reflect on **Allah’s beautiful names and meanings**.  
+- **Hijri Calendar & Converter** – View both **Hijri and Gregorian dates** and convert between them seamlessly.  
+- **Islamic Event Notifications** – Stay informed about **important dates like Ramadan, Eid, and Islamic holidays**.  
+- **Islamic Wallpapers** – Access beautiful wallpapers for spiritual inspiration.  
 
 ### Privacy and Accessibility
 
-- **Completely Free**: No fees, subscriptions, or in-app purchases.
-- **Ad-Free**: Focus on your worship without interruptions.
-- **Privacy-Focused**: Your data stays on your device, ensuring complete privacy.
+- **Completely Free** – No fees, subscriptions, or in-app purchases.  
+- **Ad-Free Experience** – Focus on your worship without interruptions.  
+- **Privacy-Focused** – Your data **stays on your device**, ensuring complete security and privacy.
 
 ## License
 
@@ -61,4 +65,4 @@ For feedback, feature requests, or questions, feel free to reach out:
 - **Website**: [abubakrelmallah.com](https://abubakrelmallah.wordpress.com/)
 - **LinkedIn**: [linkedin.com/abubakr](https://www.linkedin.com/in/abubakr-elmallah-416a0b273/)
 
-Created by Abubakr Elmallah
+Created by **Abubakr Elmallah**

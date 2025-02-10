@@ -3,7 +3,7 @@ import WatchConnectivity
 import WidgetKit
 
 @main
-struct PrayerTimesApp: App {
+struct AlAdhanApp: App {
     @StateObject private var settings = Settings.shared
     @StateObject private var namesData = NamesViewModel()
     
