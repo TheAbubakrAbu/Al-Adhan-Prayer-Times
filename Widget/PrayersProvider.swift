@@ -32,9 +32,9 @@ struct PrayersProvider: TimelineProvider {
             }
         }
         
-        let accentColor: AccentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "accentColor") ?? "green") ?? .green
-        if appGroupUserDefaults?.object(forKey: "accentColor") == nil {
-            appGroupUserDefaults?.set("green", forKey: "accentColor")
+        let accentColor: AccentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "colorAccent2") ?? "green") ?? .green
+        if appGroupUserDefaults?.object(forKey: "colorAccent2") == nil {
+            appGroupUserDefaults?.set("green", forKey: "colorAccent2")
         }
         
         var currentLocation: Location? = nil
