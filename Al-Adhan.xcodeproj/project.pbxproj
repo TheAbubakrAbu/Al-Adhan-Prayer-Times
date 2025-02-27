@@ -70,6 +70,8 @@
 		72CCAE762D42CFE700871A6A /* Arabic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE6F2D42CFE700871A6A /* Arabic.swift */; };
 		72CCAE772D42CFE700871A6A /* ArabicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE702D42CFE700871A6A /* ArabicView.swift */; };
 		72CCAE782D42CFE700871A6A /* ArabicLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE712D42CFE700871A6A /* ArabicLetterView.swift */; };
+		72F969872D701C520046661E /* DismissKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE672D42CE2B00871A6A /* DismissKeyboard.swift */; };
+		72F969882D701C550046661E /* ConditionalStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE632D42CDEB00871A6A /* ConditionalStyle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -173,7 +175,6 @@
 		72CCAE702D42CFE700871A6A /* ArabicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicView.swift; sourceTree = "<group>"; };
 		72CCAE712D42CFE700871A6A /* ArabicLetterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicLetterView.swift; sourceTree = "<group>"; };
 		72CCAE892D42D55B00871A6A /* Info-Main.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Main.plist"; sourceTree = "<group>"; };
-		72CCAE8D2D42D86A00871A6A /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		72CCAE8E2D42D86A00871A6A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -224,7 +225,6 @@
 		72728C892B3D18E500FAA3B3 = {
 			isa = PBXGroup;
 			children = (
-				72CCAE8D2D42D86A00871A6A /* LICENSE.txt */,
 				72CCAE8E2D42D86A00871A6A /* README.md */,
 				72F1EA3F2D421CAF008F6FBE /* Resources */,
 				72728C942B3D18E500FAA3B3 /* iPhone */,
@@ -589,6 +589,7 @@
 				72728CE72B3D204F00FAA3B3 /* ToolsView.swift in Sources */,
 				72728CE82B3D205200FAA3B3 /* Settings.swift in Sources */,
 				72728CEB2B3D209E00FAA3B3 /* OtherView.swift in Sources */,
+				72F969882D701C550046661E /* ConditionalStyle.swift in Sources */,
 				72728CE12B3D204C00FAA3B3 /* PrayerView.swift in Sources */,
 				72728CCA2B3D1FF900FAA3B3 /* Al-AdhanApp.swift in Sources */,
 				72728CE32B3D204C00FAA3B3 /* QiblaView.swift in Sources */,
@@ -597,6 +598,7 @@
 				72CCAE732D42CFE700871A6A /* Arabic.swift in Sources */,
 				72CCAE742D42CFE700871A6A /* ArabicView.swift in Sources */,
 				72CCAE752D42CFE700871A6A /* ArabicLetterView.swift in Sources */,
+				72F969872D701C520046661E /* DismissKeyboard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -799,7 +801,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -835,7 +837,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -867,7 +869,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp";
 				PRODUCT_NAME = "Al-Adhan";
 				SDKROOT = watchos;
@@ -902,7 +904,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp";
 				PRODUCT_NAME = "Al-Adhan";
 				SDKROOT = watchos;
@@ -933,7 +935,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -962,7 +964,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -991,7 +993,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp.Complication1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1022,7 +1024,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.331;
+				MARKETING_VERSION = 1.34;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp.Complication1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;

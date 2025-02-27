@@ -152,6 +152,7 @@ struct CountdownEntryView: View {
                                     
                                     Text(entry.currentCity)
                                         .font(.caption)
+                                        .minimumScaleFactor(0.4)
                                 }
                                 
                                 Spacer()
