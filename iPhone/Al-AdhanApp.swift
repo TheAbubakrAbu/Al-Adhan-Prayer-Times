@@ -29,6 +29,7 @@ struct AlAdhanApp: App {
             .environmentObject(settings)
             .environmentObject(namesData)
             .accentColor(settings.accentColor.color)
+            .tint(settings.accentColor.color)
             .preferredColorScheme(settings.colorScheme)
             .transition(.opacity)
             .onAppear {

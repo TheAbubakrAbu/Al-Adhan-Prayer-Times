@@ -192,9 +192,7 @@ struct PrayerCountdown: View {
                 setupTimer()
             }
             .onChange(of: scenePhase) { newScenePhase in
-                if newScenePhase == .active {
-                    setupTimer()
-                }
+                setupTimer()
             }
             .onChange(of: progressToNextPrayer) { value in
                 if value >= 1 {

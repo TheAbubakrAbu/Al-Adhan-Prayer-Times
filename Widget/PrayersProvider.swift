@@ -32,36 +32,17 @@ struct PrayersProvider: TimelineProvider {
             }
         }
         
-        let accentColor: AccentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "colorAccent2") ?? "green") ?? .green
-        if appGroupUserDefaults?.object(forKey: "colorAccent2") == nil {
-            appGroupUserDefaults?.set("green", forKey: "colorAccent2")
-        }
-        
         var currentLocation: Location? = nil
         if let locationData = appGroupUserDefaults?.data(forKey: "currentLocation") {
             let decoder = JSONDecoder()
             currentLocation = try? decoder.decode(Location.self, from: locationData)
         }
         
+        let accentColor: AccentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "colorAccent2") ?? "green") ?? .green
         let travelingMode: Bool = appGroupUserDefaults?.bool(forKey: "travelingMode") ?? false
-        if appGroupUserDefaults?.object(forKey: "travelingMode") == nil {
-            appGroupUserDefaults?.set(false, forKey: "travelingMode")
-        }
-
         let hanafiMadhab: Bool = appGroupUserDefaults?.bool(forKey: "hanafiMadhab") ?? false
-        if appGroupUserDefaults?.object(forKey: "hanafiMadhab") == nil {
-            appGroupUserDefaults?.set(false, forKey: "hanafiMadhab")
-        }
-
         let prayerCalculation = appGroupUserDefaults?.string(forKey: "prayerCalculation") ?? "Muslim World League"
-        if appGroupUserDefaults?.object(forKey: "prayerCalculation") == nil {
-            appGroupUserDefaults?.set("Muslim World League", forKey: "prayerCalculation")
-        }
-
         let hijriOffset: Int = appGroupUserDefaults?.integer(forKey: "hijriOffset") ?? 0
-        if appGroupUserDefaults?.object(forKey: "hijriOffset") == nil {
-            appGroupUserDefaults?.set(0, forKey: "hijriOffset")
-        }
         
         if let currentLoc = currentLocation {
             settings.currentLocation = currentLoc

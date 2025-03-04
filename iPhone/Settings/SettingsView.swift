@@ -141,24 +141,6 @@ struct SettingsView: View {
     }
 }
 
-struct NotificationView: View {
-    @EnvironmentObject var settings: Settings
-    
-    var body: some View {
-        List {
-            PrayerSettingsSection(prayerName: "Fajr", preNotificationTime: $settings.preNotificationFajr, isNotificationOn: $settings.notificationFajr)
-            PrayerSettingsSection(prayerName: "Shurooq", preNotificationTime: $settings.preNotificationSunrise, isNotificationOn: $settings.notificationSunrise)
-            PrayerSettingsSection(prayerName: "Dhuhr", preNotificationTime: $settings.preNotificationDhuhr, isNotificationOn: $settings.notificationDhuhr)
-            PrayerSettingsSection(prayerName: "Asr", preNotificationTime: $settings.preNotificationAsr, isNotificationOn: $settings.notificationAsr)
-            PrayerSettingsSection(prayerName: "Maghrib", preNotificationTime: $settings.preNotificationMaghrib, isNotificationOn: $settings.notificationMaghrib)
-            PrayerSettingsSection(prayerName: "Isha", preNotificationTime: $settings.preNotificationIsha, isNotificationOn: $settings.notificationIsha)
-        }
-        .applyConditionalListStyle(defaultView: true)
-        .navigationTitle("Notification Settings")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
 let calculationOptions: [(String, String)] = [
     ("Muslim World League", "Muslim World League"),
     ("Moonsight Committee", "Moonsight Committee"),
@@ -174,7 +156,246 @@ let calculationOptions: [(String, String)] = [
     ("North America", "North America")
 ]
 
-struct PrayerSettingsSection: View {
+struct NotificationView: View {
+    @EnvironmentObject var settings: Settings
+    
+    @Environment(\.scenePhase) private var scenePhase
+    
+    @State private var showAlert: Bool = false
+    
+    private func turnOffNaggingModeIfAllOff() {
+        if !settings.naggingFajr &&
+           !settings.naggingSunrise &&
+           !settings.naggingDhuhr &&
+           !settings.naggingAsr &&
+           !settings.naggingMaghrib &&
+           !settings.naggingIsha {
+            
+            withAnimation {
+                settings.naggingMode = false
+            }
+        }
+    }
+    
+    var body: some View {
+        List {
+            Section(header: Text("NAGGING MODE")) {
+                Text("Nagging mode helps those who struggle to pray on time. Once enabled, you'll get a notification at the chosen start time before each prayer, then another every 15 minutes, plus final reminders at 10 and 5 minutes remaining.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Toggle("Turn on Nagging Mode", isOn: Binding(
+                    get: { settings.naggingMode },
+                    set: { newValue in
+                        withAnimation {
+                            settings.naggingMode = newValue
+                            
+                            if newValue {
+                                settings.notificationFajr = true
+                                settings.notificationSunrise = true
+                                settings.notificationDhuhr = true
+                                settings.notificationAsr = true
+                                settings.notificationMaghrib = true
+                                settings.notificationIsha = true
+                                
+                                settings.naggingFajr = true
+                                settings.naggingSunrise = true
+                                settings.naggingDhuhr = true
+                                settings.naggingAsr = true
+                                settings.naggingMaghrib = true
+                                settings.naggingIsha = true
+                            } else {
+                                settings.naggingFajr = false
+                                settings.naggingSunrise = false
+                                settings.naggingDhuhr = false
+                                settings.naggingAsr = false
+                                settings.naggingMaghrib = false
+                                settings.naggingIsha = false
+                            }
+                        }
+                    }
+                ).animation(.easeInOut))
+                .font(.subheadline)
+                .tint(settings.accentColor.color)
+                
+                if settings.naggingMode {
+                    Picker("Starting Time", selection: $settings.naggingStartOffset.animation(.easeInOut)) {
+                        Text("45 mins").tag(45)
+                        Text("30 mins").tag(30)
+                        Text("15 mins").tag(15)
+                        Text("10 mins").tag(10)
+                    }
+                    #if !os(watchOS)
+                    .pickerStyle(.segmented)
+                    #endif
+                    
+                    Group {
+                        Toggle("Nagging before Fajr", isOn: Binding(
+                            get: { settings.naggingFajr },
+                            set: { newValue in
+                                settings.naggingFajr = newValue
+                                turnOffNaggingModeIfAllOff()
+                            }
+                        ).animation(.easeInOut))
+                        
+                        Toggle("Nagging before Sunrise", isOn: Binding(
+                            get: { settings.naggingSunrise },
+                            set: { newValue in
+                                settings.naggingSunrise = newValue
+                                turnOffNaggingModeIfAllOff()
+                            }
+                        ).animation(.easeInOut))
+                        
+                        Toggle("Nagging before Dhuhr", isOn: Binding(
+                            get: { settings.naggingDhuhr },
+                            set: { newValue in
+                                settings.naggingDhuhr = newValue
+                                turnOffNaggingModeIfAllOff()
+                            }
+                        ).animation(.easeInOut))
+                        
+                        Toggle("Nagging before Asr", isOn: Binding(
+                            get: { settings.naggingAsr },
+                            set: { newValue in
+                                settings.naggingAsr = newValue
+                                turnOffNaggingModeIfAllOff()
+                            }
+                        ).animation(.easeInOut))
+                        
+                        Toggle("Nagging before Maghrib", isOn: Binding(
+                            get: { settings.naggingMaghrib },
+                            set: { newValue in
+                                settings.naggingMaghrib = newValue
+                                turnOffNaggingModeIfAllOff()
+                            }
+                        ).animation(.easeInOut))
+                        
+                        Toggle("Nagging before Isha", isOn: Binding(
+                            get: { settings.naggingIsha },
+                            set: { newValue in
+                                settings.naggingIsha = newValue
+                                turnOffNaggingModeIfAllOff()
+                            }
+                        ).animation(.easeInOut))
+                    }
+                    .tint(settings.accentColor.color)
+                }
+            }
+            
+            if !settings.naggingMode {
+                Section(header: Text("ALL PRAYER NOTIFICATIONS")) {
+                    Toggle("Turn On All Prayer Notifications", isOn: Binding(
+                        get: {
+                            settings.notificationFajr &&
+                            settings.notificationSunrise &&
+                            settings.notificationDhuhr &&
+                            settings.notificationAsr &&
+                            settings.notificationMaghrib &&
+                            settings.notificationIsha
+                        },
+                        set: { newValue in
+                            withAnimation {
+                                settings.notificationFajr = newValue
+                                settings.notificationSunrise = newValue
+                                settings.notificationDhuhr = newValue
+                                settings.notificationAsr = newValue
+                                settings.notificationMaghrib = newValue
+                                settings.notificationIsha = newValue
+                            }
+                        }
+                    ).animation(.easeInOut))
+                    .font(.subheadline)
+                    .tint(settings.accentColor.color)
+                    
+                    Stepper(value: Binding(
+                        get: { settings.preNotificationFajr },
+                        set: { newValue in
+                            withAnimation {
+                                settings.preNotificationFajr = newValue
+                                settings.preNotificationSunrise = newValue
+                                settings.preNotificationDhuhr = newValue
+                                settings.preNotificationAsr = newValue
+                                settings.preNotificationMaghrib = newValue
+                                settings.preNotificationIsha = newValue
+                            }
+                        }
+                    ), in: 0...30, step: 5) {
+                        Text("All Prayer Prenotifications:")
+                            .font(.subheadline)
+                        Text("\(settings.preNotificationFajr) minute\(settings.preNotificationFajr != 1 ? "s" : "")")
+                            .font(.subheadline)
+                            .foregroundColor(settings.accentColor.color)
+                    }
+                }
+            }
+            
+            if !settings.naggingMode {
+                NotificationSettingsSection(prayerName: "Fajr", preNotificationTime: $settings.preNotificationFajr, isNotificationOn: $settings.notificationFajr)
+                NotificationSettingsSection(prayerName: "Shurooq", preNotificationTime: $settings.preNotificationSunrise, isNotificationOn: $settings.notificationSunrise)
+                NotificationSettingsSection(prayerName: "Dhuhr", preNotificationTime: $settings.preNotificationDhuhr, isNotificationOn: $settings.notificationDhuhr)
+                NotificationSettingsSection(prayerName: "Asr", preNotificationTime: $settings.preNotificationAsr, isNotificationOn: $settings.notificationAsr)
+                NotificationSettingsSection(prayerName: "Maghrib", preNotificationTime: $settings.preNotificationMaghrib, isNotificationOn: $settings.notificationMaghrib)
+                NotificationSettingsSection(prayerName: "Isha", preNotificationTime: $settings.preNotificationIsha, isNotificationOn: $settings.notificationIsha)
+            } else {
+                if !settings.naggingFajr {
+                    NotificationSettingsSection(prayerName: "Fajr", preNotificationTime: $settings.preNotificationFajr, isNotificationOn: $settings.notificationFajr)
+                }
+                if !settings.naggingSunrise {
+                    NotificationSettingsSection(prayerName: "Shurooq", preNotificationTime: $settings.preNotificationSunrise, isNotificationOn: $settings.notificationSunrise)
+                }
+                if !settings.naggingDhuhr {
+                    NotificationSettingsSection(prayerName: "Dhuhr", preNotificationTime: $settings.preNotificationDhuhr, isNotificationOn: $settings.notificationDhuhr)
+                }
+                if !settings.naggingAsr {
+                    NotificationSettingsSection(prayerName: "Asr", preNotificationTime: $settings.preNotificationAsr, isNotificationOn: $settings.notificationAsr)
+                }
+                if !settings.naggingMaghrib {
+                    NotificationSettingsSection(prayerName: "Maghrib", preNotificationTime: $settings.preNotificationMaghrib, isNotificationOn: $settings.notificationMaghrib)
+                }
+                if !settings.naggingIsha {
+                    NotificationSettingsSection(prayerName: "Isha", preNotificationTime: $settings.preNotificationIsha, isNotificationOn: $settings.notificationIsha)
+                }
+            }
+        }
+        .onAppear {
+            settings.requestNotificationAuthorization()
+            settings.fetchPrayerTimes()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if settings.showNotificationAlert {
+                    showAlert = true
+                }
+            }
+        }
+        .onChange(of: scenePhase) { newScenePhase in
+            settings.requestNotificationAuthorization()
+            settings.fetchPrayerTimes()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if settings.showNotificationAlert {
+                    showAlert = true
+                }
+            }
+        }
+        .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
+            Button("Open Settings") {
+                #if !os(watchOS)
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+                #endif
+            }
+            Button("Ignore", role: .cancel) { }
+        } message: {
+            Text("Please go to Settings and enable notifications to be notified of prayer times.")
+        }
+        .applyConditionalListStyle(defaultView: true)
+        .navigationTitle("Notification Settings")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct NotificationSettingsSection: View {
     @EnvironmentObject var settings: Settings
     
     let prayerName: String
@@ -243,7 +464,7 @@ struct SettingsPrayerView: View {
                         }
                     }
                     
-                    Text("The different calculation methods calculate Fajr and Isha differently.")
+                    Text("Fajr and Isha timings vary by calculation method. If available, use location-based calculations; for example, in North America, the North America method is recommended. Otherwise, choose the Muslim World League or another global option.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 2)
@@ -254,7 +475,7 @@ struct SettingsPrayerView: View {
                         .font(.subheadline)
                         .tint(settings.accentColor.color)
                     
-                    Text("The Hanafi madhab uses later calculations for Asr.")
+                    Text("The Hanafi madhab sets Asr later than other schools. Enable this only if you follow the Hanafi method.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 2)
