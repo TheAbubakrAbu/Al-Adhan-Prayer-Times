@@ -80,32 +80,7 @@ struct SettingsView: View {
                             .multilineTextAlignment(.center)
                     }
                     .sheet(isPresented: $showingCredits) {
-                        NavigationView {
-                            VStack {
-                                Text("Credits")
-                                    .foregroundColor(settings.accentColor.color)
-                                    .font(.title)
-                                    .padding(.top, 20)
-                                    .padding(.bottom, 4)
-                                    .padding(.horizontal)
-                                
-                                CreditsView()
-                                
-                                Button(action: {
-                                    settings.hapticFeedback()
-                                    
-                                    showingCredits = false
-                                }) {
-                                    Text("Done")
-                                        .padding()
-                                        .frame(maxWidth: .infinity)
-                                        .background(settings.accentColor.color)
-                                        .foregroundColor(.primary)
-                                        .cornerRadius(10)
-                                        .padding(.horizontal, 16)
-                                }
-                            }
-                        }
+                        CreditsView()
                     }
                     #endif
                     
@@ -157,6 +132,68 @@ let calculationOptions: [(String, String)] = [
 ]
 
 struct NotificationView: View {
+    @EnvironmentObject var settings: Settings
+    
+    @Environment(\.scenePhase) private var scenePhase
+    
+    @State private var showAlert: Bool = false
+    
+    var body: some View {
+        List {
+            Section(header: Text("NOTIFICATION PREFERENCES")) {
+                VStack(alignment: .leading) {
+                    Toggle("Include English translations in prayer notifications", isOn: $settings.showNotificationEnglish.animation(.easeInOut))
+                        .font(.subheadline)
+                    
+                    Text("Prayer notifications will include English translations alongside English transliteration when enabled. For example, \"Time for Maghrib (Sunset)\" instead of \"Time for Maghrib.\"")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 2)
+                }
+            }
+            
+            NavigationLink(destination: MoreNotificationView()) {
+                Label("More Notification Settings", systemImage: "bell.fill")
+            }
+        }
+        .onAppear {
+            settings.requestNotificationAuthorization()
+            settings.fetchPrayerTimes()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if settings.showNotificationAlert {
+                    showAlert = true
+                }
+            }
+        }
+        .onChange(of: scenePhase) { _ in
+            settings.requestNotificationAuthorization()
+            settings.fetchPrayerTimes()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if settings.showNotificationAlert {
+                    showAlert = true
+                }
+            }
+        }
+        .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
+            Button("Open Settings") {
+                #if !os(watchOS)
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+                #endif
+            }
+            Button("Ignore", role: .cancel) { }
+        } message: {
+            Text("Please go to Settings and enable notifications to be notified of prayer times.")
+        }
+        .applyConditionalListStyle(defaultView: true)
+        .navigationTitle("Notification Settings")
+    }
+}
+
+struct MoreNotificationView: View {
     @EnvironmentObject var settings: Settings
     
     @Environment(\.scenePhase) private var scenePhase
@@ -367,7 +404,7 @@ struct NotificationView: View {
                 }
             }
         }
-        .onChange(of: scenePhase) { newScenePhase in
+        .onChange(of: scenePhase) { _ in
             settings.requestNotificationAuthorization()
             settings.fetchPrayerTimes()
             
@@ -391,7 +428,6 @@ struct NotificationView: View {
         }
         .applyConditionalListStyle(defaultView: true)
         .navigationTitle("Notification Settings")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -409,7 +445,6 @@ struct NotificationSettingsSection: View {
         Section(header: Text(prayerName.uppercased())) {
             Toggle("Notification", isOn: $isNotificationOn.animation(.easeInOut))
                 .font(.subheadline)
-                .tint(settings.accentColor.color)
             
             if isNotificationOn {
                 Stepper(value: $preNotificationTime.animation(.easeInOut), in: 0...30, step: 5) {
