@@ -692,15 +692,17 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
         var results = [Int]()
         var current = startOffset
         
-        while current > 15 {
-            results.append(current)
-            current -= 15
-        }
-        
-        if current == 15 {
-            results.append(15)
-        } else if current < 15 && current > 5 {
-            results.append(current)
+        if startOffset > 10 {
+            while current > 15 {
+                results.append(current)
+                current -= 15
+            }
+            
+            if current == 15 {
+                results.append(15)
+            } else if current < 15 && current > 5 {
+                results.append(current)
+            }
         }
         
         results.append(10)
@@ -948,8 +950,6 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     @AppStorage("firstLaunch") var firstLaunch = true
     
-    @AppStorage("showNotificationEnglish") var showNotificationEnglish = true
-    
     @Published var datePrayers: [Prayer]?
     @Published var dateFullPrayers: [Prayer]?
     @Published var selectedDate = Date()
@@ -968,8 +968,6 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
             colorSchemeString = colorSchemeToString(newValue)
         }
     }
-
-    @AppStorage("useSystemFontSize") var useSystemFontSize: Bool = true
     
     @AppStorage("travelAutomatic") var travelAutomatic: Bool = true
     @AppStorage("travelTurnOffAutomatic") var travelTurnOffAutomatic: Bool = false
@@ -980,6 +978,10 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     @AppStorage("locationNeverAskAgain") var locationNeverAskAgain = false
     @AppStorage("notificationNeverAskAgain") var notificationNeverAskAgain = false
+    
+    @AppStorage("showNotificationEnglish") var showNotificationEnglish = true {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
     
     @AppStorage("naggingMode") var naggingMode: Bool = false {
         didSet { self.fetchPrayerTimes(notification: true) }

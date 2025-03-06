@@ -116,19 +116,19 @@ struct SettingsView: View {
     }
 }
 
-let calculationOptions: [(String, String)] = [
-    ("Muslim World League", "Muslim World League"),
-    ("Moonsight Committee", "Moonsight Committee"),
-    ("Umm Al-Qura", "Umm Al-Qura"),
-    ("Egypt", "Egypt"),
-    ("Dubai", "Dubai"),
-    ("Kuwait", "Kuwait"),
-    ("Qatar", "Qatar"),
-    ("Turkey", "Turkey"),
-    ("Tehran", "Tehran"),
-    ("Karachi", "Karachi"),
-    ("Singapore", "Singapore"),
-    ("North America", "North America")
+let calculationOptions: [String] = [
+    "Muslim World League",
+    "Moonsight Committee",
+    "Umm Al-Qura",
+    "Egypt",
+    "Dubai",
+    "Kuwait",
+    "Qatar",
+    "Turkey",
+    "Tehran",
+    "Karachi",
+    "Singapore",
+    "North America"
 ]
 
 struct NotificationView: View {
@@ -494,8 +494,8 @@ struct SettingsPrayerView: View {
             Section(header: Text("PRAYER CALCULATION")) {
                 VStack(alignment: .leading) {
                     Picker("Calculation", selection: $settings.prayerCalculation.animation(.easeInOut)) {
-                        ForEach(calculationOptions, id: \.1) { option in
-                            Text(option.0).tag(option.1)
+                        ForEach(calculationOptions, id: \.self) { option in
+                            Text(option).tag(option)
                         }
                     }
                     
