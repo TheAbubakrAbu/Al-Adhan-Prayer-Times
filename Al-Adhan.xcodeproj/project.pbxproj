@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7205C1F02D797535001D4979 /* LockScreen3Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7205C1EE2D797535001D4979 /* LockScreen3Widget.swift */; };
+		7205C1F12D797535001D4979 /* LockScreen4Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7205C1EF2D797535001D4979 /* LockScreen4Widget.swift */; };
 		720DEC682D2456FF006EA342 /* CreditsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720DEC642D2456FF006EA342 /* CreditsView.swift */; };
 		72728C962B3D18E500FAA3B3 /* Al-AdhanApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728C952B3D18E500FAA3B3 /* Al-AdhanApp.swift */; };
 		72728C9A2B3D18E600FAA3B3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72728C992B3D18E600FAA3B3 /* Assets.xcassets */; };
@@ -40,8 +42,8 @@
 		72728CFF2B3D51B300FAA3B3 /* Widget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 72728CF02B3D51B200FAA3B3 /* Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		72728D062B3D51F800FAA3B3 /* PrayersProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728D052B3D51F800FAA3B3 /* PrayersProvider.swift */; };
 		72728D082B3D523700FAA3B3 /* CountdownWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728D072B3D523700FAA3B3 /* CountdownWidget.swift */; };
-		72728D0A2B3D524600FAA3B3 /* LockScreenWidget1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728D092B3D524600FAA3B3 /* LockScreenWidget1.swift */; };
-		72728D0C2B3D525300FAA3B3 /* LockScreenWidget2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728D0B2B3D525300FAA3B3 /* LockScreenWidget2.swift */; };
+		72728D0A2B3D524600FAA3B3 /* LockScreen1Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728D092B3D524600FAA3B3 /* LockScreen1Widget.swift */; };
+		72728D0C2B3D525300FAA3B3 /* LockScreen2Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728D0B2B3D525300FAA3B3 /* LockScreen2Widget.swift */; };
 		72728D232B3D52B900FAA3B3 /* Uthmani.otf in Resources */ = {isa = PBXBuildFile; fileRef = 72728CA32B3D191F00FAA3B3 /* Uthmani.otf */; };
 		72728D262B3D52BE00FAA3B3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72728C992B3D18E600FAA3B3 /* Assets.xcassets */; };
 		72728D282B3D52C400FAA3B3 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728CC12B3D1AA300FAA3B3 /* Settings.swift */; };
@@ -135,6 +137,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7205C1EE2D797535001D4979 /* LockScreen3Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreen3Widget.swift; sourceTree = "<group>"; };
+		7205C1EF2D797535001D4979 /* LockScreen4Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreen4Widget.swift; sourceTree = "<group>"; };
 		720DEC642D2456FF006EA342 /* CreditsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsView.swift; sourceTree = "<group>"; };
 		722A7F882D421F5F0040DC9C /* adhan-swift-main */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "adhan-swift-main"; sourceTree = "<group>"; };
 		72616D7F2D52F70D00A66C86 /* Info-Widget.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Widget.plist"; sourceTree = "<group>"; };
@@ -161,8 +165,8 @@
 		72728CF82B3D51B200FAA3B3 /* PrayersWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayersWidget.swift; sourceTree = "<group>"; };
 		72728D052B3D51F800FAA3B3 /* PrayersProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayersProvider.swift; sourceTree = "<group>"; };
 		72728D072B3D523700FAA3B3 /* CountdownWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownWidget.swift; sourceTree = "<group>"; };
-		72728D092B3D524600FAA3B3 /* LockScreenWidget1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenWidget1.swift; sourceTree = "<group>"; };
-		72728D0B2B3D525300FAA3B3 /* LockScreenWidget2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenWidget2.swift; sourceTree = "<group>"; };
+		72728D092B3D524600FAA3B3 /* LockScreen1Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreen1Widget.swift; sourceTree = "<group>"; };
+		72728D0B2B3D525300FAA3B3 /* LockScreen2Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreen2Widget.swift; sourceTree = "<group>"; };
 		72728D452B3D535600FAA3B3 /* Complication.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Complication.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		72728D492B3D535600FAA3B3 /* Complication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Complication.swift; sourceTree = "<group>"; };
 		72CCAE5F2D42CD8A00871A6A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -308,8 +312,10 @@
 				72728D052B3D51F800FAA3B3 /* PrayersProvider.swift */,
 				72728D072B3D523700FAA3B3 /* CountdownWidget.swift */,
 				72728CF82B3D51B200FAA3B3 /* PrayersWidget.swift */,
-				72728D092B3D524600FAA3B3 /* LockScreenWidget1.swift */,
-				72728D0B2B3D525300FAA3B3 /* LockScreenWidget2.swift */,
+				72728D092B3D524600FAA3B3 /* LockScreen1Widget.swift */,
+				72728D0B2B3D525300FAA3B3 /* LockScreen2Widget.swift */,
+				7205C1EE2D797535001D4979 /* LockScreen3Widget.swift */,
+				7205C1EF2D797535001D4979 /* LockScreen4Widget.swift */,
 			);
 			path = Widget;
 			sourceTree = "<group>";
@@ -609,10 +615,12 @@
 				72CCAE6D2D42CEC300871A6A /* WatchConnectivity.swift in Sources */,
 				72728CF72B3D51B200FAA3B3 /* Widgets.swift in Sources */,
 				72728D082B3D523700FAA3B3 /* CountdownWidget.swift in Sources */,
-				72728D0A2B3D524600FAA3B3 /* LockScreenWidget1.swift in Sources */,
-				72728D0C2B3D525300FAA3B3 /* LockScreenWidget2.swift in Sources */,
+				72728D0A2B3D524600FAA3B3 /* LockScreen1Widget.swift in Sources */,
+				72728D0C2B3D525300FAA3B3 /* LockScreen2Widget.swift in Sources */,
 				72728D282B3D52C400FAA3B3 /* Settings.swift in Sources */,
 				72728D062B3D51F800FAA3B3 /* PrayersProvider.swift in Sources */,
+				7205C1F02D797535001D4979 /* LockScreen3Widget.swift in Sources */,
+				7205C1F12D797535001D4979 /* LockScreen4Widget.swift in Sources */,
 				72728CF92B3D51B200FAA3B3 /* PrayersWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

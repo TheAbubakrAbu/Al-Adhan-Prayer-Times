@@ -55,6 +55,7 @@ struct PrayersProvider: TimelineProvider {
         
         if let prayersObject = settings.prayers {
             let prayers = prayersObject.prayers
+            let fullPrayers = prayersObject.fullPrayers
             let current = settings.currentPrayer
             let next = settings.nextPrayer
             
@@ -65,6 +66,7 @@ struct PrayersProvider: TimelineProvider {
                 accentColor: accentColor,
                 currentCity: currentCity,
                 prayers: prayers,
+                fullPrayers: fullPrayers,
                 currentPrayer: current,
                 nextPrayer: next,
                 hijriOffset: hijriOffset
@@ -76,6 +78,7 @@ struct PrayersProvider: TimelineProvider {
             accentColor: .green,
             currentCity: "",
             prayers: [],
+            fullPrayers: [],
             currentPrayer: nil,
             nextPrayer: nil,
             hijriOffset: 0
@@ -89,6 +92,7 @@ struct PrayersEntry: TimelineEntry {
     let currentCity: String
     
     let prayers: [Prayer]
+    let fullPrayers: [Prayer]
     let currentPrayer: Prayer?
     let nextPrayer: Prayer?
     
