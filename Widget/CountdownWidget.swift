@@ -87,9 +87,7 @@ struct CountdownEntryView: View {
                     }
                     
                     if widgetFamily == .systemSmall {
-                        VStack(alignment: .leading) {
-                            Spacer()
-                            
+                        VStack(alignment: .leading, spacing: 1) {
                             HStack {
                                 Spacer()
                                 
@@ -152,10 +150,7 @@ struct CountdownEntryView: View {
                                     
                                     Text(entry.currentCity)
                                         .font(.caption)
-                                        .minimumScaleFactor(0.4)
                                 }
-                                
-                                Spacer()
                             }
                         }
                     } else {
@@ -201,7 +196,7 @@ struct CountdownEntryView: View {
                             
                             Spacer()
                             
-                            Image("Al-Adhan")
+                            Image("Al-Islam")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 20, height: 20)

@@ -144,15 +144,10 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.appGroupUserDefaults = UserDefaults(suiteName: "group.com.IslamicPillars.AppGroup")
         
         self.accentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "colorAccent2") ?? "yellow") ?? .yellow
-        
         self.prayersData = appGroupUserDefaults?.data(forKey: "prayersData") ?? Data()
-        
         self.travelingMode = appGroupUserDefaults?.bool(forKey: "travelingMode") ?? false
-        
         self.hanafiMadhab = appGroupUserDefaults?.bool(forKey: "hanafiMadhab") ?? false
-        
         self.prayerCalculation = appGroupUserDefaults?.string(forKey: "prayerCalculation") ?? "Muslim World League"
-        
         self.hijriOffset = appGroupUserDefaults?.integer(forKey: "hijriOffset") ?? 0
         
         if let locationData = appGroupUserDefaults?.data(forKey: "currentLocation") {
@@ -297,7 +292,7 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func checkIfTraveling() {
-        guard let currentLocation = self.currentLocation, let homeLocation = self.homeLocation else { return }
+        guard self.travelAutomatic == true, let currentLocation = self.currentLocation, let homeLocation = self.homeLocation else { return }
 
         if currentLocation.latitude != 1000 && currentLocation.longitude != 1000 {
             let location = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
@@ -328,7 +323,7 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
                 }
             } else {
                 if travelingMode {
-                    print("Traveling off")
+                    print("Traveling: off")
                     withAnimation {
                         travelingMode = false
                     }
