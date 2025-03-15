@@ -38,7 +38,7 @@ struct PrayersProvider: TimelineProvider {
             currentLocation = try? decoder.decode(Location.self, from: locationData)
         }
         
-        let accentColor: AccentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "accentColor") ?? "green") ?? .green
+        let accentColor: AccentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "colorAccent2") ?? "green") ?? .green
         let travelingMode: Bool = appGroupUserDefaults?.bool(forKey: "travelingMode") ?? false
         let hanafiMadhab: Bool = appGroupUserDefaults?.bool(forKey: "hanafiMadhab") ?? false
         let prayerCalculation = appGroupUserDefaults?.string(forKey: "prayerCalculation") ?? "Muslim World League"
