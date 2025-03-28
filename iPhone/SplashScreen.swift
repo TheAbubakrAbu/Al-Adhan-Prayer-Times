@@ -6,7 +6,7 @@ struct SplashScreen: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Al-Adhan | Prayer Times is privacy-focused, ensuring that all data remains on your device. Enjoy an ad-free, subscription-free, and cost-free experience. This app is an extension of Al-Islam, which offers all the features of Al-Adhan plus additional functionalities, including Quran and Arabic Beginner Mode.")
+                Text("Al-Adhan is privacy-focused, ensuring that all data remains on your device. Enjoy an ad-free, subscription-free, and cost-free experience. This app is an extension of Al-Islam, which offers all the features of Al-Adhan plus additional functionalities, including Quran and Arabic Beginner Mode.")
                     .font(.title3)
                     .foregroundColor(.primary)
                     .multilineTextAlignment(.leading)

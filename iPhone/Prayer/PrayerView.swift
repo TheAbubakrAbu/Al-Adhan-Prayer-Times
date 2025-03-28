@@ -176,10 +176,8 @@ struct PrayerView: View {
             .onChange(of: scenePhase) { newScenePhase in
                 prayerTimeRefresh(force: false)
             }
-            #if os(watchOS)
             .navigationTitle("Al-Adhan")
-            #else
-            .navigationTitle("Al-Adhan | Prayer Times")
+            #if !os(watchOS)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Menu {

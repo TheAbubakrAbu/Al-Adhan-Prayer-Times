@@ -15,16 +15,7 @@ struct SettingsView: View {
                     }
                     .accentColor(settings.accentColor.color)
                 }
-                #endif
                 
-                Section(header: Text("AL-ADHAN")) {
-                    NavigationLink(destination: SettingsPrayerView(showNotifications: false)) {
-                        Label("Prayer Settings", systemImage: "safari")
-                    }
-                    .accentColor(settings.accentColor.color)
-                }
-                
-                #if !os(watchOS)
                 Section(header: Text("MANUAL OFFSETS")) {
                     NavigationLink(destination: {
                         List {
@@ -57,6 +48,13 @@ struct SettingsView: View {
                     .accentColor(settings.accentColor.color)
                 }
                 #endif
+                
+                Section(header: Text("AL-ADHAN")) {
+                    NavigationLink(destination: SettingsPrayerView(showNotifications: false)) {
+                        Label("Prayer Settings", systemImage: "safari")
+                    }
+                    .accentColor(settings.accentColor.color)
+                }
                 
                 Section(header: Text("APPEARANCE")) {
                     SettingsAppearanceView()
@@ -96,12 +94,24 @@ struct SettingsView: View {
                         }
                     }) {
                         HStack {
-                            Image(systemName: "rectangle.and.pencil.and.ellipsis.rtl")
+                            Image(systemName: "star.bubble.fill")
                             
                             Text("Leave a Review")
                         }
                         .font(.subheadline)
                         .foregroundColor(settings.accentColor.color)
+                    }
+                    .contextMenu {
+                        Button(action: {
+                            settings.hapticFeedback()
+                            
+                            UIPasteboard.general.string = "itms-apps://itunes.apple.com/app/id6475015493?action=write-review"
+                        }) {
+                            HStack {
+                                Image(systemName: "doc.on.doc")
+                                Text("Copy Website")
+                            }
+                        }
                     }
                     #endif
                     

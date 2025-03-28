@@ -9,7 +9,7 @@ I was a **17-year-old** in high school when this app was published on the App St
 [**Download Al-Adhan on the App Store here**](https://apps.apple.com/us/app/al-adhan-prayer-times/id6475015493?platform=iphone)
 
 ## Overview
-Al-Adhan | Prayer Times is a feature-rich and easy-to-use app designed to help Muslims stay on top of their daily prayers. Whether at home, traveling, or exploring new places, Al-Adhan ensures you never miss a prayer while providing a seamless and customizable experience.
+Al-Adhan is a feature-rich and easy-to-use app designed to help Muslims stay on top of their daily prayers. Whether at home, traveling, or exploring new places, Al-Adhan ensures you never miss a prayer while providing a seamless and customizable experience.
 
 ## Unique Features
 - **Traveling Mode** – Automatically activates when you're over 48 miles (77 km) from home or can be manually enabled. Adjust prayer calculations, Hanafi madhab, and prayer offsets to match your practice.

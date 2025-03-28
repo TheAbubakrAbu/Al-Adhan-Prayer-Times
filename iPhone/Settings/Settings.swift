@@ -312,7 +312,7 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
                         
                         #if !os(watchOS)
                         let content = UNMutableNotificationContent()
-                        content.title = "Al-Adhan | Prayer Times"
+                        content.title = "Al-Adhan"
                         content.body = "Traveling mode automatically turned on at \(currentLocation.city)"
                         content.sound = UNNotificationSound.default
                         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -333,7 +333,7 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
                         
                         #if !os(watchOS)
                         let content = UNMutableNotificationContent()
-                        content.title = "Al-Adhan | Prayer Times"
+                        content.title = "Al-Adhan"
                         content.body = "Traveling mode automatically turned off at \(currentLocation.city)"
                         content.sound = UNNotificationSound.default
                         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -709,7 +709,7 @@ class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     func scheduleNotification(for prayerTime: Prayer, preNotificationTime: Int?, city: String) {
         let center = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
-        content.title = "Al-Adhan | Prayer Times"
+        content.title = "Al-Adhan"
         
         let triggerTime: Date
         if let preNotificationTime = preNotificationTime, preNotificationTime != 0 {

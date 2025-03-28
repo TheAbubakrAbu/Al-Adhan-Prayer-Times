@@ -9,7 +9,7 @@ struct CreditsView: View {
                 VStack(alignment: .center) {
                     HStack {
                         Spacer()
-                        Text("Al-Adhan | Prayer Times was created by Abubakr Elmallah (أبوبكر الملاح), who was a 17-year-old high school student when this app was published on December 31, 2023.")
+                        Text("Al-Adhan was created by Abubakr Elmallah (أبوبكر الملاح), who was a 17-year-old high school student when this app was published on December 31, 2023.")
                             .font(.headline)
                             .padding(.vertical, 4)
                             .multilineTextAlignment(.center)
@@ -60,7 +60,7 @@ struct CreditsView: View {
                 }
                 
                 Section {
-                    Text("Version 1.3.8")
+                    Text("Version 1.4")
                         .font(.caption)
                 }
                 
