@@ -1,21 +1,72 @@
 import SwiftUI
 
+struct AdhkarRow: View {
+    @EnvironmentObject var settings: Settings
+    
+    let arabicText: String
+    let transliteration: String
+    let translation: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Spacer()
+                
+                Text(arabicText)
+                    .font(.headline)
+                    .foregroundColor(settings.accentColor.color)
+                    .multilineTextAlignment(.trailing)
+            }
+            
+            Text(transliteration)
+                .font(.subheadline)
+            Text(translation)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        #if !os(watchOS)
+        .contextMenu {
+            Button(action: {
+                UIPasteboard.general.string = arabicText
+                settings.hapticFeedback()
+            }) {
+                Label("Copy Arabic", systemImage: "doc.on.doc")
+            }
+            
+            Button(action: {
+                UIPasteboard.general.string = transliteration
+                settings.hapticFeedback()
+            }) {
+                Label("Copy Transliteration", systemImage: "doc.on.doc")
+            }
+            
+            Button(action: {
+                UIPasteboard.general.string = translation
+                settings.hapticFeedback()
+            }) {
+                Label("Copy Translation", systemImage: "doc.on.doc")
+            }
+        }
+        #endif
+    }
+}
+
 struct AdhkarView: View {
     @EnvironmentObject var settings: Settings
     
     var body: some View {
         List {
             Section(header: Text("REMEMBRANCES OF ALLAH")) {
-                AdhkarRow(arabicText: "سبحان الله", transliteration: "SubhanAllah", translation: "Glory be to Allah")
-                AdhkarRow(arabicText: "الحمد لله", transliteration: "Alhamdulillah", translation: "Praise be to Allah")
-                AdhkarRow(arabicText: "الله أكبر", transliteration: "Allahu Akbar", translation: "Allah is the Greatest")
-                AdhkarRow(arabicText: "لا إله إلا الله", transliteration: "La ilaha illallah", translation: "There is no deity worthy of worship except Allah")
-                AdhkarRow(arabicText: "أستغفر الله", transliteration: "Astaghfirullah", translation: "I seek forgiveness from Allah")
-                AdhkarRow(arabicText: "لا حول ولا قوة إلا بالله", transliteration: "La hawla wala quwwata illa billah", translation: "There is no power or might except with Allah")
-                AdhkarRow(arabicText: "الحمد لله رب العالمين", transliteration: "Alhamdulillahi rabbil 'alamin", translation: "Praise be to Allah, the Lord of all the worlds")
-                AdhkarRow(arabicText: "سبحان الله وبحمده", transliteration: "SubhanAllahi wa bihamdihi", translation: "Glory be to Allah and praise be to Him")
-                AdhkarRow(arabicText: "اللهم صل على محمد وعلى آل محمد", transliteration: "Allahumma salli 'ala Muhammad wa 'ala ali Muhammad", translation: "O Allah, send blessings upon Muhammad and his family")
-                AdhkarRow(arabicText: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، وهو على كل شيء قدير", transliteration: "La ilaha illallah wahdahu la sharika lah, lahul-mulk wa lahul-hamd, wa huwa 'ala kulli shayin qadir", translation: "There is no deity worthy of worship except Allah, alone, without any partner. His is the sovereignty and His is the praise, and He is capable of all things")
+                AdhkarRow(arabicText: "سُبْحَانَ اللَّهِ", transliteration: "SubhanAllah", translation: "Glory be to Allah")
+                AdhkarRow(arabicText: "ٱلْـحَمْدُ لِلَّهِ", transliteration: "Alhamdulillah", translation: "Praise be to Allah")
+                AdhkarRow(arabicText: "اللَّهُ أَكْبَرُ", transliteration: "Allahu Akbar", translation: "Allah is the Greatest")
+                AdhkarRow(arabicText: "لَا إِلَٰهَ إِلَّا اللَّهُ", transliteration: "La ilaha illallah", translation: "There is no deity worthy of worship except Allah")
+                AdhkarRow(arabicText: "أَسْتَغْفِرُ اللَّهَ", transliteration: "Astaghfirullah", translation: "I seek forgiveness from Allah")
+                AdhkarRow(arabicText: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", transliteration: "La hawla wala quwwata illa billah", translation: "There is no power or might except with Allah")
+                AdhkarRow(arabicText: "ٱلْـحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ", transliteration: "Alhamdulillahi rabbil 'alamin", translation: "Praise be to Allah, the Lord of all the worlds")
+                AdhkarRow(arabicText: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ", transliteration: "SubhanAllahi wa bihamdihi, SubhanAllahil Adheem", translation: "Glory be to Allah and praise be to Him; Glory be to Allah, the Most Great")
+                AdhkarRow(arabicText: "اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ", transliteration: "Allahumma salli 'ala Muhammad wa 'ala ali Muhammad", translation: "O Allah, send blessings upon Muhammad and his family")
+                AdhkarRow(arabicText: "لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ ٱلْمُلْكُ وَلَهُ ٱلْـحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", transliteration: "La ilaha illallah wahdahu la sharika lah, lahul-mulk wa lahul-hamd, wa huwa 'ala kulli shayin qadir", translation: "There is no deity worthy of worship except Allah, alone, without any partner. His is the sovereignty and His is the praise, and He is capable of all things")
             }
         }
         .applyConditionalListStyle(defaultView: true)
@@ -48,55 +99,16 @@ struct DuaView: View {
                 AdhkarRow(arabicText: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَجْزِ وَالْكَسَلِ وَالْجُبْنِ وَالْهَرَمِ وَالْبُخْلِ وَأَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ", transliteration: "Allahumma inni a'udhu bika min al-'ajzi wal-kasali wal-jubni wal-harami wal-bukhli, wa a'udhu bika min 'adhab al-qabr, wa min fitnat al-mahya wal-mamat", translation: "O Allah, I seek refuge in You from weakness and laziness, miserliness and cowardice, the burden of debts and from being overpowered by men. I seek refuge in You from the punishment of the grave and from the trials and tribulations of life and death.")
                 
                 AdhkarRow(arabicText: "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا", transliteration: "Allahumma inni as'aluka 'ilman nafi'an, wa rizqan tayyiban, wa 'amalan mutaqabbalan", translation: "O Allah, I ask You for knowledge that is of benefit, a good provision, and deeds that will be accepted.")
+                
+                AdhkarRow(
+                    arabicText: "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+                    transliteration: "Allahu la ilaha illa Huwa, Al-Hayyul-Qayyum. La ta’khudhuhu sinatun wa la nawm. Lahu ma fi as-samawati wa ma fi al-ard. Man dha allathee yashfa'u 'indahu illa bi-idhnihi? Ya’lamu ma bayna aydihim wa ma khalfahum, wa la yuhituna bishay’in min ‘ilmihi illa bima sha’. Wasi’a kursiyyuhu as-samawati wal-ard, wa la ya’uduhu hifzuhuma, wa Huwal ‘Aliyyul-‘Azim.",
+                    translation: "Allah! There is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great."
+                )
             }
         }
         .applyConditionalListStyle(defaultView: true)
         .navigationTitle("Common Duas")
-    }
-}
-
-struct AdhkarRow: View {
-    @EnvironmentObject var settings: Settings
-    
-    let arabicText: String
-    let transliteration: String
-    let translation: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(arabicText)
-                .font(.headline)
-                .foregroundColor(settings.accentColor.color)
-            Text(transliteration)
-                .font(.subheadline)
-            Text(translation)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        #if !os(watchOS)
-        .contextMenu {
-            Button(action: {
-                UIPasteboard.general.string = arabicText
-                settings.hapticFeedback()
-            }) {
-                Label("Copy Arabic", systemImage: "doc.on.doc")
-            }
-            
-            Button(action: {
-                UIPasteboard.general.string = transliteration
-                settings.hapticFeedback()
-            }) {
-                Label("Copy Transliteration", systemImage: "doc.on.doc")
-            }
-            
-            Button(action: {
-                UIPasteboard.general.string = translation
-                settings.hapticFeedback()
-            }) {
-                Label("Copy Translation", systemImage: "doc.on.doc")
-            }
-        }
-        #endif
     }
 }
 
