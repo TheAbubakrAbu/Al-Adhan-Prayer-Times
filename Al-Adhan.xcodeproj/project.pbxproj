@@ -9,7 +9,19 @@
 /* Begin PBXBuildFile section */
 		7205C1F02D797535001D4979 /* LockScreen3Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7205C1EE2D797535001D4979 /* LockScreen3Widget.swift */; };
 		7205C1F12D797535001D4979 /* LockScreen4Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7205C1EF2D797535001D4979 /* LockScreen4Widget.swift */; };
+		720CCE432E3960BB002DD82E /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720CCE422E3960BB002DD82E /* Globals.swift */; };
+		720CCE442E3960BB002DD82E /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720CCE422E3960BB002DD82E /* Globals.swift */; };
+		720CCE452E3960BB002DD82E /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720CCE422E3960BB002DD82E /* Globals.swift */; };
+		720CCE462E3960BB002DD82E /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720CCE422E3960BB002DD82E /* Globals.swift */; };
 		720DEC682D2456FF006EA342 /* CreditsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720DEC642D2456FF006EA342 /* CreditsView.swift */; };
+		72657D462E3EB6C700D8F41B /* ArabicLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D452E3EB6C700D8F41B /* ArabicLetterView.swift */; };
+		72657D472E3EB6C700D8F41B /* Arabic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D432E3EB6C700D8F41B /* Arabic.swift */; };
+		72657D482E3EB6C700D8F41B /* ArabicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D442E3EB6C700D8F41B /* ArabicView.swift */; };
+		72657D492E3EB6C700D8F41B /* ArabicLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D452E3EB6C700D8F41B /* ArabicLetterView.swift */; };
+		72657D4A2E3EB6C700D8F41B /* Arabic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D432E3EB6C700D8F41B /* Arabic.swift */; };
+		72657D4B2E3EB6C700D8F41B /* ArabicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D442E3EB6C700D8F41B /* ArabicView.swift */; };
+		72657D4C2E3EB6D200D8F41B /* Arabic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D432E3EB6C700D8F41B /* Arabic.swift */; };
+		72657D4D2E3EB6D200D8F41B /* Arabic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72657D432E3EB6C700D8F41B /* Arabic.swift */; };
 		72728C962B3D18E500FAA3B3 /* Al-AdhanApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728C952B3D18E500FAA3B3 /* Al-AdhanApp.swift */; };
 		72728C9A2B3D18E600FAA3B3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72728C992B3D18E600FAA3B3 /* Assets.xcassets */; };
 		72728CA42B3D191F00FAA3B3 /* Uthmani.otf in Resources */ = {isa = PBXBuildFile; fileRef = 72728CA32B3D191F00FAA3B3 /* Uthmani.otf */; };
@@ -53,6 +65,9 @@
 		72728D582B3D538400FAA3B3 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728CC12B3D1AA300FAA3B3 /* Settings.swift */; };
 		72728D592B3D538800FAA3B3 /* Uthmani.otf in Resources */ = {isa = PBXBuildFile; fileRef = 72728CA32B3D191F00FAA3B3 /* Uthmani.otf */; };
 		72728D5A2B3D538B00FAA3B3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72728C992B3D18E600FAA3B3 /* Assets.xcassets */; };
+		72827EAF2E3D70EC00EBA534 /* AdhanSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72827EAE2E3D70EC00EBA534 /* AdhanSettingsView.swift */; };
+		72827EB02E3D70EC00EBA534 /* AdhanSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72827EAE2E3D70EC00EBA534 /* AdhanSettingsView.swift */; };
+		72BC6B242E2B9D9300ACD832 /* OtherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72728CEA2B3D209E00FAA3B3 /* OtherView.swift */; };
 		72C30E8D2BCC648400F54570 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = 72C30E8C2BCC648400F54570 /* Adhan */; };
 		72C30E8F2BCC649400F54570 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = 72C30E8E2BCC649400F54570 /* Adhan */; };
 		72C30E912BCC649C00F54570 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = 72C30E902BCC649C00F54570 /* Adhan */; };
@@ -67,12 +82,6 @@
 		72CCAE6C2D42CEC300871A6A /* WatchConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE6A2D42CEC300871A6A /* WatchConnectivity.swift */; };
 		72CCAE6D2D42CEC300871A6A /* WatchConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE6A2D42CEC300871A6A /* WatchConnectivity.swift */; };
 		72CCAE6E2D42CEC300871A6A /* WatchConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE6A2D42CEC300871A6A /* WatchConnectivity.swift */; };
-		72CCAE732D42CFE700871A6A /* Arabic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE6F2D42CFE700871A6A /* Arabic.swift */; };
-		72CCAE742D42CFE700871A6A /* ArabicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE702D42CFE700871A6A /* ArabicView.swift */; };
-		72CCAE752D42CFE700871A6A /* ArabicLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE712D42CFE700871A6A /* ArabicLetterView.swift */; };
-		72CCAE762D42CFE700871A6A /* Arabic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE6F2D42CFE700871A6A /* Arabic.swift */; };
-		72CCAE772D42CFE700871A6A /* ArabicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE702D42CFE700871A6A /* ArabicView.swift */; };
-		72CCAE782D42CFE700871A6A /* ArabicLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE712D42CFE700871A6A /* ArabicLetterView.swift */; };
 		72D0BCCB2D7AE99600B7E4F5 /* Prayers2Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D0BCCA2D7AE99600B7E4F5 /* Prayers2Widget.swift */; };
 		72F969872D701C520046661E /* DismissKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE672D42CE2B00871A6A /* DismissKeyboard.swift */; };
 		72F969882D701C550046661E /* ConditionalStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CCAE632D42CDEB00871A6A /* ConditionalStyle.swift */; };
@@ -141,9 +150,13 @@
 /* Begin PBXFileReference section */
 		7205C1EE2D797535001D4979 /* LockScreen3Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreen3Widget.swift; sourceTree = "<group>"; };
 		7205C1EF2D797535001D4979 /* LockScreen4Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreen4Widget.swift; sourceTree = "<group>"; };
+		720CCE422E3960BB002DD82E /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		720DEC642D2456FF006EA342 /* CreditsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsView.swift; sourceTree = "<group>"; };
 		722A7F882D421F5F0040DC9C /* adhan-swift-main */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "adhan-swift-main"; sourceTree = "<group>"; };
 		72616D7F2D52F70D00A66C86 /* Info-Widget.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Widget.plist"; sourceTree = "<group>"; };
+		72657D432E3EB6C700D8F41B /* Arabic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arabic.swift; sourceTree = "<group>"; };
+		72657D442E3EB6C700D8F41B /* ArabicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicView.swift; sourceTree = "<group>"; };
+		72657D452E3EB6C700D8F41B /* ArabicLetterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicLetterView.swift; sourceTree = "<group>"; };
 		72728C922B3D18E500FAA3B3 /* iPhone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iPhone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72728C952B3D18E500FAA3B3 /* Al-AdhanApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Al-AdhanApp.swift"; sourceTree = "<group>"; };
 		72728C992B3D18E600FAA3B3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -171,6 +184,8 @@
 		72728D0B2B3D525300FAA3B3 /* LockScreen2Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreen2Widget.swift; sourceTree = "<group>"; };
 		72728D452B3D535600FAA3B3 /* Complication.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Complication.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		72728D492B3D535600FAA3B3 /* Complication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Complication.swift; sourceTree = "<group>"; };
+		72827EAE2E3D70EC00EBA534 /* AdhanSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdhanSettingsView.swift; sourceTree = "<group>"; };
+		72BC6B2F2E2D787D00ACD832 /* Logo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Logo.jpg; sourceTree = "<group>"; };
 		72C7DD772D79AA0C00FC6058 /* SimpleWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleWidget.swift; sourceTree = "<group>"; };
 		72CCAE5F2D42CD8A00871A6A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		72CCAE612D42CDAD00871A6A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -178,9 +193,6 @@
 		72CCAE652D42CE0000871A6A /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		72CCAE672D42CE2B00871A6A /* DismissKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissKeyboard.swift; sourceTree = "<group>"; };
 		72CCAE6A2D42CEC300871A6A /* WatchConnectivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivity.swift; sourceTree = "<group>"; };
-		72CCAE6F2D42CFE700871A6A /* Arabic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arabic.swift; sourceTree = "<group>"; };
-		72CCAE702D42CFE700871A6A /* ArabicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicView.swift; sourceTree = "<group>"; };
-		72CCAE712D42CFE700871A6A /* ArabicLetterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicLetterView.swift; sourceTree = "<group>"; };
 		72CCAE892D42D55B00871A6A /* Info-Main.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Main.plist"; sourceTree = "<group>"; };
 		72CCAE8E2D42D86A00871A6A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		72D0BCCA2D7AE99600B7E4F5 /* Prayers2Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prayers2Widget.swift; sourceTree = "<group>"; };
@@ -258,6 +270,7 @@
 			isa = PBXGroup;
 			children = (
 				72728C952B3D18E500FAA3B3 /* Al-AdhanApp.swift */,
+				72CCAE612D42CDAD00871A6A /* AppDelegate.swift */,
 				72728CB02B3D19CF00FAA3B3 /* LaunchScreen.swift */,
 				72728CAF2B3D19CF00FAA3B3 /* SplashScreen.swift */,
 				72CCAE5F2D42CD8A00871A6A /* MapView.swift */,
@@ -272,8 +285,9 @@
 		72728CA82B3D198300FAA3B3 /* Other */ = {
 			isa = PBXGroup;
 			children = (
-				72CCAE722D42CFE700871A6A /* Arabic */,
+				72728CEA2B3D209E00FAA3B3 /* OtherView.swift */,
 				72728CAA2B3D198300FAA3B3 /* ToolsView.swift */,
+				72CCAE722D42CFE700871A6A /* Arabic */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -293,8 +307,10 @@
 			isa = PBXGroup;
 			children = (
 				72728CBF2B3D1AA000FAA3B3 /* SettingsView.swift */,
+				72827EAE2E3D70EC00EBA534 /* AdhanSettingsView.swift */,
 				720DEC642D2456FF006EA342 /* CreditsView.swift */,
 				72728CC12B3D1AA300FAA3B3 /* Settings.swift */,
+				720CCE422E3960BB002DD82E /* Globals.swift */,
 				72CCAE6A2D42CEC300871A6A /* WatchConnectivity.swift */,
 			);
 			path = Settings;
@@ -304,7 +320,6 @@
 			isa = PBXGroup;
 			children = (
 				72728CC92B3D1FF900FAA3B3 /* Al-AdhanApp.swift */,
-				72728CEA2B3D209E00FAA3B3 /* OtherView.swift */,
 			);
 			path = "Apple Watch";
 			sourceTree = "<group>";
@@ -345,7 +360,6 @@
 		72CCAE692D42CE4800871A6A /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				72CCAE612D42CDAD00871A6A /* AppDelegate.swift */,
 				72CCAE672D42CE2B00871A6A /* DismissKeyboard.swift */,
 				72CCAE632D42CDEB00871A6A /* ConditionalStyle.swift */,
 				72CCAE652D42CE0000871A6A /* SearchBar.swift */,
@@ -356,9 +370,9 @@
 		72CCAE722D42CFE700871A6A /* Arabic */ = {
 			isa = PBXGroup;
 			children = (
-				72CCAE6F2D42CFE700871A6A /* Arabic.swift */,
-				72CCAE702D42CFE700871A6A /* ArabicView.swift */,
-				72CCAE712D42CFE700871A6A /* ArabicLetterView.swift */,
+				72657D432E3EB6C700D8F41B /* Arabic.swift */,
+				72657D442E3EB6C700D8F41B /* ArabicView.swift */,
+				72657D452E3EB6C700D8F41B /* ArabicLetterView.swift */,
 			);
 			path = Arabic;
 			sourceTree = "<group>";
@@ -370,6 +384,7 @@
 				72CCAE892D42D55B00871A6A /* Info-Main.plist */,
 				72616D7F2D52F70D00A66C86 /* Info-Widget.plist */,
 				72728C992B3D18E600FAA3B3 /* Assets.xcassets */,
+				72BC6B2F2E2D787D00ACD832 /* Logo.jpg */,
 				72F1EA402D421CC7008F6FBE /* Fonts */,
 				72CCAE5E2D42213700871A6A /* JSONs */,
 				722A7F862D421F3E0040DC9C /* Packages */,
@@ -482,7 +497,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					72728C912B3D18E500FAA3B3 = {
 						CreatedOnToolsVersion = 15.1;
@@ -575,19 +590,22 @@
 				72728CB42B3D19EE00FAA3B3 /* PrayerView.swift in Sources */,
 				72CCAE662D42CE0000871A6A /* SearchBar.swift in Sources */,
 				72CCAE622D42CDAD00871A6A /* AppDelegate.swift in Sources */,
+				72827EAF2E3D70EC00EBA534 /* AdhanSettingsView.swift in Sources */,
 				72CCAE602D42CD8A00871A6A /* MapView.swift in Sources */,
+				72657D492E3EB6C700D8F41B /* ArabicLetterView.swift in Sources */,
+				72657D4A2E3EB6C700D8F41B /* Arabic.swift in Sources */,
+				72657D4B2E3EB6C700D8F41B /* ArabicView.swift in Sources */,
 				72728CAD2B3D198300FAA3B3 /* ToolsView.swift in Sources */,
 				72728CC02B3D1AA000FAA3B3 /* SettingsView.swift in Sources */,
 				72728CBB2B3D1A7A00FAA3B3 /* PrayerCountdown.swift in Sources */,
+				72BC6B242E2B9D9300ACD832 /* OtherView.swift in Sources */,
 				72CCAE682D42CE2B00871A6A /* DismissKeyboard.swift in Sources */,
+				720CCE452E3960BB002DD82E /* Globals.swift in Sources */,
 				72CCAE6E2D42CEC300871A6A /* WatchConnectivity.swift in Sources */,
 				72728CB22B3D19CF00FAA3B3 /* LaunchScreen.swift in Sources */,
 				720DEC682D2456FF006EA342 /* CreditsView.swift in Sources */,
 				72728CC22B3D1AA300FAA3B3 /* Settings.swift in Sources */,
 				72728C962B3D18E500FAA3B3 /* Al-AdhanApp.swift in Sources */,
-				72CCAE762D42CFE700871A6A /* Arabic.swift in Sources */,
-				72CCAE772D42CFE700871A6A /* ArabicView.swift in Sources */,
-				72CCAE782D42CFE700871A6A /* ArabicLetterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -598,6 +616,8 @@
 				72CCAE6C2D42CEC300871A6A /* WatchConnectivity.swift in Sources */,
 				72728CE42B3D204C00FAA3B3 /* PrayerList.swift in Sources */,
 				72728CE22B3D204C00FAA3B3 /* PrayerCountdown.swift in Sources */,
+				72827EB02E3D70EC00EBA534 /* AdhanSettingsView.swift in Sources */,
+				720CCE462E3960BB002DD82E /* Globals.swift in Sources */,
 				72728CE72B3D204F00FAA3B3 /* ToolsView.swift in Sources */,
 				72728CE82B3D205200FAA3B3 /* Settings.swift in Sources */,
 				72728CEB2B3D209E00FAA3B3 /* OtherView.swift in Sources */,
@@ -607,10 +627,10 @@
 				72728CE32B3D204C00FAA3B3 /* QiblaView.swift in Sources */,
 				72728CDE2B3D204200FAA3B3 /* LaunchScreen.swift in Sources */,
 				72728CE92B3D205200FAA3B3 /* SettingsView.swift in Sources */,
-				72CCAE732D42CFE700871A6A /* Arabic.swift in Sources */,
-				72CCAE742D42CFE700871A6A /* ArabicView.swift in Sources */,
-				72CCAE752D42CFE700871A6A /* ArabicLetterView.swift in Sources */,
 				72F969872D701C520046661E /* DismissKeyboard.swift in Sources */,
+				72657D462E3EB6C700D8F41B /* ArabicLetterView.swift in Sources */,
+				72657D472E3EB6C700D8F41B /* Arabic.swift in Sources */,
+				72657D482E3EB6C700D8F41B /* ArabicView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -625,10 +645,12 @@
 				72728D0A2B3D524600FAA3B3 /* LockScreen1Widget.swift in Sources */,
 				72728D0C2B3D525300FAA3B3 /* LockScreen2Widget.swift in Sources */,
 				72728D282B3D52C400FAA3B3 /* Settings.swift in Sources */,
+				72657D4C2E3EB6D200D8F41B /* Arabic.swift in Sources */,
 				72D0BCCB2D7AE99600B7E4F5 /* Prayers2Widget.swift in Sources */,
 				72728D062B3D51F800FAA3B3 /* PrayersProvider.swift in Sources */,
 				7205C1F02D797535001D4979 /* LockScreen3Widget.swift in Sources */,
 				7205C1F12D797535001D4979 /* LockScreen4Widget.swift in Sources */,
+				720CCE432E3960BB002DD82E /* Globals.swift in Sources */,
 				72728CF92B3D51B200FAA3B3 /* PrayersWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -638,7 +660,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				72CCAE6B2D42CEC300871A6A /* WatchConnectivity.swift in Sources */,
+				72657D4D2E3EB6D200D8F41B /* Arabic.swift in Sources */,
 				72728D582B3D538400FAA3B3 /* Settings.swift in Sources */,
+				720CCE442E3960BB002DD82E /* Globals.swift in Sources */,
 				72728D4A2B3D535600FAA3B3 /* Complication.swift in Sources */,
 				72728D572B3D538100FAA3B3 /* PrayersProvider.swift in Sources */,
 			);
@@ -701,6 +725,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -767,6 +792,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -798,15 +824,15 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Main.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Used to save wallpapers you choose to your Photo Library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -817,7 +843,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -834,15 +860,15 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Main.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Used to save wallpapers you choose to your Photo Library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -853,7 +879,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -870,14 +896,13 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Main.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "com.Quran.Elmallah.Prayer-Times";
 				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
@@ -885,7 +910,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp";
 				PRODUCT_NAME = "Al-Adhan";
 				SDKROOT = watchos;
@@ -905,14 +930,13 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Main.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is needed to accurately determine prayer times (no data leaves your device)";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Needed to accurately determine prayer times based on where you are (your location stays on your device).";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "com.Quran.Elmallah.Prayer-Times";
 				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
@@ -920,7 +944,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp";
 				PRODUCT_NAME = "Al-Adhan";
 				SDKROOT = watchos;
@@ -940,7 +964,6 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Widget.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
@@ -951,7 +974,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -969,7 +992,6 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Widget.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
@@ -980,7 +1002,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -998,7 +1020,6 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Widget.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
@@ -1009,7 +1030,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp.Complication1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1029,7 +1050,6 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8HQMC4MQ59;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Resources/Info-Widget.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Al-Adhan";
@@ -1040,7 +1060,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.400;
+				MARKETING_VERSION = 1.410;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp.Complication1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;

@@ -20,27 +20,22 @@ struct PrayerView: View {
         }
     }
     
-    @State private var showingArabicSheet = false
-    @State private var showingAdhkarSheet = false
-    @State private var showingDuaSheet = false
-    @State private var showingTasbihSheet = false
-    @State private var showingNamesSheet = false
-    @State private var showingDateSheet = false
     @State private var showingSettingsSheet = false
     
     func prayerTimeRefresh(force: Bool) {
-        settings.requestNotificationAuthorization()
-        settings.fetchPrayerTimes(force: force)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            if settings.travelTurnOnAutomatic {
-                showAlert = .travelTurnOnAutomatic
-            } else if settings.travelTurnOffAutomatic {
-                showAlert = .travelTurnOffAutomatic
-            } else if !settings.locationNeverAskAgain && settings.showLocationAlert {
-                showAlert = .locationAlert
-            } else if !settings.notificationNeverAskAgain && settings.showNotificationAlert {
-                showAlert = .notificationAlert
+        settings.requestNotificationAuthorization {
+            settings.fetchPrayerTimes(force: force) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    if settings.travelTurnOnAutomatic {
+                        showAlert = .travelTurnOnAutomatic
+                    } else if settings.travelTurnOffAutomatic {
+                        showAlert = .travelTurnOffAutomatic
+                    } else if !settings.locationNeverAskAgain && settings.showLocationAlert {
+                        showAlert = .locationAlert
+                    } else if !settings.notificationNeverAskAgain && settings.showNotificationAlert {
+                        showAlert = .notificationAlert
+                    }
+                }
             }
         }
     }
@@ -179,55 +174,6 @@ struct PrayerView: View {
             .navigationTitle("Al-Adhan")
             #if !os(watchOS)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Menu {
-                        Button(action: {
-                            showingArabicSheet = true
-                        }) {
-                            Image(systemName: "textformat.size.ar")
-                            Text("Arabic Alphabet")
-                        }
-                        
-                        Button(action: {
-                            showingAdhkarSheet = true
-                        }) {
-                            Image(systemName: "book.closed")
-                            Text("Common Adhkar")
-                        }
-                        
-                        Button(action: {
-                            showingDuaSheet = true
-                        }) {
-                            Image(systemName: "text.book.closed")
-                            Text("Common Duas")
-                        }
-                        
-                        Button(action: {
-                            showingTasbihSheet = true
-                        }) {
-                            Image(systemName: "circles.hexagonpath.fill")
-                            Text("Tasbih Counter")
-                        }
-                        
-                        Button(action: {
-                            showingNamesSheet = true
-                        }) {
-                            Image(systemName: "signature")
-                            Text("99 Names of Allah")
-                        }
-                        
-                        Button(action: {
-                            showingDateSheet = true
-                        }) {
-                            Image(systemName: "calendar")
-                            Text("Hijri Calendar Converter")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                    }
-                    .padding(.leading, settings.defaultView ? 6 : 0)
-                }
-
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         settings.hapticFeedback()
@@ -239,48 +185,10 @@ struct PrayerView: View {
                     .padding(.trailing, settings.defaultView ? 6 : 0)
                 }
             }
-            .sheet(isPresented: $showingArabicSheet) {
-                NavigationView {
-                    ArabicView()
-                        .accentColor(settings.accentColor.color)
-                }
-            }
-            .sheet(isPresented: $showingAdhkarSheet) {
-                NavigationView {
-                    AdhkarView()
-                        .accentColor(settings.accentColor.color)
-                }
-            }
-            .sheet(isPresented: $showingDuaSheet) {
-                NavigationView {
-                    DuaView()
-                        .accentColor(settings.accentColor.color)
-                }
-            }
-            .sheet(isPresented: $showingTasbihSheet) {
-                NavigationView {
-                    TasbihView()
-                        .accentColor(settings.accentColor.color)
-                }
-            }
-            .sheet(isPresented: $showingNamesSheet) {
-                NavigationView {
-                    NamesView()
-                        .accentColor(settings.accentColor.color)
-                        .environmentObject(namesData)
-                }
-            }
-            .sheet(isPresented: $showingDateSheet) {
-                NavigationView {
-                    DateView()
-                        .accentColor(settings.accentColor.color)
-                }
-            }
             .sheet(isPresented: $showingSettingsSheet) {
-                SettingsView()
-                    .accentColor(settings.accentColor.color)
-                    .preferredColorScheme(settings.colorScheme)
-                    .navigationBarTitleDisplayMode(.inline)
+                NavigationView {
+                    SettingsPrayerView(showNotifications: true)
+                }
             }
             #endif
             .applyConditionalListStyle(defaultView: settings.defaultView)

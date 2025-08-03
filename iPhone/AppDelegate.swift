@@ -1,74 +1,78 @@
-import SwiftUI
+import UIKit
 import BackgroundTasks
+import UserNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Register your task
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.Quran.Elmallah.Prayer-Times.fetchPrayerTimes", using: nil) { task in
-            // This block is called when your task is run
+    private let taskID  = "com.Quran.Elmallah.Prayer-Times.fetchPrayerTimes"
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: taskID, using: nil) { task in
             self.handleAppRefresh(task: task as! BGAppRefreshTask)
         }
 
-        // Schedule the task for the first time
         scheduleAppRefresh()
-
-        // Set this object as the delegate for the user notification center.
         UNUserNotificationCenter.current().delegate = self
         return true
     }
-    
-    func scheduleAppRefresh() {
-        let request = BGAppRefreshTaskRequest(identifier: "com.Quran.Elmallah.Prayer-Times.fetchPrayerTimes")
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        scheduleAppRefresh()
+    }
+
+    private func scheduleAppRefresh() {
+        let request = BGAppRefreshTaskRequest(identifier: taskID)
+        request.earliestBeginDate = nextRunDate()
         
-        if let nextPrayerTime = Settings.shared.prayers?.prayers.first?.time {
-            var dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: Date())
-            let timeComponents = Calendar.current.dateComponents([.hour, .minute, .second], from: nextPrayerTime)
-            dateComponents.hour = timeComponents.hour
-            dateComponents.minute = timeComponents.minute
-            dateComponents.second = timeComponents.second
-            dateComponents.day! += 1
-            
-            if let tomorrowPrayerTime = Calendar.current.date(from: dateComponents) {
-                let timeInterval = tomorrowPrayerTime.timeIntervalSince(Date())
-                
-                if timeInterval > 0 {
-                    print("Scheduled during Fajr")
-                    request.earliestBeginDate = Date(timeIntervalSinceNow: timeInterval - 2100)
-                } else {
-                    print("Scheduled 24 hours later 1")
-                    request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
-                }
-            } else {
-                print("Scheduled 24 hours later 2")
-                request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
+        if let date = request.earliestBeginDate {
+                logger.debug("🔧 Scheduling BGAppRefresh – earliestBeginDate: \(date.formatted())")
             }
-        } else {
-            print("Scheduled 24 hours later 3")
-            request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
-        }
-        
+
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("Scheduled background app refresh")
+            logger.debug("✅ BGAppRefresh submitted")
         } catch {
-            print("Could not schedule background app refresh: \(error)")
+            logger.error("❌ BG submit failed: \(error.localizedDescription)")
         }
     }
-    
-    func handleAppRefresh(task: BGAppRefreshTask) {
-        // Schedule the next refresh
-        scheduleAppRefresh()
-        
-        // Perform the data fetch and notification scheduling
-        Settings.shared.fetchPrayerTimes()
 
-        // Mark the task as complete when done
-        task.setTaskCompleted(success: true)
+    private func nextRunDate(offsetMins: Double = 35) -> Date {
+        guard
+            let fajr = Settings.shared.prayers?
+                .prayers.sorted(by: { $0.time < $1.time })
+                .first?.time
+        else {
+            return Date().addingTimeInterval(24*60*60)
+        }
+
+        let timeParts = Calendar.current.dateComponents([.hour, .minute, .second], from: fajr)
+        var tomorrow  = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+        tomorrow      = Calendar.current.date(bySettingHour: timeParts.hour!,
+                                              minute:        timeParts.minute!,
+                                              second:        timeParts.second!,
+                                              of:            tomorrow)!
+
+        let target  = tomorrow.addingTimeInterval(-offsetMins*60)
+        let minimum = Date().addingTimeInterval(15*60)
+        return max(target, minimum)
     }
-    
-    // Called when a notification is delivered to a foreground app.
+
+    private func handleAppRefresh(task: BGAppRefreshTask) {
+        logger.debug("🚀 BGAppRefresh fired")
+        scheduleAppRefresh()
+
+        task.expirationHandler = {
+            logger.error("⏰ BG task expired before finishing")
+            task.setTaskCompleted(success: false)
+        }
+
+        Settings.shared.fetchPrayerTimes {
+            logger.debug("🎉 BG task completed – prayer times refreshed")
+            task.setTaskCompleted(success: true)
+        }
+    }
+
+    // Foreground Notifications
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        // Show the notification alert (and play the sound) even if the app is in the foreground
         completionHandler([.banner, .sound])
     }
 }

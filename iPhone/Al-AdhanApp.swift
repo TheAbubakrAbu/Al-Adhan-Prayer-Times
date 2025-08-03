@@ -6,7 +6,7 @@ import StoreKit
 @main
 struct AlAdhanApp: App {
     @StateObject private var settings = Settings.shared
-    @StateObject private var namesData = NamesViewModel()
+    @StateObject private var namesData = NamesViewModel.shared
     
     @State private var isLaunching = true
     
@@ -28,7 +28,25 @@ struct AlAdhanApp: App {
                 } else if settings.firstLaunch {
                     SplashScreen()
                 } else {
-                    PrayerView()
+                    TabView {
+                        PrayerView()
+                            .tabItem {
+                                Image(systemName: "safari")
+                                Text("Adhan")
+                            }
+                        
+                        OtherView()
+                            .tabItem {
+                                Image(systemName: "moon.stars")
+                                Text("Tools")
+                            }
+                        
+                        SettingsView()
+                            .tabItem {
+                                Image(systemName: "gearshape")
+                                Text("Settings")
+                            }
+                    }
                 }
             }
             .environmentObject(settings)
@@ -37,6 +55,7 @@ struct AlAdhanApp: App {
             .tint(settings.accentColor.color)
             .preferredColorScheme(settings.colorScheme)
             .transition(.opacity)
+            .animation(.easeInOut, value: isLaunching)
             .onAppear {
                 withAnimation {
                     settings.fetchPrayerTimes()
@@ -76,16 +95,19 @@ struct AlAdhanApp: App {
             WidgetCenter.shared.reloadAllTimelines()
         }
         .onChange(of: settings.prayerCalculation) { _ in
-            settings.fetchPrayerTimes(force: true)
-            sendMessageToWatch()
+            settings.fetchPrayerTimes(force: true) {
+                sendMessageToWatch()
+            }
         }
         .onChange(of: settings.hanafiMadhab) { _ in
-            settings.fetchPrayerTimes(force: true)
-            sendMessageToWatch()
+            settings.fetchPrayerTimes(force: true) {
+                sendMessageToWatch()
+            }
         }
         .onChange(of: settings.travelingMode) { _ in
-            settings.fetchPrayerTimes(force: true)
-            sendMessageToWatch()
+            settings.fetchPrayerTimes(force: true) {
+                sendMessageToWatch()
+            }
         }
         .onChange(of: settings.hijriOffset) { _ in
             settings.updateDates()
@@ -96,7 +118,7 @@ struct AlAdhanApp: App {
     
     private func sendMessageToWatch() {
         guard WCSession.default.isPaired else {
-            print("No Apple Watch is paired")
+            logger.debug("No Apple Watch is paired")
             return
         }
         
@@ -104,13 +126,13 @@ struct AlAdhanApp: App {
         let message = ["settings": settingsData]
 
         if WCSession.default.isReachable {
-            print("Watch is reachable. Sending message to watch: \(message)")
+            logger.debug("Watch is reachable. Sending message to watch: \(message)")
 
             WCSession.default.sendMessage(message, replyHandler: nil) { error in
-                print("Error sending message to watch: \(error.localizedDescription)")
+                logger.debug("Error sending message to watch: \(error.localizedDescription)")
             }
         } else {
-            print("Watch is not reachable. Transferring user info to watch: \(message)")
+            logger.debug("Watch is not reachable. Transferring user info to watch: \(message)")
             WCSession.default.transferUserInfo(message)
         }
     }

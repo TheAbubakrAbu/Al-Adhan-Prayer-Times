@@ -4,9 +4,13 @@
 
 Discover **Al-Adhan**: A free, beginner-friendly Islamic prayer times app featuring Traveling Mode, Nagging Mode, Qibla direction, and widgets.
 
-I was a **17-year-old** in high school when this app was published on the App Store on **December 31, 2023**.
+Created by **Abubakr Elmallah**, who was a **17-year-old** in high school when this app was published on the App Store on **December 31, 2023**.
 
 [**Download Al-Adhan on the App Store here**](https://apps.apple.com/us/app/al-adhan-prayer-times/id6475015493?platform=iphone)
+
+<a href="https://apps.apple.com/us/app/al-adhan-prayer-times/id6475015493?platform=iphone">
+  <img src="Resources/Logo.jpg" alt="Logo" width="120" style="border-radius:10px;"/>
+</a>
 
 ## Overview
 Al-Adhan is a feature-rich and easy-to-use app designed to help Muslims stay on top of their daily prayers. Whether at home, traveling, or exploring new places, Al-Adhan ensures you never miss a prayer while providing a seamless and customizable experience.
