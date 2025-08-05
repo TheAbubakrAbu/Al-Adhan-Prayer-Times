@@ -7,6 +7,8 @@ struct PrayerList: View {
     @State private var fullPrayers: Bool = false
     
     @AppStorage("prayerDisplayMode") private var prayerDisplayModeRawValue: String = PrayerDisplayMode.list.rawValue
+    
+    @State private var selectedDate = Date()
 
     enum PrayerDisplayMode: String, CaseIterable, Identifiable {
         case list = "Prayer List"
@@ -453,11 +455,11 @@ struct PrayerList: View {
                 
                 #if !os(watchOS)
                 VStack {
-                    DatePicker("Showing prayers for", selection: $settings.selectedDate.animation(.easeInOut), displayedComponents: .date)
+                    DatePicker("Showing prayers for", selection: $selectedDate.animation(.easeInOut), displayedComponents: .date)
                         .datePickerStyle(DefaultDatePickerStyle())
                         .padding(4)
                     
-                    if !calendar.isDate(settings.selectedDate, inSameDayAs: Date()) {
+                    if !calendar.isDate(selectedDate, inSameDayAs: Date()) {
                         Text("Show prayers for today")
                             .font(.subheadline)
                             .foregroundColor(settings.accentColor.color)
@@ -465,9 +467,19 @@ struct PrayerList: View {
                             .onTapGesture {
                                 settings.hapticFeedback()
                                 withAnimation {
-                                    settings.selectedDate = Date()
+                                    selectedDate = Date()
                                 }
                             }
+                    }
+                }
+                .onChange(of: selectedDate) { value in
+                    settings.datePrayers = settings.getPrayerTimes(for: value) ?? []
+                    settings.dateFullPrayers = settings.getPrayerTimes(for: value, fullPrayers: true) ?? []
+                    
+                    let calendar = Calendar.current
+                    
+                    if !calendar.isDate(value, inSameDayAs: Date()) {
+                        settings.changedDate = true
                     }
                 }
                 #endif

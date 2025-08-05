@@ -68,6 +68,13 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
         
         requestLocationAuthorization()
+        
+        if let loc = currentLocation, loc.latitude != 1000, loc.longitude != 1000 {
+            Task { @MainActor in
+                await updateCity(latitude: loc.latitude, longitude: loc.longitude)
+                fetchPrayerTimes(force: true)
+            }
+        }
     }
     
     private static let oneMile: CLLocationDistance = 1_609.344 // m
@@ -184,7 +191,7 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
                     let region = placemark.administrativeArea ?? placemark.country ?? ""
                     return "\(city), \(region)"
                 } else {
-                    return "\(latitude.stringRepresentation), \(longitude.stringRepresentation)"
+                    return "(\(latitude.stringRepresentation), \(longitude.stringRepresentation))"
                 }
             }()
 
@@ -192,6 +199,7 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
                 withAnimation {
                     currentLocation = Location(city: newCity, latitude: latitude, longitude: longitude)
                 }
+                WidgetCenter.shared.reloadAllTimelines()
             }
 
             cachedPlacemark = (coord, newCity)
@@ -473,6 +481,7 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
         } else if notification && !(stored?.setNotification ?? false) {
             schedulePrayerTimeNotifications()
             printAllScheduledNotifications()
+            WidgetCenter.shared.reloadAllTimelines()
         }
 
         updateCurrentAndNextPrayer()
@@ -886,7 +895,6 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     @Published var datePrayers: [Prayer]?
     @Published var dateFullPrayers: [Prayer]?
-    @Published var selectedDate = Date()
     @Published var changedDate = false
     
     @AppStorage("hapticOn") var hapticOn: Bool = true

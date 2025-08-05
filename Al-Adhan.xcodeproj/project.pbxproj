@@ -843,7 +843,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -879,7 +879,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -910,7 +910,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp";
 				PRODUCT_NAME = "Al-Adhan";
 				SDKROOT = watchos;
@@ -944,7 +944,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp";
 				PRODUCT_NAME = "Al-Adhan";
 				SDKROOT = watchos;
@@ -974,7 +974,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1002,7 +1002,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1030,7 +1030,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp.Complication1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1060,7 +1060,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.410;
+				MARKETING_VERSION = 1.460;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Quran.Elmallah.Prayer-Times.watchkitapp.Complication1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
