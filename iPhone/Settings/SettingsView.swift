@@ -170,6 +170,9 @@ struct SettingsView: View {
                         }
                     }
                     #endif
+                    
+                    VersionNumber(width: glyphWidth)
+                        .font(.subheadline)
                 }
                 
                 AlIslamAppsSection()
@@ -264,5 +267,27 @@ struct SettingsAppearanceView: View {
                 .font(.subheadline)
                 .tint(settings.accentColor.color)
         }
+    }
+}
+
+struct VersionNumber: View {
+    @EnvironmentObject var settings: Settings
+    
+    var width: CGFloat?
+    
+    var body: some View {
+        HStack {
+            if let width = width {
+                Text("Version:")
+                    .frame(width: width)
+            } else {
+                Text("Version")
+            }
+            
+            Text("1.4.7")
+                .foregroundColor(settings.accentColor.color)
+                .padding(.leading, -4)
+        }
+        .foregroundColor(.primary)
     }
 }
