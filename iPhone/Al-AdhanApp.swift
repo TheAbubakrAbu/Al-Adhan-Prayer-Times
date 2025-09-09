@@ -1,5 +1,4 @@
 import SwiftUI
-import WatchConnectivity
 import WidgetKit
 import StoreKit
 
@@ -8,17 +7,13 @@ struct AlAdhanApp: App {
     @StateObject private var settings = Settings.shared
     @StateObject private var namesData = NamesViewModel.shared
     
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @State private var isLaunching = true
     
     @AppStorage("timeSpent") private var timeSpent: Double = 0
     @AppStorage("shouldShowRateAlert") private var shouldShowRateAlert: Bool = true
     @State private var startTime: Date?
-    
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
-    init() {
-        _ = WatchConnectivityManager.shared
-    }
 
     var body: some Scene {
         WindowGroup {
@@ -29,7 +24,7 @@ struct AlAdhanApp: App {
                     SplashScreen()
                 } else {
                     TabView {
-                        PrayerView()
+                        AdhanView()
                             .tabItem {
                                 Image(systemName: "safari")
                                 Text("Adhan")
@@ -56,6 +51,7 @@ struct AlAdhanApp: App {
             .preferredColorScheme(settings.colorScheme)
             .transition(.opacity)
             .animation(.easeInOut, value: isLaunching)
+            .animation(.easeInOut, value: settings.firstLaunch)
             .onAppear {
                 withAnimation {
                     settings.fetchPrayerTimes()
@@ -91,49 +87,20 @@ struct AlAdhanApp: App {
             }
         }
         .onChange(of: settings.accentColor) { _ in
-            sendMessageToWatch()
             WidgetCenter.shared.reloadAllTimelines()
         }
         .onChange(of: settings.prayerCalculation) { _ in
-            settings.fetchPrayerTimes(force: true) {
-                sendMessageToWatch()
-            }
+            settings.fetchPrayerTimes(force: true)
         }
         .onChange(of: settings.hanafiMadhab) { _ in
-            settings.fetchPrayerTimes(force: true) {
-                sendMessageToWatch()
-            }
+            settings.fetchPrayerTimes(force: true)
         }
         .onChange(of: settings.travelingMode) { _ in
-            settings.fetchPrayerTimes(force: true) {
-                sendMessageToWatch()
-            }
+            settings.fetchPrayerTimes(force: true)
         }
         .onChange(of: settings.hijriOffset) { _ in
             settings.updateDates()
-            sendMessageToWatch()
             WidgetCenter.shared.reloadAllTimelines()
-        }
-    }
-    
-    private func sendMessageToWatch() {
-        guard WCSession.default.isPaired else {
-            logger.debug("No Apple Watch is paired")
-            return
-        }
-        
-        let settingsData = settings.dictionaryRepresentation()
-        let message = ["settings": settingsData]
-
-        if WCSession.default.isReachable {
-            logger.debug("Watch is reachable. Sending message to watch: \(message)")
-
-            WCSession.default.sendMessage(message, replyHandler: nil) { error in
-                logger.debug("Error sending message to watch: \(error.localizedDescription)")
-            }
-        } else {
-            logger.debug("Watch is not reachable. Transferring user info to watch: \(message)")
-            WCSession.default.transferUserInfo(message)
         }
     }
 }

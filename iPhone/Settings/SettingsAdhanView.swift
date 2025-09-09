@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SettingsPrayerView: View {
+struct SettingsAdhanView: View {
     @EnvironmentObject var settings: Settings
     
     @State private var showingMap = false
@@ -93,7 +93,7 @@ struct SettingsPrayerView: View {
                         .tint(settings.accentColor.color)
                         .disabled(settings.travelAutomatic)
                     
-                    Text("If you are traveling more than 48 mi (77.25 km), then it is obligatory to pray Qasr, where you combine Dhuhr and Asr (2 rakahs each) and Maghrib and Isha (3 and 2 rakahs). Allah said in the Quran, “And when you (Muslims) travel in the land, there is no sin on you if you shorten As-Salah (the prayer)” [Al-Quran, An-Nisa, 4:101]. \(settings.travelAutomatic ? "This feature turns on and off automatically, but you can also control it manually here." : "You can control traveling mode manually here.")")
+                    Text("If you are traveling more than 48 mi (77.25 km), then it is obligatory to pray Qasr, where you combine Dhuhr and Asr (2 rakahs each) and Maghrib and Isha (3 and 2 rakahs). Allah said in the Quran, “And when you (Muslims) travel in the land, there is no sin on you if you shorten As-Salah (the prayer)” [Quran, An-Nisa, 4:101]. \(settings.travelAutomatic ? "This feature turns on and off automatically, but you can also control it manually here." : "You can control traveling mode manually here.")")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 2)
@@ -111,7 +111,6 @@ struct SettingsPrayerView: View {
         }
         .applyConditionalListStyle(defaultView: true)
         .navigationTitle("Al-Adhan Settings")
-        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: settings.homeLocation) { _ in
             settings.fetchPrayerTimes() {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -319,7 +318,45 @@ struct NotificationView: View {
     @State private var showAlert: Bool = false
     
     var body: some View {
-        MoreNotificationView()
+        List {
+            MoreNotificationView()
+        }
+        .onAppear {
+            settings.requestNotificationAuthorization {
+                settings.fetchPrayerTimes {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if settings.showNotificationAlert {
+                            showAlert = true
+                        }
+                    }
+                }
+            }
+        }
+        .onChange(of: scenePhase) { _ in
+            settings.requestNotificationAuthorization {
+                settings.fetchPrayerTimes {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if settings.showNotificationAlert {
+                            showAlert = true
+                        }
+                    }
+                }
+            }
+        }
+        .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
+            Button("Open Settings") {
+                #if !os(watchOS)
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+                #endif
+            }
+            Button("Ignore", role: .cancel) { }
+        } message: {
+            Text("Please go to Settings and enable notifications to be notified of prayer times.")
+        }
+        .applyConditionalListStyle(defaultView: true)
+        .navigationTitle("Notification Settings")
     }
 }
 

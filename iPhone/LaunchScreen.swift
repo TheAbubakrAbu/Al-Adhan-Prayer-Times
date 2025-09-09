@@ -60,7 +60,7 @@ struct LaunchScreen: View {
                     Image("Al-Adhan")
                         .resizable()
                         .scaledToFit()
-                        .cornerRadius(10)
+                        .cornerRadius(15)
                         .frame(width: 150, height: 150)
                         .padding()
 

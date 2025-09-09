@@ -21,18 +21,18 @@ struct WhenIsPrayerIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
         guard let list = Settings.shared.getPrayerTimes(for: Date(), fullPrayers: true), !list.isEmpty else {
-            let msg = "Prayer times aren’t available yet. Open Al-Islam to refresh."
+            let msg = "Prayer times aren’t available yet. Open Al-Adhan to refresh."
             return .result(value: msg, dialog: IntentDialog(stringLiteral: msg))
         }
 
         let keys: [String]
         switch prayer {
-        case .fajr:    keys = ["Fajr"]
+        case .fajr:    keys = ["Fajr", "Fajer", "Dawn"]
         case .sunrise: keys = ["Shurooq", "Sunrise"]
-        case .dhuhr:   keys = ["Dhuhr", "Jummuah"]
-        case .asr:     keys = ["Asr"]
-        case .maghrib: keys = ["Maghrib"]
-        case .isha:    keys = ["Isha"]
+        case .dhuhr:   keys = ["Dhuhr", "Thuhr", "Dhuhur", "Thuhur", "Jummuah", "Noon"]
+        case .asr:     keys = ["Asr", "Aser", "Afternoon"]
+        case .maghrib: keys = ["Maghrib", "Magrib", "Maghreb", "Magreb", "Sunset"]
+        case .isha:    keys = ["Isha", "Ishaa", "Esha", "Eshaa", "Night"]
         }
 
         if let p = list.first(where: { keys.contains($0.nameTransliteration) || keys.contains($0.nameEnglish) }) {
@@ -71,7 +71,7 @@ struct CurrentPrayerIntent: AppIntent {
             }
         }
 
-        let msg = "No current prayer determined yet. Open Al-Islam to refresh prayer times."
+        let msg = "No current prayer determined yet. Open Al-Adhan to refresh prayer times."
         return .result(value: msg, dialog: IntentDialog(stringLiteral: msg))
     }
 }
@@ -97,7 +97,7 @@ struct NextPrayerIntent: AppIntent {
             }
         }
 
-        let msg = "No upcoming prayer found. Open Al-Islam to refresh prayer times."
+        let msg = "No upcoming prayer found. Open Al-Adhan to refresh prayer times."
         return .result(value: msg, dialog: IntentDialog(stringLiteral: msg))
     }
 }

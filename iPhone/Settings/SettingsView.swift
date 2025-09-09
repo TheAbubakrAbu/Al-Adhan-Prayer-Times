@@ -41,7 +41,6 @@ struct SettingsView: View {
                         }
                         .applyConditionalListStyle(defaultView: true)
                         .navigationTitle("Manual Offset Settings")
-                        .navigationBarTitleDisplayMode(.inline)
                     }) {
                         Label("Manual Offset Settings", systemImage: "slider.horizontal.3")
                     }
@@ -50,16 +49,15 @@ struct SettingsView: View {
                 #endif
                 
                 Section(header: Text("AL-ADHAN")) {
-                    NavigationLink(destination: SettingsPrayerView(showNotifications: false)) {
+                    NavigationLink(destination: SettingsAdhanView(showNotifications: false)) {
                         Label("Prayer Settings", systemImage: "safari")
                     }
                     .accentColor(settings.accentColor.color)
                 }
-                
+                                
                 Section(header: Text("APPEARANCE")) {
                     SettingsAppearanceView()
                 }
-                .accentColor(settings.accentColor.color)
                 
                 Section(header: Text("CREDITS")) {
                     Text("Made by Abubakr Elmallah, who was a 17-year-old high school student when this app was made.\n\nSpecial thanks to my parents and to Mr. Joe Silvey, my English teacher and Muslim Student Association Advisor.")
@@ -79,12 +77,12 @@ struct SettingsView: View {
                     .sheet(isPresented: $showingCredits) {
                         CreditsView()
                     }
-
+                    
                     Button(action: {
                         settings.hapticFeedback()
                         
                         withAnimation(.smooth()) {
-                            if let url = URL(string: "itms-apps://itunes.apple.com/app/id6475015493?action=write-review") {
+                            if let url = URL(string: "itms-apps://itunes.apple.com/app/id6449729655?action=write-review") {
                                 UIApplication.shared.open(url)
                             }
                         }
@@ -97,7 +95,7 @@ struct SettingsView: View {
                         Button(action: {
                             settings.hapticFeedback()
                             
-                            UIPasteboard.general.string = "itms-apps://itunes.apple.com/app/id6475015493?action=write-review"
+                            UIPasteboard.general.string = "itms-apps://itunes.apple.com/app/id6449729655?action=write-review"
                         }) {
                             HStack {
                                 Image(systemName: "doc.on.doc")
@@ -105,7 +103,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-
+                    
                     Button(action: {
                         settings.hapticFeedback()
                         
@@ -120,7 +118,7 @@ struct SettingsView: View {
                             .foregroundColor(settings.accentColor.color)
                     }
                     #endif
-
+                    
                     HStack {
                         Text("Website: ")
                             .font(.subheadline)
@@ -145,7 +143,7 @@ struct SettingsView: View {
                         }
                     }
                     #endif
-
+                    
                     HStack {
                         Text("Contact: ")
                             .font(.subheadline)
@@ -253,9 +251,8 @@ struct SettingsAppearanceView: View {
         VStack(alignment: .leading) {
             Toggle("Default List View", isOn: $settings.defaultView.animation(.easeInOut))
                 .font(.subheadline)
-                .tint(settings.accentColor.color)
             
-            Text("The default list view is the standard interface found in many of Apple's first party apps, including Notes. This setting only applies to the Adhan and Tools views.")
+            Text("The default list view is the standard interface found in many of Apple's first party apps, including Notes. This setting applies everywhere in the app except here in Settings.")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.vertical, 2)
@@ -265,7 +262,6 @@ struct SettingsAppearanceView: View {
         VStack(alignment: .leading) {
             Toggle("Haptic Feedback", isOn: $settings.hapticOn.animation(.easeInOut))
                 .font(.subheadline)
-                .tint(settings.accentColor.color)
         }
     }
 }
@@ -284,7 +280,8 @@ struct VersionNumber: View {
                 Text("Version")
             }
             
-            Text("1.4.7")
+            //Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
+            Text("1.5")
                 .foregroundColor(settings.accentColor.color)
                 .padding(.leading, -4)
         }

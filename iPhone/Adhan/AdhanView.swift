@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PrayerView: View {
+struct AdhanView: View {
     @EnvironmentObject var settings: Settings
     @EnvironmentObject var namesData: NamesViewModel
     
@@ -8,6 +8,7 @@ struct PrayerView: View {
     
     @State private var showingSettingsSheet = false
     @State private var showBigQibla = false
+    @State private var didKickstartLocation = false
     
     @State private var showAlert: AlertType?
     enum AlertType: Identifiable {
@@ -147,14 +148,14 @@ struct PrayerView: View {
                         #endif
                     }
                     .animation(.easeInOut, value: showBigQibla)
+                    #if !os(watchOS)
                     .onTapGesture {
-                        #if !os(watchOS)
                         withAnimation {
                             settings.hapticFeedback()
                             showBigQibla.toggle()
                         }
-                        #endif
                     }
+                    #endif
                 }
                 
                 #if !os(watchOS)
@@ -177,10 +178,16 @@ struct PrayerView: View {
                 prayerTimeRefresh(force: true)
             }
             .onAppear {
+                if !didKickstartLocation {
+                    didKickstartLocation = true
+                    settings.requestFreshLocation()
+                }
                 prayerTimeRefresh(force: false)
             }
             .onChange(of: scenePhase) { newScenePhase in
-                prayerTimeRefresh(force: false)
+                if newScenePhase == .active {
+                    prayerTimeRefresh(force: false)
+                }
             }
             .navigationTitle("Al-Adhan")
             #if !os(watchOS)
@@ -197,9 +204,7 @@ struct PrayerView: View {
                 }
             }
             .sheet(isPresented: $showingSettingsSheet) {
-                NavigationView {
-                    SettingsPrayerView(showNotifications: true)
-                }
+                NavigationView { SettingsAdhanView(showNotifications: true) }
             }
             #endif
             .applyConditionalListStyle(defaultView: settings.defaultView)
@@ -273,9 +278,9 @@ struct PrayerView: View {
         } message: {
             switch showAlert {
             case .travelTurnOnAutomatic:
-                Text("Al-Islam has automatically detected that you are traveling, so your prayers will be shortened.")
+                Text("Al-Adhan has automatically detected that you are traveling, so your prayers will be shortened.")
             case .travelTurnOffAutomatic:
-                Text("Al-Islam has automatically detected that you are no longer traveling, so your prayers will not be shortened.")
+                Text("Al-Adhan has automatically detected that you are no longer traveling, so your prayers will not be shortened.")
             case .locationAlert:
                 Text("Please go to Settings and enable location services to accurately determine prayer times.")
             case .notificationAlert:
