@@ -8,7 +8,6 @@ struct AdhanView: View {
     
     @State private var showingSettingsSheet = false
     @State private var showBigQibla = false
-    @State private var didKickstartLocation = false
     
     @State private var showAlert: AlertType?
     enum AlertType: Identifiable {
@@ -178,10 +177,6 @@ struct AdhanView: View {
                 prayerTimeRefresh(force: true)
             }
             .onAppear {
-                if !didKickstartLocation {
-                    didKickstartLocation = true
-                    settings.requestFreshLocation()
-                }
                 prayerTimeRefresh(force: false)
             }
             .onChange(of: scenePhase) { newScenePhase in

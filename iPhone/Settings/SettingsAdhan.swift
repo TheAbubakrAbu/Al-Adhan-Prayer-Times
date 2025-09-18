@@ -88,15 +88,6 @@ extension Settings {
         }
     }
     
-    func requestFreshLocation() {
-        Self.locationManager.requestLocation()
-        
-        Self.locationManager.startUpdatingLocation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
-            Self.locationManager.stopUpdatingLocation()
-        }
-    }
-    
     actor GeocodeActor {
         private let gc = CLGeocoder()
         func placemark(for location: CLLocation) async throws -> CLPlacemark? {
