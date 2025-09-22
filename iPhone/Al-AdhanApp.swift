@@ -44,6 +44,7 @@ struct AlAdhanApp: App {
                     }
                 }
             }
+            //.statusBarHidden(true)
             .environmentObject(settings)
             .environmentObject(namesData)
             .accentColor(settings.accentColor.color)

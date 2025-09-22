@@ -119,16 +119,15 @@ struct AdhanView: View {
                                     .lineLimit(nil)
                             }
                             #else
-                            if settings.prayers != nil, let currentLoc = settings.currentLocation {
-                                let currentCity = currentLoc.city
-                                Text(currentCity)
-                                    .font(.subheadline)
-                                    .lineLimit(nil)
-                            } else {
-                                Text("No location")
-                                    .font(.subheadline)
-                                    .lineLimit(nil)
+                            Group {
+                                if settings.prayers != nil, let currentLoc = settings.currentLocation {
+                                    Text(currentLoc.city)
+                                } else {
+                                    Text("No location")
+                                }
                             }
+                            .font(.subheadline)
+                            .lineLimit(2)
                             #endif
 
                             Spacer()
@@ -144,6 +143,7 @@ struct AdhanView: View {
                         Text("Compass may not be accurate on Apple Watch")
                             .font(.caption2)
                             .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         #endif
                     }
                     .animation(.easeInOut, value: showBigQibla)
@@ -195,7 +195,6 @@ struct AdhanView: View {
                     } label: {
                         Image(systemName: "gear")
                     }
-                    .padding(.trailing, settings.defaultView ? 6 : 0)
                 }
             }
             .sheet(isPresented: $showingSettingsSheet) {
@@ -273,9 +272,9 @@ struct AdhanView: View {
         } message: {
             switch showAlert {
             case .travelTurnOnAutomatic:
-                Text("Al-Adhan has automatically detected that you are traveling, so your prayers will be shortened.")
+                Text("Al-Islam has automatically detected that you are traveling, so your prayers will be shortened.")
             case .travelTurnOffAutomatic:
-                Text("Al-Adhan has automatically detected that you are no longer traveling, so your prayers will not be shortened.")
+                Text("Al-Islam has automatically detected that you are no longer traveling, so your prayers will not be shortened.")
             case .locationAlert:
                 Text("Please go to Settings and enable location services to accurately determine prayer times.")
             case .notificationAlert:

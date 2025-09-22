@@ -318,45 +318,43 @@ struct NotificationView: View {
     @State private var showAlert: Bool = false
     
     var body: some View {
-        List {
-            MoreNotificationView()
-        }
-        .onAppear {
-            settings.requestNotificationAuthorization {
-                settings.fetchPrayerTimes {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        if settings.showNotificationAlert {
-                            showAlert = true
+        MoreNotificationView()
+            .onAppear {
+                settings.requestNotificationAuthorization {
+                    settings.fetchPrayerTimes {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            if settings.showNotificationAlert {
+                                showAlert = true
+                            }
                         }
                     }
                 }
             }
-        }
-        .onChange(of: scenePhase) { _ in
-            settings.requestNotificationAuthorization {
-                settings.fetchPrayerTimes {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        if settings.showNotificationAlert {
-                            showAlert = true
+            .onChange(of: scenePhase) { _ in
+                settings.requestNotificationAuthorization {
+                    settings.fetchPrayerTimes {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            if settings.showNotificationAlert {
+                                showAlert = true
+                            }
                         }
                     }
                 }
             }
-        }
-        .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
-            Button("Open Settings") {
-                #if !os(watchOS)
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
+                Button("Open Settings") {
+                    #if !os(watchOS)
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    }
+                    #endif
                 }
-                #endif
+                Button("Ignore", role: .cancel) { }
+            } message: {
+                Text("Please go to Settings and enable notifications to be notified of prayer times.")
             }
-            Button("Ignore", role: .cancel) { }
-        } message: {
-            Text("Please go to Settings and enable notifications to be notified of prayer times.")
-        }
-        .applyConditionalListStyle(defaultView: true)
-        .navigationTitle("Notification Settings")
+            .applyConditionalListStyle(defaultView: true)
+            .navigationTitle("Notification Settings")
     }
 }
 

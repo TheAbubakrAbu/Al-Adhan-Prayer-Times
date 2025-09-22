@@ -156,8 +156,7 @@ struct MapView: View {
             }
             .navigationTitle("Select Location")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(trailing: Button("Done") { settings.hapticFeedback(); dismiss() }
-                                    .foregroundColor(settings.accentColor.color))
+            .navigationBarItems(trailing: Button("Done") { settings.hapticFeedback(); dismiss() })
             .confirmationDialog(
                 "Location Access Denied",
                 isPresented: $showAlert
@@ -228,7 +227,7 @@ struct MapView: View {
         .frame(maxWidth: .infinity)
         .background(settings.accentColor.color)
         .foregroundColor(.white)
-        .cornerRadius(12)
+        .cornerRadius(24)
         .padding(.horizontal, 16)
     }
 
