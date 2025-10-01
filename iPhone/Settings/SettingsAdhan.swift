@@ -88,6 +88,15 @@ extension Settings {
         }
     }
     
+    func requestFreshLocation() {
+        Self.locationManager.requestLocation()
+        
+        Self.locationManager.startUpdatingLocation()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            Self.locationManager.stopUpdatingLocation()
+        }
+    }
+    
     actor GeocodeActor {
         private let gc = CLGeocoder()
         func placemark(for location: CLLocation) async throws -> CLPlacemark? {
@@ -175,7 +184,7 @@ extension Settings {
 
                     #if !os(watchOS)
                     let content = UNMutableNotificationContent()
-                    content.title = "Al-Adhan"
+                    content.title = "Al-Islam"
                     content.body  = "Traveling mode automatically turned on at \(currentLocation.city)"
                     content.sound = .default
                     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -194,7 +203,7 @@ extension Settings {
 
                     #if !os(watchOS)
                     let content = UNMutableNotificationContent()
-                    content.title = "Al-Adhan"
+                    content.title = "Al-Islam"
                     content.body  = "Traveling mode automatically turned off at \(currentLocation.city)"
                     content.sound = .default
                     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -584,7 +593,7 @@ extension Settings {
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
         let content = UNMutableNotificationContent()
-        content.title = "Al-Adhan"
+        content.title = "Al-Islam"
         content.body  = "Please open the app to refresh today’s prayer times and notifications."
         content.sound = .default
 
@@ -608,6 +617,12 @@ extension Settings {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
         
+        if dateNotifications {
+            for event in specialEvents {
+                scheduleNotification(for: event)
+            }
+        }
+
         for prayer in prayerObj.prayers {
             guard let prefs = Self.notifTable[prayer.nameTransliteration] else { continue }
 
@@ -687,7 +702,7 @@ extension Settings {
         guard triggerTime > Date() else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Al‑Adhan"
+        content.title = "Al‑Islam"
         content.body = buildBody(prayer: prayer, minutesBefore: minutes, city: city)
         content.sound = .default
 
@@ -701,7 +716,43 @@ extension Settings {
             if let error { logger.debug("Notification add failed: \(error.localizedDescription)") }
         }
     }
+    
+    func scheduleNotification(for event: (String, DateComponents, String, String)) {
+        let (titleText, hijriComps, eventSubTitle, _) = event
         
+        if let hijriDate = hijriCalendar.date(from: hijriComps) {
+            let gregorianCalendar = Calendar(identifier: .gregorian)
+            var gregorianComps = gregorianCalendar.dateComponents([.year, .month, .day], from: hijriDate)
+            gregorianComps.hour = 9
+            gregorianComps.minute = 0
+            
+            guard
+                let finalDate = gregorianCalendar.date(from: gregorianComps),
+                finalDate > Date()
+            else {
+                return
+            }
+            
+            let content = UNMutableNotificationContent()
+            content.title = "Al-Islam"
+            content.body = "\(titleText) (\(eventSubTitle))"
+            content.sound = .default
+            
+            let trigger = UNCalendarNotificationTrigger(dateMatching: gregorianComps, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: UUID().uuidString,
+                content: content,
+                trigger: trigger
+            )
+            
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    logger.debug("Failed to schedule special event notification: \(error)")
+                }
+            }
+        }
+    }
+    
     @inline(__always)
     private func binding<T>(_ key: ReferenceWritableKeyPath<Settings, T>, default value: T) -> Binding<T> {
         Binding(

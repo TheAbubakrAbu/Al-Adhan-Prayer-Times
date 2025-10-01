@@ -47,33 +47,35 @@ struct AdhanView: View {
                 Section(header: settings.defaultView ? Text("DATE AND LOCATION") : nil) {
                     if let hijriDate = settings.hijriDate {
                         #if !os(watchOS)
-                        HStack {
-                            Text(hijriDate.english)
-                                .multilineTextAlignment(.center)
-                            
-                            Spacer()
-                            
-                            Text(hijriDate.arabic)
-                        }
-                        .font(.footnote)
-                        .foregroundColor(settings.accentColor.color)
-                        .contextMenu {
-                            Button(action: {
-                                settings.hapticFeedback()
+                        NavigationLink(destination: HijriCalendarView()) {
+                            HStack {
+                                Text(hijriDate.english)
+                                    .multilineTextAlignment(.center)
                                 
-                                UIPasteboard.general.string = hijriDate.english
-                            }) {
-                                Text("Copy English Date")
-                                Image(systemName: "doc.on.doc")
+                                Spacer()
+                                
+                                Text(hijriDate.arabic)
                             }
-                            
-                            Button(action: {
-                                settings.hapticFeedback()
+                            .font(.footnote)
+                            .foregroundColor(settings.accentColor.color)
+                            .contextMenu {
+                                Button(action: {
+                                    settings.hapticFeedback()
+                                    
+                                    UIPasteboard.general.string = hijriDate.english
+                                }) {
+                                    Text("Copy English Date")
+                                    Image(systemName: "doc.on.doc")
+                                }
                                 
-                                UIPasteboard.general.string = hijriDate.arabic
-                            }) {
-                                Text("Copy Arabic Date")
-                                Image(systemName: "doc.on.doc")
+                                Button(action: {
+                                    settings.hapticFeedback()
+                                    
+                                    UIPasteboard.general.string = hijriDate.arabic
+                                }) {
+                                    Text("Copy Arabic Date")
+                                    Image(systemName: "doc.on.doc")
+                                }
                             }
                         }
                         #else
