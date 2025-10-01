@@ -184,7 +184,7 @@ extension Settings {
 
                     #if !os(watchOS)
                     let content = UNMutableNotificationContent()
-                    content.title = "Al-Islam"
+                    content.title = "Al-Adhan"
                     content.body  = "Traveling mode automatically turned on at \(currentLocation.city)"
                     content.sound = .default
                     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -203,7 +203,7 @@ extension Settings {
 
                     #if !os(watchOS)
                     let content = UNMutableNotificationContent()
-                    content.title = "Al-Islam"
+                    content.title = "Al-Adhan"
                     content.body  = "Traveling mode automatically turned off at \(currentLocation.city)"
                     content.sound = .default
                     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -593,7 +593,7 @@ extension Settings {
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
         let content = UNMutableNotificationContent()
-        content.title = "Al-Islam"
+        content.title = "Al-Adhan"
         content.body  = "Please open the app to refresh today’s prayer times and notifications."
         content.sound = .default
 
@@ -734,7 +734,7 @@ extension Settings {
             }
             
             let content = UNMutableNotificationContent()
-            content.title = "Al-Islam"
+            content.title = "Al-Adhan"
             content.body = "\(titleText) (\(eventSubTitle))"
             content.sound = .default
             

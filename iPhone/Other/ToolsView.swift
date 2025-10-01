@@ -515,11 +515,6 @@ struct NamesView: View {
             #endif
             .applyConditionalListStyle(defaultView: settings.defaultView)
             .dismissKeyboardOnScroll()
-            
-            #if !os(watchOS)
-            SearchBar(text: $searchText.animation(.easeInOut))
-                .padding(.horizontal, 8)
-            #endif
         }
         .navigationTitle("99 Names of Allah")
     }
