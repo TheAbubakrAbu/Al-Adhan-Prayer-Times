@@ -46,6 +46,9 @@ struct SearchBar: UIViewRepresentable {
         searchBar.delegate = context.coordinator
         searchBar.placeholder = "Search"
         searchBar.autocorrectionType = .no
+        
+        
+        
         return searchBar
     }
 
