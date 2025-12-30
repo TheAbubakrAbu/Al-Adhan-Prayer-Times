@@ -53,37 +53,10 @@ struct AlAdhanApp: App {
             .transition(.opacity)
             .animation(.easeInOut, value: isLaunching)
             .animation(.easeInOut, value: settings.firstLaunch)
+            .appReviewPrompt()
             .onAppear {
                 withAnimation {
                     settings.fetchPrayerTimes()
-                }
-                
-                if shouldShowRateAlert {
-                    startTime = Date()
-                    
-                    let remainingTime = max(180 - timeSpent, 0)
-                    if remainingTime == 0 {
-                        guard let windowScene = UIApplication.shared.connectedScenes
-                            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else {
-                            return
-                        }
-                        SKStoreReviewController.requestReview(in: windowScene)
-                        shouldShowRateAlert = false
-                    } else {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + remainingTime) {
-                            guard let windowScene = UIApplication.shared.connectedScenes
-                                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else {
-                                return
-                            }
-                            SKStoreReviewController.requestReview(in: windowScene)
-                            shouldShowRateAlert = false
-                        }
-                    }
-                }
-            }
-            .onDisappear {
-                if shouldShowRateAlert, let startTime = startTime {
-                    timeSpent += Date().timeIntervalSince(startTime)
                 }
             }
         }

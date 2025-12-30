@@ -3,37 +3,6 @@ import MapKit
 import CryptoKit
 import ObjectiveC.runtime
 
-private var placemarkUUIDKey: UInt8 = 0
-
-private extension CLPlacemark {
-    var uuid: UUID {
-        if let existing = objc_getAssociatedObject(self, &placemarkUUIDKey) as? UUID {
-            return existing
-        }
-
-        let key = "\(location?.coordinate.latitude ?? 0),\(location?.coordinate.longitude ?? 0)-" +
-                  "\(name ?? "")-\(locality ?? "")-\(administrativeArea ?? "")-\(isoCountryCode ?? "")"
-
-        let digest = Insecure.MD5.hash(data: Data(key.utf8))
-        let uuid: UUID = digest.withUnsafeBytes { rawBuffer in
-            let bytes = rawBuffer.bindMemory(to: UInt8.self)
-            return UUID(uuid: (
-                bytes[0], bytes[1], bytes[2], bytes[3],
-                bytes[4], bytes[5], bytes[6], bytes[7],
-                bytes[8], bytes[9], bytes[10], bytes[11],
-                bytes[12], bytes[13], bytes[14], bytes[15]
-            ))
-        }
-
-        objc_setAssociatedObject(self, &placemarkUUIDKey, uuid, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        return uuid
-    }
-}
-
-extension MKMapItem: @retroactive Identifiable {
-    public var id: UUID { placemark.uuid }
-}
-
 struct MapView: View {
     @EnvironmentObject private var settings: Settings
     @Environment(\.dismiss) private var dismiss
@@ -281,4 +250,40 @@ struct MapView: View {
         guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
         UIApplication.shared.open(url)
     }
+}
+
+private var placemarkUUIDKey: UInt8 = 0
+
+private extension CLPlacemark {
+    var uuid: UUID {
+        if let existing = objc_getAssociatedObject(self, &placemarkUUIDKey) as? UUID {
+            return existing
+        }
+
+        let key = "\(location?.coordinate.latitude ?? 0),\(location?.coordinate.longitude ?? 0)-" +
+                  "\(name ?? "")-\(locality ?? "")-\(administrativeArea ?? "")-\(isoCountryCode ?? "")"
+
+        let digest = Insecure.MD5.hash(data: Data(key.utf8))
+        let uuid: UUID = digest.withUnsafeBytes { rawBuffer in
+            let bytes = rawBuffer.bindMemory(to: UInt8.self)
+            return UUID(uuid: (
+                bytes[0], bytes[1], bytes[2], bytes[3],
+                bytes[4], bytes[5], bytes[6], bytes[7],
+                bytes[8], bytes[9], bytes[10], bytes[11],
+                bytes[12], bytes[13], bytes[14], bytes[15]
+            ))
+        }
+
+        objc_setAssociatedObject(self, &placemarkUUIDKey, uuid, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        return uuid
+    }
+}
+
+extension MKMapItem: @retroactive Identifiable {
+    public var id: UUID { placemark.uuid }
+}
+
+#Preview {
+    MapView(choosingPrayerTimes: false)
+        .environmentObject(Settings.shared)
 }

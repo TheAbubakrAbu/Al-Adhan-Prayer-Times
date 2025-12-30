@@ -147,7 +147,7 @@ struct SettingsAdhanView: View {
         ), titleVisibility: .visible) {
             switch showAlert {
             case .travelTurnOnAutomatic:
-                Button("Override: Turn Off Traveling Mode", role: .destructive) {
+                Button("Override: Turn Off", role: .destructive) {
                     withAnimation {
                         settings.travelingMode = false
                     }
@@ -157,13 +157,13 @@ struct SettingsAdhanView: View {
                     settings.fetchPrayerTimes(force: true)
                 }
                 
-                Button("Confirm: Keep Traveling Mode On", role: .cancel) {
+                Button("Confirm: Keep On", role: .cancel) {
                     settings.travelTurnOnAutomatic = false
                     settings.travelTurnOffAutomatic = false
                 }
                 
             case .travelTurnOffAutomatic:
-                Button("Override: Keep Traveling Mode On", role: .destructive) {
+                Button("Override: Keep On", role: .destructive) {
                     withAnimation {
                         settings.travelingMode = true
                     }
@@ -173,7 +173,7 @@ struct SettingsAdhanView: View {
                     settings.fetchPrayerTimes(force: true)
                 }
                 
-                Button("Confirm: Turn Off Traveling Mode", role: .cancel) {
+                Button("Confirm: Turn Off", role: .cancel) {
                     settings.travelTurnOnAutomatic = false
                     settings.travelTurnOffAutomatic = false
                 }
@@ -318,43 +318,52 @@ struct NotificationView: View {
     @State private var showAlert: Bool = false
     
     var body: some View {
-        MoreNotificationView()
-            .onAppear {
-                settings.requestNotificationAuthorization {
-                    settings.fetchPrayerTimes {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            if settings.showNotificationAlert {
-                                showAlert = true
-                            }
+        List {
+            Section(header: Text("HIJRI CALENDAR")) {
+                Toggle("Islamic Calendar Notifications", isOn: $settings.dateNotifications.animation(.easeInOut))
+                    .font(.subheadline)
+            }
+            
+            NavigationLink(destination: MoreNotificationView()) {
+                Label("More Notification Settings", systemImage: "bell.fill")
+            }
+        }
+        .onAppear {
+            settings.requestNotificationAuthorization {
+                settings.fetchPrayerTimes {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if settings.showNotificationAlert {
+                            showAlert = true
                         }
                     }
                 }
             }
-            .onChange(of: scenePhase) { _ in
-                settings.requestNotificationAuthorization {
-                    settings.fetchPrayerTimes {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            if settings.showNotificationAlert {
-                                showAlert = true
-                            }
+        }
+        .onChange(of: scenePhase) { _ in
+            settings.requestNotificationAuthorization {
+                settings.fetchPrayerTimes {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if settings.showNotificationAlert {
+                            showAlert = true
                         }
                     }
                 }
             }
-            .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
-                Button("Open Settings") {
-                    #if !os(watchOS)
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    }
-                    #endif
+        }
+        .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
+            Button("Open Settings") {
+                #if !os(watchOS)
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
-                Button("Ignore", role: .cancel) { }
-            } message: {
-                Text("Please go to Settings and enable notifications to be notified of prayer times.")
+                #endif
             }
-            .applyConditionalListStyle(defaultView: true)
-            .navigationTitle("Notification Settings")
+            Button("Ignore", role: .cancel) { }
+        } message: {
+            Text("Please go to Settings and enable notifications to be notified of prayer times.")
+        }
+        .applyConditionalListStyle(defaultView: true)
+        .navigationTitle("Notification Settings")
     }
 }
 

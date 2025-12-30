@@ -6,12 +6,10 @@ struct PrayerCountdown: View {
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var progress : Double = 0
-    private let timer = Timer
-        .publish(every: 60, on: .main, in: .common)
-        .autoconnect()
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
-    private var current : Prayer? { settings.currentPrayer }
-    private var next : Prayer? { settings.nextPrayer }
+    private var current: Prayer? { settings.currentPrayer }
+    private var next   : Prayer? { settings.nextPrayer }
     
     private func calcProgress() -> Double {
         guard var start = current?.time, var end = next?.time else { return 0 }
@@ -156,6 +154,7 @@ private struct UpcomingPrayerCell: View {
                 ProgressView(value: progress)
                     .tint(settings.accentColor.color)
                     .padding(.top, 4)
+                
                 timeInfo
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -225,4 +224,9 @@ private struct UpcomingPrayerCell: View {
         }
         .font(.headline)
     }
+}
+
+#Preview {
+    AdhanView()
+        .environmentObject(Settings.shared)
 }
