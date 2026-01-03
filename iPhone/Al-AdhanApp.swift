@@ -9,11 +9,10 @@ struct AlAdhanApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
-    @State private var isLaunching = true
+    @AppStorage("firstLaunchSheet") var firstLaunchSheet: Bool = true
+    @State var showAdhanSheet: Bool = false
     
-    @AppStorage("timeSpent") private var timeSpent: Double = 0
-    @AppStorage("shouldShowRateAlert") private var shouldShowRateAlert: Bool = true
-    @State private var startTime: Date?
+    @State private var isLaunching = true
 
     var body: some Scene {
         WindowGroup {
@@ -41,6 +40,27 @@ struct AlAdhanApp: App {
                                 Image(systemName: "gearshape")
                                 Text("Settings")
                             }
+                    }
+                    .onAppear {
+                        if firstLaunchSheet {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                withAnimation {
+                                    showAdhanSheet = true
+                                }
+                            }
+                        }
+                    }
+                    .sheet(
+                        isPresented: $showAdhanSheet,
+                        onDismiss: {
+                            firstLaunchSheet = false
+                        }) {
+                        AdhanSetupSheet()
+                            .environmentObject(settings)
+                            .accentColor(settings.accentColor.color)
+                            .tint(settings.accentColor.color)
+                            .preferredColorScheme(settings.colorScheme)
+                            .transition(.opacity)
                     }
                 }
             }

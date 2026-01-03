@@ -326,6 +326,7 @@ struct NotificationView: View {
             
             NavigationLink(destination: MoreNotificationView()) {
                 Label("More Notification Settings", systemImage: "bell.fill")
+                    .font(.subheadline)
             }
         }
         .onAppear {
