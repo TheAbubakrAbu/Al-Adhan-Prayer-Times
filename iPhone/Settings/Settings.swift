@@ -83,6 +83,7 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     @Published var prayersData: Data {
         didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
             if !prayersData.isEmpty {
                 appGroupUserDefaults?.setValue(prayersData, forKey: "prayersData")
             }
@@ -112,15 +113,22 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     @Published var accentColor: AccentColor {
-        didSet { appGroupUserDefaults?.setValue(accentColor.rawValue, forKey: "accentColor") }
+        didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
+            appGroupUserDefaults?.setValue(accentColor.rawValue, forKey: "accentColor")
+        }
     }
     
     @Published var travelingMode: Bool {
-        didSet { appGroupUserDefaults?.setValue(travelingMode, forKey: "travelingMode") }
+        didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
+            appGroupUserDefaults?.setValue(travelingMode, forKey: "travelingMode")
+        }
     }
     
     @Published var currentLocation: Location? {
         didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
             guard let location = currentLocation else { return }
             do {
                 let locationData = try Self.encoder.encode(location)
@@ -133,6 +141,7 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     @Published var homeLocation: Location? {
         didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
             guard let homeLocation = homeLocation else {
                 appGroupUserDefaults?.removeObject(forKey: "homeLocationData")
                 return
@@ -147,15 +156,24 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     @Published var hanafiMadhab: Bool {
-        didSet { appGroupUserDefaults?.setValue(hanafiMadhab, forKey: "hanafiMadhab") }
+        didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
+            appGroupUserDefaults?.setValue(hanafiMadhab, forKey: "hanafiMadhab")
+        }
     }
     
     @Published var prayerCalculation: String {
-        didSet { appGroupUserDefaults?.setValue(prayerCalculation, forKey: "prayerCalculation") }
+        didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
+            appGroupUserDefaults?.setValue(prayerCalculation, forKey: "prayerCalculation")
+        }
     }
     
     @Published var hijriOffset: Int {
-        didSet { appGroupUserDefaults?.setValue(hijriOffset, forKey: "hijriOffset") }
+        didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
+            appGroupUserDefaults?.setValue(hijriOffset, forKey: "hijriOffset")
+        }
     }
 
     @AppStorage("favoriteLetterData") private var favoriteLetterData = Data()
@@ -226,6 +244,8 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     @AppStorage("travelAutomatic") var travelAutomatic: Bool = true
     @AppStorage("travelTurnOffAutomatic") var travelTurnOffAutomatic: Bool = false
     @AppStorage("travelTurnOnAutomatic") var travelTurnOnAutomatic: Bool = false
+    /// Set by the UI when the user toggles Traveling Mode; fetchPrayerTimes skips checkIfTraveling once so we don’t override or notify.
+    var travelingModeManuallyToggled: Bool = false
     
     @AppStorage("showLocationAlert") var showLocationAlert: Bool = false {
         willSet { objectWillChange.send() }
