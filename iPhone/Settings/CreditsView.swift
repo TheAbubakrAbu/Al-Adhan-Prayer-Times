@@ -16,22 +16,24 @@ struct CreditsView: View {
                         Spacer()
                     }
                     
-                    Link("abubakrelmallah.com", destination: URL(string: "https://abubakrelmallah.com/")!)
-                        .foregroundColor(settings.accentColor.color)
-                        .font(.headline)
-                        .multilineTextAlignment(.center)
-                        .padding(.vertical, 4)
-                        .padding(.bottom, 8)
-                        .contextMenu {
-                            Button(action: {
-                                UIPasteboard.general.string = "https://abubakrelmallah.com/"
-                            }) {
-                                HStack {
-                                    Image(systemName: "doc.on.doc")
-                                    Text("Copy Website")
+                    if let url = URL(string: "https://abubakrelmallah.com/") {
+                        Link("abubakrelmallah.com", destination: url)
+                            .foregroundColor(settings.accentColor.color)
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .padding(.vertical, 4)
+                            .padding(.bottom, 8)
+                            .contextMenu {
+                                Button(action: {
+                                    UIPasteboard.general.string = "https://abubakrelmallah.com/"
+                                }) {
+                                    HStack {
+                                        Image(systemName: "doc.on.doc")
+                                        Text("Copy Website")
+                                    }
                                 }
                             }
-                        }
+                    }
                     
                     Divider()
                         .background(settings.accentColor.color)
@@ -48,7 +50,11 @@ struct CreditsView: View {
                         .font(.body)
                         .multilineTextAlignment(.leading)
                     
-                    Link("View the source code: github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times", destination: URL(string: "https://github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times")!)
+                    if let url = URL(string: "https://github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times") {
+                        Link(
+                            "View the source code: github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times",
+                            destination: url
+                        )
                         .font(.body)
                         .foregroundColor(settings.accentColor.color)
                         .contextMenu {
@@ -61,6 +67,7 @@ struct CreditsView: View {
                                 }
                             }
                         }
+                    }
                 }
                 
                 Section {
@@ -69,13 +76,24 @@ struct CreditsView: View {
                 }
                 
                 Section(header: Text("CREDITS")) {
-                    Link("Credit for the Adhan calculations, which does everything offline on the device, goes to Batoul Apps", destination: URL(string: "https://github.com/batoulapps/adhan-swift")!)
-                        .foregroundColor(settings.accentColor.color)
-                        .font(.body)
-                    
-                    Link("Credit for the 99 Names of Allah from KabDeveloper", destination: URL(string: "https://github.com/KabDeveloper/99-Names-Of-Allah/tree/main")!)
-                        .foregroundColor(settings.accentColor.color)
-                        .font(.body)
+                    Group {
+                        if let url = URL(string: "https://github.com/batoulapps/adhan-swift") {
+                            Link(
+                                "Credit for the Adhan calculations, which does everything offline on the device, goes to Batoul Apps",
+                                destination: url
+                            )
+                        }
+
+                        if let url = URL(string: "https://github.com/KabDeveloper/99-Names-Of-Allah/tree/main") {
+                            Link(
+                                "Credit for the 99 Names of Allah from KabDeveloper",
+                                destination: url
+                            )
+                        }
+
+                    }
+                    .foregroundColor(settings.accentColor.color)
+                    .font(.body)
                 }
                 
                 Section(header: Text("APPS BY ABUBAKR ELMALLAH")) {
@@ -136,8 +154,10 @@ struct AppLinkRow: View {
                 .frame(width: 50, height: 50)
                 .padding(.trailing, 8)
 
-            Link(title, destination: URL(string: url)!)
-                .font(.subheadline)
+            if let destination = URL(string: url) {
+                Link(title, destination: destination)
+                    .font(.subheadline)
+            }
         }
         .contextMenu {
             Button {
