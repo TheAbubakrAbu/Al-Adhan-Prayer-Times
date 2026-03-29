@@ -3,11 +3,11 @@ import os
 import Adhan
 import CoreLocation
 
-let logger = Logger(subsystem: "com.Quran.Elmallah.Prayer-Times", category: "Al-Adhan")
+let logger = Logger(subsystem: AppIdentifiers.bundleIdentifier, category: "Settings")
 
 final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     static let shared = Settings()
-    private let appGroupUserDefaults = UserDefaults(suiteName: "com.Quran.Elmallah.Prayer-Times")
+    private let appGroupUserDefaults = UserDefaults(suiteName: AppIdentifiers.appGroupSuiteName)
 
     static let encoder: JSONEncoder = {
         let enc = JSONEncoder()

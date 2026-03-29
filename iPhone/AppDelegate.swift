@@ -4,7 +4,7 @@ import UIKit
 import UserNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-    private let taskID = "com.Quran.Elmallah.Prayer-Times.fetchPrayerTimes"
+    private let taskID = AppIdentifiers.backgroundFetchPrayerTimesTaskIdentifier
 
     func application(
         _ application: UIApplication,
