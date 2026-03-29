@@ -17,7 +17,7 @@ struct AlAdhanApp: App {
                     TabView {
                         AdhanView()
                         
-                        OtherView()
+                        IslamView()
                         
                         SettingsView()
                     }

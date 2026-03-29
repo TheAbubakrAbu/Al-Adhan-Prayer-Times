@@ -1,123 +1,69 @@
 import SwiftUI
 import UserNotifications
+#if os(iOS)
+import AVFoundation
+#endif
 
 struct SettingsAdhanView: View {
     @EnvironmentObject var settings: Settings
+    @Environment(\.dismiss) private var dismiss
     
     @State private var showingMap = false
     
     @State private var showAlert: AlertType?
     enum AlertType: Identifiable {
-        case travelTurnOnAutomatic, travelTurnOffAutomatic
+        case travelTurnOnAutomatic, travelTurnOffAutomatic, calculationAutomaticChanged
 
         var id: Int {
             switch self {
             case .travelTurnOnAutomatic: return 1
             case .travelTurnOffAutomatic: return 2
+            case .calculationAutomaticChanged: return 3
             }
         }
     }
     
     @State var showNotifications: Bool
+    private let presentedAsSheet: Bool
+
+    init(showNotifications: Bool, presentedAsSheet: Bool = false) {
+        self._showNotifications = State(initialValue: showNotifications)
+        self.presentedAsSheet = presentedAsSheet
+    }
+
+    private var dialogTitle: String {
+        switch showAlert {
+        case .travelTurnOnAutomatic:
+            return "Traveling Mode Detected"
+        case .travelTurnOffAutomatic:
+            return "Traveling Mode Updated"
+        case .calculationAutomaticChanged:
+            return "Calculation Method Changed"
+        case .none:
+            return ""
+        }
+    }
     
     var body: some View {
         List {
-            #if !os(watchOS)
-            if showNotifications {
-                Section(header: Text("NOTIFICATIONS")) {
-                    NavigationLink(destination: NotificationView()) {
-                        Label("Notification Settings", systemImage: "bell.badge")
-                    }
-                }
-            }
-            #endif
-            
-            Section(header: Text("PRAYER CALCULATION")) {
-                VStack(alignment: .leading) {
-                    Picker("Calculation", selection: $settings.prayerCalculation.animation(.easeInOut)) {
-                        ForEach(calculationOptions, id: \.self) { option in
-                            Text(option).tag(option)
-                        }
-                    }
-                    
-                    Text("Fajr and Isha timings vary by calculation method. If available, use location-based calculations; for example, in North America, the North America method is recommended. Otherwise, choose the Muslim World League or another global option.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.vertical, 2)
-                }
-                
-                VStack(alignment: .leading) {
-                    Toggle("Use Hanafi Calculation for Asr", isOn: $settings.hanafiMadhab.animation(.easeInOut))
-                        .font(.subheadline)
-                        .tint(settings.accentColor.color)
-                    
-                    Text("The Hanafi madhab sets Asr later than other schools of thought. Enable this only if you follow the Hanafi method.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.vertical, 2)
-                }
-            }
-            
-            Section(header: Text("TRAVELING MODE")) {
-                #if !os(watchOS)
-                Button(action: {
-                    settings.hapticFeedback()
-                    
-                    showingMap = true
-                }) {
-                    HStack {
-                        Text("Set Home City")
-                            .font(.subheadline)
-                            .foregroundColor(settings.accentColor.color)
-                        if !(settings.homeLocation?.city.isEmpty ?? true) {
-                            Spacer()
-                            Text(settings.homeLocation?.city ?? "")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                .sheet(isPresented: $showingMap) {
-                    MapView(choosingPrayerTimes: false)
-                        .environmentObject(settings)
-                }
-                
-                Toggle("Traveling Mode Turns on Automatically", isOn: $settings.travelAutomatic.animation(.easeInOut))
-                    .font(.subheadline)
-                    .tint(settings.accentColor.color)
-                #endif
-                
-                VStack(alignment: .leading) {
-                    #if !os(watchOS)
-                    Toggle("Traveling Mode", isOn: Binding(
-                        get: { settings.travelingMode },
-                        set: { settings.travelingModeManuallyToggled = true; settings.travelingMode = $0 }
-                    ).animation(.easeInOut))
-                        .font(.subheadline)
-                        .tint(settings.accentColor.color)
-                        .disabled(settings.travelAutomatic)
-                    
-                    Text("If you are traveling more than 48 mi (77.25 km), then it is obligatory to pray Qasr, where you combine Dhuhr and Asr (2 rakahs each) and Maghrib and Isha (3 and 2 rakahs). Allah said in the Quran, “And when you (Muslims) travel in the land, there is no sin on you if you shorten As-Salah (the prayer)” [Quran, An-Nisa, 4:101]. \(settings.travelAutomatic ? "This feature turns on and off automatically, but you can also control it manually here." : "You can control traveling mode manually here.")")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.vertical, 2)
-                    #else
-                    Toggle("Traveling Mode", isOn: Binding(
-                        get: { settings.travelingMode },
-                        set: { settings.travelingModeManuallyToggled = true; settings.travelingMode = $0 }
-                    ).animation(.easeInOut))
-                        .font(.subheadline)
-                        .tint(settings.accentColor.color)
-                    #endif
-                }
-            }
-            
-            #if !os(watchOS)
-            PrayerOffsetsView()
-            #endif
+            notificationsSection
+            prayerCalculationSection
+            travelingModeSection
+            prayerOffsetsSection
         }
         .applyConditionalListStyle(defaultView: true)
         .navigationTitle("Al-Adhan Settings")
+        #if os(iOS)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if presentedAsSheet {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        #endif
         .onChange(of: settings.homeLocation) { _ in
             settings.fetchPrayerTimes() {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -148,43 +94,53 @@ struct SettingsAdhanView: View {
                 }
             }
         }
-        .confirmationDialog("", isPresented: Binding(
+        .onChange(of: settings.calculationAutomatic) { newValue in
+            guard newValue else { return }
+            settings.fetchPrayerTimes(force: true) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    if settings.calculationAutoChanged {
+                        showAlert = .calculationAutomaticChanged
+                    }
+                }
+            }
+        }
+        .onChange(of: settings.prayerCalculation) { _ in
+            if settings.calculationAutoChanged {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    showAlert = .calculationAutomaticChanged
+                }
+            }
+        }
+        .confirmationDialog(dialogTitle, isPresented: Binding(
             get: { showAlert != nil },
             set: { if !$0 { showAlert = nil } }
         ), titleVisibility: .visible) {
             switch showAlert {
             case .travelTurnOnAutomatic:
                 Button("Override: Turn Off", role: .destructive) {
-                    settings.travelingModeManuallyToggled = true
-                    withAnimation {
-                        settings.travelingMode = false
-                    }
-                    settings.travelAutomatic = false
-                    settings.travelTurnOnAutomatic = false
-                    settings.travelTurnOffAutomatic = false
-                    settings.fetchPrayerTimes(force: true)
+                    settings.overrideTravelingMode(keepOn: false)
                 }
                 
                 Button("Confirm: Keep On", role: .cancel) {
-                    settings.travelTurnOnAutomatic = false
-                    settings.travelTurnOffAutomatic = false
+                    settings.confirmTravelAutomaticChange()
                 }
                 
             case .travelTurnOffAutomatic:
                 Button("Override: Keep On", role: .destructive) {
-                    settings.travelingModeManuallyToggled = true
-                    withAnimation {
-                        settings.travelingMode = true
-                    }
-                    settings.travelAutomatic = false
-                    settings.travelTurnOnAutomatic = false
-                    settings.travelTurnOffAutomatic = false
-                    settings.fetchPrayerTimes(force: true)
+                    settings.overrideTravelingMode(keepOn: true)
                 }
                 
                 Button("Confirm: Turn Off", role: .cancel) {
-                    settings.travelTurnOnAutomatic = false
-                    settings.travelTurnOffAutomatic = false
+                    settings.confirmTravelAutomaticChange()
+                }
+
+            case .calculationAutomaticChanged:
+                Button("Override: Keep \(settings.calculationAutoPreviousMethod)", role: .destructive) {
+                    settings.overrideAutomaticCalculationKeepingPrevious()
+                }
+
+                Button("Confirm: Use \(settings.calculationAutoDetectedMethod)", role: .cancel) {
+                    settings.confirmAutomaticCalculationChange()
                 }
                 
             case .none:
@@ -193,123 +149,253 @@ struct SettingsAdhanView: View {
         } message: {
             switch showAlert {
             case .travelTurnOnAutomatic:
-                Text("Al-Adhan has automatically detected that you are traveling, so your prayers will be shortened.")
+                Text(settings.automaticTravelMessage(turnOn: true))
             case .travelTurnOffAutomatic:
-                Text("Al-Adhan has automatically detected that you are no longer traveling, so your prayers will not be shortened.")
+                Text(settings.automaticTravelMessage(turnOn: false))
+            case .calculationAutomaticChanged:
+                Text(settings.automaticCalculationMessage)
             case .none:
                 EmptyView()
             }
         }
     }
+
+    @ViewBuilder
+    private var notificationsSection: some View {
+        #if os(iOS)
+        if showNotifications {
+            Section(header: Text("NOTIFICATIONS")) {
+                NavigationLink(destination: NotificationView()) {
+                    Label("Notification Settings", systemImage: "bell.badge")
+                }
+            }
+        }
+        #endif
+    }
+
+    private var prayerCalculationSection: some View {
+        Section(header: Text("PRAYER CALCULATION")) {
+            automaticCalculationToggle
+            calculationPickerGroup
+            hanafiCalculationGroup
+        }
+    }
+
+    private var automaticCalculationToggle: some View {
+        Toggle("Automatic Prayer Calculation", isOn: $settings.calculationAutomatic.animation(.easeInOut))
+            .font(.subheadline)
+            .tint(settings.accentColor.color)
+    }
+
+    private var calculationPickerGroup: some View {
+        VStack(alignment: .leading) {
+            Picker("Calculation", selection: calculationSelection.animation(.easeInOut)) {
+                ForEach(calculationOptions, id: \.self) { option in
+                    Text(option).tag(option)
+                        .font(.subheadline)
+                }
+            }
+            .font(.subheadline)
+            .disabled(settings.calculationAutomatic)
+
+            Text("Fajr and Isha timings vary by calculation method. If automatic mode is on, Al-Adhan picks a method based on your location (for example, North America or Turkey). If your country is not mapped, it defaults to Muslim World League.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.vertical, 2)
+        }
+    }
+
+    private var calculationSelection: Binding<String> {
+        Binding(
+            get: { settings.prayerCalculation },
+            set: { newValue in
+                settings.calculationManuallyToggled = true
+                if settings.calculationAutomatic {
+                    settings.calculationAutomatic = false
+                }
+                settings.prayerCalculation = newValue
+            }
+        )
+    }
+
+    private var hanafiCalculationGroup: some View {
+        VStack(alignment: .leading) {
+            Toggle("Hanafi Calculation for Asr", isOn: $settings.hanafiMadhab.animation(.easeInOut))
+                .font(.subheadline)
+                .tint(settings.accentColor.color)
+
+            Text("The Hanafi madhab sets Asr later than other schools of thought. Enable this only if you follow the Hanafi method.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.vertical, 2)
+        }
+    }
+
+    private var travelingModeSection: some View {
+        Section(header: Text("TRAVELING MODE")) {
+            homeCityButton
+            automaticTravelToggle
+            travelingModeGroup
+        }
+    }
+
+    @ViewBuilder
+    private var homeCityButton: some View {
+        #if os(iOS)
+        Button {
+            settings.hapticFeedback()
+            showingMap = true
+        } label: {
+            HStack {
+                Text("Set Home City")
+                    .font(.subheadline)
+                    .foregroundColor(settings.accentColor.color)
+                if !(settings.homeLocation?.city.isEmpty ?? true) {
+                    Spacer()
+                    Text(settings.homeLocation?.city ?? "")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .sheet(isPresented: $showingMap) {
+            MapView(choosingPrayerTimes: false)
+                .environmentObject(settings)
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var automaticTravelToggle: some View {
+        #if os(iOS)
+        Toggle("Automatic Traveling Mode", isOn: $settings.travelAutomatic.animation(.easeInOut))
+            .font(.subheadline)
+            .tint(settings.accentColor.color)
+        #endif
+    }
+
+    private var travelingModeGroup: some View {
+        VStack(alignment: .leading) {
+            Toggle("Traveling Mode", isOn: travelingModeBinding.animation(.easeInOut))
+                .font(.subheadline)
+                .tint(settings.accentColor.color)
+                .disabled(settings.travelAutomatic && !isWatch)
+
+            #if os(iOS)
+            Text("If you are traveling more than 48 mi (77.25 km), then it is obligatory to pray Qasr, where you combine Dhuhr and Asr (2 rakahs each) and Maghrib and Isha (3 and 2 rakahs). Allah said in the Quran, “And when you (Muslims) travel in the land, there is no sin on you if you shorten As-Salah (the prayer)” [Quran, An-Nisa, 4:101]. \(settings.travelAutomatic ? "This feature turns on and off automatically, but you can also control it manually here." : "You can control traveling mode manually here.")")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.vertical, 2)
+            #endif
+        }
+    }
+
+    private var travelingModeBinding: Binding<Bool> {
+        Binding(
+            get: { settings.travelingMode },
+            set: {
+                settings.travelingModeManuallyToggled = true
+                settings.travelingMode = $0
+            }
+        )
+    }
+
+    @ViewBuilder
+    private var prayerOffsetsSection: some View {
+        #if os(iOS)
+        PrayerOffsetsView()
+        #endif
+    }
+
+    private var isWatch: Bool {
+        #if os(iOS)
+        false
+        #else
+        true
+        #endif
+    }
 }
 
-let calculationOptions: [String] = [
-    "Muslim World League",
-    "Moonsight Committee",
-    "Umm Al-Qura",
-    "Egypt",
-    "Dubai",
-    "Kuwait",
-    "Qatar",
-    "Turkey",
-    "Tehran",
-    "Karachi",
-    "Singapore",
-    "North America"
-]
+let calculationOptions: [String] = {
+    let preferred = "Muslim World League"
+    let rest = [
+        "Britain (Moonsighting Committee)",
+        "Saudi Arabia (Umm Al-Qura)",
+        "Egypt",
+        "Dubai",
+        "Kuwait",
+        "Qatar",
+        "Turkey",
+        "Tehran",
+        "Karachi",
+        "Singapore",
+        "North America"
+    ].sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+    return [preferred] + rest
+}()
 
 struct PrayerOffsetsView: View {
     @EnvironmentObject var settings: Settings
+
+    @ViewBuilder
+    private func offsetStepper(title: String, icon: String, value: Binding<Int>) -> some View {
+        Stepper(value: value.animation(.easeInOut), in: -10...10) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(settings.accentColor.color)
+                    .frame(width: 22, alignment: .center)
+
+                Text(title)
+                    .foregroundColor(.primary)
+
+                Spacer()
+
+                Text("\(value.wrappedValue) min")
+                    .foregroundColor(settings.accentColor.color)
+            }
+        }
+        .font(.subheadline)
+        .tint(settings.accentColor.color)
+        .foregroundColor(settings.accentColor.color)
+    }
+
+    private func travelOffsetCaption(for prayerName: String) -> String? {
+        switch prayerName {
+        case "Dhuhr":
+            return "Also affects the combined traveling Dhuhr/Asr prayer."
+        case "Maghrib":
+            return "Also affects the combined traveling Maghrib/Isha prayer."
+        default:
+            return nil
+        }
+    }
     
     var body: some View {
+        Section(header: Text("HIJRI DATE")) {
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle("Switch Hijri Date at Maghrib", isOn: $settings.switchHijriDateAtMaghrib.animation(.easeInOut))
+                    .font(.subheadline)
+                    .tint(settings.accentColor.color)
+
+                Text("When enabled, the displayed Hijri date changes at the calculated Maghrib time instead of at midnight. Off by default.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.vertical, 2)
+            }
+        }
+        
         Section(header: Text("PRAYER OFFSETS")) {
-            Stepper(value: $settings.offsetFajr, in: -10...10) {
-                HStack {
-                    Text("Fajr")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetFajr) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
-            
-            Stepper(value: $settings.offsetSunrise, in: -10...10) {
-                HStack {
-                    Text("Sunrise")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetSunrise) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
-            
-            Stepper(value: $settings.offsetDhuhr, in: -10...10) {
-                HStack {
-                    Text("Dhuhr")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetDhuhr) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
-            
-            Stepper(value: $settings.offsetAsr, in: -10...10) {
-                HStack {
-                    Text("Asr")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetAsr) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
-            
-            Stepper(value: $settings.offsetMaghrib, in: -10...10) {
-                HStack {
-                    Text("Maghrib")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetMaghrib) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
-            
-            Stepper(value: $settings.offsetIsha, in: -10...10) {
-                HStack {
-                    Text("Isha")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetIsha) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
-            
-            Stepper(value: $settings.offsetDhurhAsr, in: -10...10) {
-                HStack {
-                    Text("Combined Traveling\nDhuhr and Asr")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetDhurhAsr) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
-            
-            Stepper(value: $settings.offsetMaghribIsha, in: -10...10) {
-                HStack {
-                    Text("Combined Traveling\nMaghrib and Isha")
-                        .foregroundColor(settings.accentColor.color)
-                    Spacer()
-                    Text("\(settings.offsetMaghribIsha) min")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(.subheadline)
+            offsetStepper(title: "Fajr", icon: "sunrise", value: $settings.offsetFajr)
+            offsetStepper(title: "Sunrise", icon: "sunrise.fill", value: $settings.offsetSunrise)
+            offsetStepper(title: "Dhuhr", icon: "sun.max", value: $settings.offsetDhuhr)
+            offsetStepper(title: "Asr", icon: "sun.min", value: $settings.offsetAsr)
+            offsetStepper(title: "Maghrib", icon: "sunset", value: $settings.offsetMaghrib)
+            offsetStepper(title: "Isha", icon: "moon", value: $settings.offsetIsha)
+
+            Text("In traveling mode, Dhuhr offset also affects the combined Dhuhr/Asr prayer, and Maghrib offset also affects the combined Maghrib/Isha prayer.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.vertical, 2)
             
             Text("Use these offsets to shift the calculated prayer times earlier or later. Negative values move the time earlier, positive values move it later.")
                 .font(.caption)
@@ -327,19 +413,56 @@ struct NotificationView: View {
     @State private var showAlert: Bool = false
     @State private var notifSettings: UNNotificationSettings?
     @State private var requestAccessAlertMessage: String?
+    #if os(iOS)
+    @State private var previewPlayer: AVAudioPlayer?
+    #endif
+
+    private var notificationSoundsDisabled: Bool {
+        notifSettings?.soundSetting == .disabled
+    }
     
     var body: some View {
         List {
-            #if !os(watchOS)
+            #if os(iOS)
             Section {
                 permissionCard
             }
-            #endif
             
             Section(header: Text("HIJRI CALENDAR")) {
                 Toggle("Islamic Calendar Notifications", isOn: $settings.dateNotifications.animation(.easeInOut))
                     .font(.subheadline)
             }
+
+            Section(header: Text("ADHAN SOUND")) {
+                Picker("Adhan Sound", selection: $settings.adhanNotificationSound.animation(.easeInOut)) {
+                    ForEach(Settings.supportedAdhanSounds) { option in
+                        Text(option.title).tag(option.id)
+                    }
+                }
+
+                if notificationSoundsDisabled {
+                    Label("Notification sounds are off in iPhone Settings, so the adhan will be silent.", systemImage: "speaker.slash.fill")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                if settings.adhanNotificationSound != "default" {
+                    Button {
+                        settings.hapticFeedback()
+                        playAdhanPreview()
+                    } label: {
+                        Label("Preview Sound", systemImage: "play.circle.fill")
+                            .font(.subheadline)
+                            .foregroundColor(settings.accentColor.color)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Text("Used only for the actual prayer-time notification. Prenotifications and nagging reminders still use the default sound.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            #endif
             
             Section(header: Text("PRAYER REMINDERS")) {
                 NavigationLink(destination: MoreNotificationView()) {
@@ -349,9 +472,12 @@ struct NotificationView: View {
             }
         }
         .task { await refresh() }
-        .onAppear { requestAuthorizationAndFetchPrayerTimes() }
+        .onAppear {
+            normalizeAdhanSoundSelection()
+            requestAuthorizationAndFetchPrayerTimes()
+        }
         .onChange(of: scenePhase) { _ in requestAuthorizationAndFetchPrayerTimes() }
-        .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
+        .confirmationDialog("Notifications Off", isPresented: $showAlert, titleVisibility: .visible) {
             Button("Open Settings") { openSystemSettings() }
             Button("Ignore", role: .cancel) { }
         } message: {
@@ -375,7 +501,7 @@ struct NotificationView: View {
         .navigationTitle("Notification Settings")
     }
     
-    #if !os(watchOS)
+    #if os(iOS)
     private var permissionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -414,6 +540,7 @@ struct NotificationView: View {
                     smallButton("Request Access", systemImage: "checkmark.seal")
                 }
                 .buttonStyle(.plain)
+                .contentShape(Rectangle())
 
                 Button {
                     settings.hapticFeedback()
@@ -422,6 +549,7 @@ struct NotificationView: View {
                     smallButton("Open Settings", systemImage: "gear")
                 }
                 .buttonStyle(.plain)
+                .contentShape(Rectangle())
             }
         }
         .padding()
@@ -505,7 +633,7 @@ struct NotificationView: View {
     }
     
     private func openSystemSettings() {
-        #if !os(watchOS)
+        #if os(iOS)
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
@@ -546,6 +674,44 @@ struct NotificationView: View {
             requestAccessAlertMessage = "Unable to change notification settings."
         }
     }
+
+    private func normalizeAdhanSoundSelection() {
+        if settings.adhanNotificationSound == "egypt" {
+            settings.adhanNotificationSound = "egypt-30"
+        } else if !Settings.supportedAdhanSounds.contains(where: { $0.id == settings.adhanNotificationSound }) {
+            settings.adhanNotificationSound = "default"
+        }
+    }
+
+    #if os(iOS)
+    private func playAdhanPreview() {
+        previewPlayer?.stop()
+        try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
+
+        guard let filename = settings.adhanSoundFilename(for: settings.adhanNotificationSound),
+              let path = Bundle.main.path(forResource: filename.replacingOccurrences(of: ".caf", with: ""), ofType: "caf") else { return }
+
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .default, options: [.duckOthers])
+            try session.setActive(true)
+
+            let player = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+            player.prepareToPlay()
+            player.play()
+            previewPlayer = player
+
+            let duration = player.duration
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.25) {
+                if previewPlayer === player {
+                    try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
+                }
+            }
+        } catch {
+            logger.error("Adhan preview playback failed: \(error.localizedDescription)")
+        }
+    }
+    #endif
 }
 
 struct MoreNotificationView: View {
@@ -617,7 +783,7 @@ struct MoreNotificationView: View {
                         Text("15 mins").tag(15)
                         Text("10 mins").tag(10)
                     }
-                    #if !os(watchOS)
+                    #if os(iOS)
                     .pickerStyle(.segmented)
                     #endif
                     
@@ -774,9 +940,9 @@ struct MoreNotificationView: View {
         .onDisappear {
             settings.fetchPrayerTimes(notification: true)
         }
-        .confirmationDialog("", isPresented: $showAlert, titleVisibility: .visible) {
+        .confirmationDialog("Notifications Off", isPresented: $showAlert, titleVisibility: .visible) {
             Button("Open Settings") {
-                #if !os(watchOS)
+                #if os(iOS)
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
@@ -799,6 +965,17 @@ struct NotificationSettingsSection: View {
     @Binding var preNotificationTime: Int
     @Binding var isNotificationOn: Bool
 
+    private var travelNotificationCaption: String? {
+        switch prayerName {
+        case "Dhuhr":
+            return "Also affects the combined traveling Dhuhr/Asr prayer."
+        case "Maghrib":
+            return "Also affects the combined traveling Maghrib/Isha prayer."
+        default:
+            return nil
+        }
+    }
+
     var body: some View {
         Section(header: Text(prayerName.uppercased())) {
             Toggle("Notification", isOn: $isNotificationOn.animation(.easeInOut))
@@ -814,11 +991,19 @@ struct NotificationSettingsSection: View {
                         .foregroundColor(settings.accentColor.color)
                 }
             }
+
+            if let travelNotificationCaption {
+                Text(travelNotificationCaption)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.vertical, 2)
+            }
         }
     }
 }
 
 #Preview {
-    SettingsAdhanView(showNotifications: true)
-        .environmentObject(Settings.shared)
+    AlIslamPreviewContainer(embedInNavigation: true) {
+        SettingsAdhanView(showNotifications: true)
+    }
 }

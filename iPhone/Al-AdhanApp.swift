@@ -1,84 +1,27 @@
 import SwiftUI
 import WidgetKit
-import StoreKit
 
 @main
 struct AlAdhanApp: App {
     @StateObject private var settings = Settings.shared
     @StateObject private var namesData = NamesViewModel.shared
-    
+
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
-    @AppStorage("firstLaunchSheet") var firstLaunchSheet: Bool = true
-    @State var showAdhanSheet: Bool = false
-    
+    @Environment(\.scenePhase) private var scenePhase
+
     @State private var isLaunching = true
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if isLaunching {
-                    LaunchScreen(isLaunching: $isLaunching)
-                } else if settings.firstLaunch {
-                    SplashScreen()
-                } else {
-                    TabView {
-                        AdhanView()
-                            .tabItem {
-                                Image(systemName: "safari")
-                                Text("Adhan")
-                            }
-                        
-                        OtherView()
-                            .tabItem {
-                                Image(systemName: "moon.stars")
-                                Text("Tools")
-                            }
-                        
-                        SettingsView()
-                            .tabItem {
-                                Image(systemName: "gearshape")
-                                Text("Settings")
-                            }
-                    }
-                    .onAppear {
-                        if firstLaunchSheet {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                withAnimation {
-                                    showAdhanSheet = true
-                                }
-                            }
-                        }
-                    }
-                    .sheet(
-                        isPresented: $showAdhanSheet,
-                        onDismiss: {
-                            firstLaunchSheet = false
-                        }) {
-                        AdhanSetupSheet()
-                            .environmentObject(settings)
-                            .accentColor(settings.accentColor.color)
-                            .tint(settings.accentColor.color)
-                            .preferredColorScheme(settings.colorScheme)
-                            .transition(.opacity)
-                    }
-                }
-            }
-            //.statusBarHidden(true)
-            .environmentObject(settings)
-            .environmentObject(namesData)
-            .accentColor(settings.accentColor.color)
-            .tint(settings.accentColor.color)
-            .preferredColorScheme(settings.colorScheme)
-            .transition(.opacity)
-            .animation(.easeInOut, value: isLaunching)
-            .animation(.easeInOut, value: settings.firstLaunch)
-            .appReviewPrompt()
-            .onAppear {
-                withAnimation {
-                    settings.fetchPrayerTimes()
-                }
-            }
+            rootContent
+                .environmentObject(settings)
+                .environmentObject(namesData)
+                .accentColor(settings.accentColor.color)
+                .tint(settings.accentColor.color)
+                .preferredColorScheme(settings.colorScheme)
+                .animation(.easeInOut, value: settings.firstLaunch)
+                .appReviewPrompt()
+                .onAppear(perform: refreshPrayerTimes)
         }
         .onChange(of: settings.accentColor) { _ in
             WidgetCenter.shared.reloadAllTimelines()
@@ -95,6 +38,47 @@ struct AlAdhanApp: App {
         .onChange(of: settings.hijriOffset) { _ in
             settings.updateDates()
             WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    @ViewBuilder
+    private var rootContent: some View {
+        if isLaunching {
+            LaunchScreen(isLaunching: $isLaunching)
+        } else if settings.firstLaunch {
+            SplashScreen()
+        } else {
+            MainTabView()
+        }
+    }
+
+    private func refreshPrayerTimes() {
+        withAnimation {
+            settings.fetchPrayerTimes()
+        }
+    }
+}
+
+private struct MainTabView: View {
+    var body: some View {
+        TabView {
+            AdhanView()
+                .tabItem {
+                    Image(systemName: "safari")
+                    Text("Adhan")
+                }
+
+            IslamView()
+                .tabItem {
+                    Image(systemName: "moon.stars")
+                    Text("Islam")
+                }
+
+            SettingsView()
+                .tabItem {
+                    Image(systemName: "gearshape")
+                    Text("Settings")
+                }
         }
     }
 }

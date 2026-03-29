@@ -1,15 +1,16 @@
-import UIKit
+#if os(iOS)
 import BackgroundTasks
+import UIKit
 import UserNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-    private let taskID  = "com.Quran.Elmallah.Prayer-Times.fetchPrayerTimes"
+    private let taskID = "com.Quran.Elmallah.Prayer-Times.fetchPrayerTimes"
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: taskID, using: nil) { task in
-            self.handleAppRefresh(task: task as! BGAppRefreshTask)
-        }
-
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        registerBackgroundRefreshTask()
         scheduleAppRefresh()
         UNUserNotificationCenter.current().delegate = self
         return true
@@ -19,13 +20,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         scheduleAppRefresh()
     }
 
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
+    }
+
+    private func registerBackgroundRefreshTask() {
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: taskID, using: nil) { task in
+            self.handleAppRefresh(task: task as! BGAppRefreshTask)
+        }
+    }
+
     private func scheduleAppRefresh() {
         let request = BGAppRefreshTaskRequest(identifier: taskID)
         request.earliestBeginDate = nextRunDate()
-        
+
         if let date = request.earliestBeginDate {
-                logger.debug("🔧 Scheduling BGAppRefresh – earliestBeginDate: \(date.formatted())")
-            }
+            logger.debug("🔧 Scheduling BGAppRefresh – earliestBeginDate: \(date.formatted())")
+        }
 
         do {
             try BGTaskScheduler.shared.submit(request)
@@ -36,24 +51,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func nextRunDate(offsetMins: Double = 35) -> Date {
-        guard
-            let fajr = Settings.shared.prayers?
-                .prayers.sorted(by: { $0.time < $1.time })
-                .first?.time
-        else {
-            return Date().addingTimeInterval(24*60*60)
+        guard let fajr = nextFajrTime else {
+            return Date().addingTimeInterval(24 * 60 * 60)
         }
 
         let timeParts = Calendar.current.dateComponents([.hour, .minute, .second], from: fajr)
-        var tomorrow  = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-        tomorrow      = Calendar.current.date(bySettingHour: timeParts.hour!,
-                                              minute:        timeParts.minute!,
-                                              second:        timeParts.second!,
-                                              of:            tomorrow)!
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        let scheduledTomorrow = Calendar.current.date(
+            bySettingHour: timeParts.hour ?? 0,
+            minute: timeParts.minute ?? 0,
+            second: timeParts.second ?? 0,
+            of: tomorrow
+        ) ?? tomorrow
 
-        let target  = tomorrow.addingTimeInterval(-offsetMins*60)
-        let minimum = Date().addingTimeInterval(15*60)
+        let target = scheduledTomorrow.addingTimeInterval(-offsetMins * 60)
+        let minimum = Date().addingTimeInterval(15 * 60)
         return max(target, minimum)
+    }
+
+    private var nextFajrTime: Date? {
+        Settings.shared.prayers?
+            .prayers
+            .sorted(by: { $0.time < $1.time })
+            .first?
+            .time
     }
 
     private func handleAppRefresh(task: BGAppRefreshTask) {
@@ -70,9 +91,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             task.setTaskCompleted(success: true)
         }
     }
-
-    // Foreground Notifications
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.banner, .sound])
-    }
 }
+#endif

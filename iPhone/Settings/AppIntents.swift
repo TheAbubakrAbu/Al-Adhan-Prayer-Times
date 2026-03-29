@@ -64,4 +64,3 @@ struct AppShortcutsRoot: AppShortcutsProvider {
         )
     }
 }
-
