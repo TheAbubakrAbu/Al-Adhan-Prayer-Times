@@ -328,10 +328,11 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     @AppStorage("showPrayerInfo") var showPrayerInfo: Bool = false
 
     // MARK: - Arabic letters & 99 Names
-
-    @AppStorage("THEfontArabic") var fontArabic: String = "KFGQPCQUMBULUthmanicScript-Regu"
-    @AppStorage("useFontArabic") var useFontArabic = true
     
+    @AppStorage("THEfontArabic") var fontArabic: String = "KFGQPCQUMBULUthmanicScript-Regu"
+    @AppStorage("fontArabicSize") var fontArabicSize: Double = Double(UIFont.preferredFont(forTextStyle: .title1).pointSize)
+    @AppStorage("useFontArabic") var useFontArabic = true
+
     @AppStorage("favoriteLetterData") private var favoriteLetterData = Data()
     var favoriteLetters: [LetterData] {
         get {
@@ -341,8 +342,46 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
             favoriteLetterData = (try? Self.encoder.encode(newValue)) ?? Data()
         }
     }
+    
+    func toggleLetterFavorite(letterData: LetterData) {
+        withAnimation {
+            if isLetterFavorite(letterData: letterData) {
+                favoriteLetters.removeAll(where: { $0.id == letterData.id })
+            } else {
+                favoriteLetters.append(letterData)
+            }
+        }
+    }
+
+    func isLetterFavorite(letterData: LetterData) -> Bool {
+        favoriteLetters.contains { $0.id == letterData.id }
+    }
+    
+    @AppStorage("favoriteNameNumbersData") private var favoriteNameNumbersData = Data()
+    var favoriteNameNumbers: [Int] {
+        get {
+            (try? Self.decoder.decode([Int].self, from: favoriteNameNumbersData)) ?? []
+        }
+        set {
+            favoriteNameNumbersData = (try? Self.encoder.encode(newValue)) ?? Data()
+        }
+    }
 
     @AppStorage("showDescription") var showDescription = false
+
+    func toggleNameFavorite(number: Int) {
+        withAnimation {
+            if isNameFavorite(number: number) {
+                favoriteNameNumbers.removeAll(where: { $0 == number })
+            } else {
+                favoriteNameNumbers.append(number)
+            }
+        }
+    }
+
+    func isNameFavorite(number: Int) -> Bool {
+        favoriteNameNumbers.contains(number)
+    }
     
     // MARK: - App-wide appearance & misc @AppStorage
 
@@ -394,19 +433,5 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
         default:
             return "system"
         }
-    }
-
-    func toggleLetterFavorite(letterData: LetterData) {
-        withAnimation {
-            if isLetterFavorite(letterData: letterData) {
-                favoriteLetters.removeAll(where: { $0.id == letterData.id })
-            } else {
-                favoriteLetters.append(letterData)
-            }
-        }
-    }
-
-    func isLetterFavorite(letterData: LetterData) -> Bool {
-        favoriteLetters.contains { $0.id == letterData.id }
     }
 }

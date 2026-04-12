@@ -36,8 +36,18 @@ struct Prayers2EntryView: View {
         dateFormatter.dateStyle = .full
         dateFormatter.locale = Locale(identifier: "en")
         
-        guard let offsetDate = hijriCalendar.date(byAdding: .day, value: entry.hijriOffset, to: Date()) else {
-            return dateFormatter.string(from: Date())
+        var referenceDate = Date()
+        
+        // If switchHijriDateAtMaghrib is enabled, check if current time is after Maghrib
+        if entry.switchHijriDateAtMaghrib {
+            if let maghrib = entry.fullPrayers.first(where: { $0.nameTransliteration == "Maghrib" })?.time,
+               Date() >= maghrib {
+                referenceDate = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+            }
+        }
+        
+        guard let offsetDate = hijriCalendar.date(byAdding: .day, value: entry.hijriOffset, to: referenceDate) else {
+            return dateFormatter.string(from: referenceDate)
         }
         
         return dateFormatter.string(from: offsetDate)
@@ -67,6 +77,7 @@ struct Prayers2EntryView: View {
                                 .font(.subheadline)
                                 .frame(alignment: .trailing)
                                 .multilineTextAlignment(.trailing)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                         }
                     }
                     .font(.headline)

@@ -4,6 +4,14 @@ struct SettingsView: View {
     @EnvironmentObject var settings: Settings
     
     @State private var showingCredits = false
+    @State private var selectedDestination: SettingsDestination? = .prayerSettings
+    @State private var hasSetDefaultSelection = false
+
+    private enum SettingsDestination: Hashable {
+        case notification
+        case manualOffsets
+        case prayerSettings
+    }
 
     var body: some View {
         navigationContainer
@@ -15,9 +23,16 @@ struct SettingsView: View {
             if #available(iOS 16.0, *) {
                 if UIDevice.current.userInterfaceIdiom == .pad {
                     NavigationSplitView {
-                        settingsList
+                        settingsSplitList
+                            .onAppear {
+                                if !hasSetDefaultSelection {
+                                    selectedDestination = .prayerSettings
+                                    hasSetDefaultSelection = true
+                                }
+                            }
                     } detail: {
-                        SettingsAdhanView(showNotifications: false)
+                        settingsSplitDetail
+                            .animation(.easeInOut(duration: 0.25), value: selectedDestination)
                     }
                 } else {
                     NavigationStack {
@@ -46,6 +61,22 @@ struct SettingsView: View {
             adhanSection
             appearanceSection
             creditsSection
+            
+            AlIslamAppsSection()
+        }
+        .navigationTitle("Settings")
+        .applyConditionalListStyle(defaultView: true)
+    }
+
+    #if os(iOS)
+    @available(iOS 16.0, *)
+    private var settingsSplitList: some View {
+        List(selection: $selectedDestination) {
+            notificationSectionSplit
+            manualOffsetsSectionSplit
+            adhanSectionSplit
+            appearanceSection
+            creditsSection
             AlIslamAppsSection()
         }
         .navigationTitle("Settings")
@@ -53,27 +84,91 @@ struct SettingsView: View {
     }
 
     @ViewBuilder
+    private var settingsSplitDetail: some View {
+        switch selectedDestination ?? .prayerSettings {
+        case .notification:
+            NotificationView()
+        case .manualOffsets:
+            manualOffsetDestination
+        case .prayerSettings:
+            SettingsAdhanView(showNotifications: false)
+        }
+    }
+    #endif
+
+    private func resourceLink<Destination: View>(
+        title: String,
+        systemImage: String,
+        @ViewBuilder destination: () -> Destination
+    ) -> some View {
+        NavigationLink(destination: destination()) {
+            toolLabel(title, systemImage: systemImage)
+        }
+        .tint(settings.accentColor.color)
+    }
+
+    private func toolLabel(_ title: String, systemImage: String) -> some View {
+        Label(
+            title: {
+                Text(title)
+                    .foregroundColor(.primary)
+            },
+            icon: {
+                Image(systemName: systemImage)
+                    .foregroundColor(settings.accentColor.color)
+            }
+        )
+        .padding(.vertical, 4)
+    }
+
+    @available(iOS 16.0, *)
+    private func splitResourceLink(
+        title: String,
+        systemImage: String,
+        value: SettingsDestination
+    ) -> some View {
+        NavigationLink(value: value) {
+            toolLabel(title, systemImage: systemImage)
+        }
+        .tint(settings.accentColor.color)
+    }
+
+    @ViewBuilder
     private var notificationSection: some View {
         #if os(iOS)
         Section(header: Text("NOTIFICATIONS")) {
-            NavigationLink(destination: NotificationView()) {
-                Label("Notification Settings", systemImage: "bell.badge")
+            resourceLink(title: "Notification Settings", systemImage: "bell.badge") {
+                NotificationView()
             }
-            .accentColor(settings.accentColor.color)
         }
         #endif
+    }
+
+    @available(iOS 16.0, *)
+    @ViewBuilder
+    private var notificationSectionSplit: some View {
+        Section(header: Text("NOTIFICATIONS")) {
+            splitResourceLink(title: "Notification Settings", systemImage: "bell.badge", value: .notification)
+        }
     }
 
     @ViewBuilder
     private var manualOffsetsSection: some View {
         #if os(iOS)
         Section(header: Text("MANUAL OFFSETS")) {
-            NavigationLink(destination: manualOffsetDestination) {
-                Label("Manual Offset Settings", systemImage: "slider.horizontal.3")
+            resourceLink(title: "Manual Offset Settings", systemImage: "slider.horizontal.3") {
+                manualOffsetDestination
             }
-            .accentColor(settings.accentColor.color)
         }
         #endif
+    }
+
+    @available(iOS 16.0, *)
+    @ViewBuilder
+    private var manualOffsetsSectionSplit: some View {
+        Section(header: Text("MANUAL OFFSETS")) {
+            splitResourceLink(title: "Manual Offset Settings", systemImage: "slider.horizontal.3", value: .manualOffsets)
+        }
     }
 
     private var manualOffsetDestination: some View {
@@ -104,10 +199,16 @@ struct SettingsView: View {
 
     private var adhanSection: some View {
         Section(header: Text("AL-ADHAN")) {
-            NavigationLink(destination: SettingsAdhanView(showNotifications: false)) {
-                Label("Prayer Settings", systemImage: "safari")
+            resourceLink(title: "Prayer Settings", systemImage: "safari") {
+                SettingsAdhanView(showNotifications: false)
             }
-            .accentColor(settings.accentColor.color)
+        }
+    }
+
+    @available(iOS 16.0, *)
+    private var adhanSectionSplit: some View {
+        Section(header: Text("AL-ADHAN")) {
+            splitResourceLink(title: "Prayer Settings", systemImage: "safari", value: .prayerSettings)
         }
     }
 
@@ -270,7 +371,7 @@ struct SettingsView: View {
         }
     }
     #endif
-    
+
     private func columnWidth(for textStyle: UIFont.TextStyle, extra: CGFloat = 4, sample: String? = nil, fontName: String? = nil) -> CGFloat {
         let sampleString = (sample ?? "M") as NSString
         let font: UIFont

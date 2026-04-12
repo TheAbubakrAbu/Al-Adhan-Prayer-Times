@@ -8,6 +8,7 @@ struct Widgets: WidgetBundle {
         CountdownWidget()
         Prayers2Widget()
         PrayersWidget()
+        
         #if os(iOS)
         if #available(iOS 16.1, *) {
             LockScreen1Widget()

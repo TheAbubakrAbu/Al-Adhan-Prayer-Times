@@ -6,6 +6,7 @@ import UserNotifications
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     private let taskID = AppIdentifiers.backgroundFetchPrayerTimesTaskIdentifier
 
+    // Performs startup setup: registers background refresh, schedules first refresh, and notification delegate.
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -16,10 +17,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
 
+    // Re-schedules the background refresh whenever the app moves to background.
     func applicationDidEnterBackground(_ application: UIApplication) {
         scheduleAppRefresh()
     }
 
+    // Shows in-app notifications as banner + sound when a notification arrives in foreground.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
@@ -28,12 +31,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         completionHandler([.banner, .sound])
     }
 
+    // Registers the BGTask handler that refreshes prayer times in the background.
     private func registerBackgroundRefreshTask() {
         BGTaskScheduler.shared.register(forTaskWithIdentifier: taskID, using: nil) { task in
             self.handleAppRefresh(task: task as! BGAppRefreshTask)
         }
     }
 
+    // Submits the next background refresh request using the computed target run date.
     private func scheduleAppRefresh() {
         let request = BGAppRefreshTaskRequest(identifier: taskID)
         request.earliestBeginDate = nextRunDate()
@@ -50,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
+    // Calculates the next refresh time (before tomorrow's Fajr, with a minimum lead time).
     private func nextRunDate(offsetMins: Double = 35) -> Date {
         guard let fajr = nextFajrTime else {
             return Date().addingTimeInterval(24 * 60 * 60)
@@ -69,6 +75,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return max(target, minimum)
     }
 
+    // Reads the earliest prayer time from saved prayer data (used as Fajr anchor).
     private var nextFajrTime: Date? {
         Settings.shared.prayers?
             .prayers
@@ -77,6 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             .time
     }
 
+    // Executes when BG refresh fires: re-schedules, handles expiration, and refreshes prayer times.
     private func handleAppRefresh(task: BGAppRefreshTask) {
         logger.debug("🚀 BGAppRefresh fired")
         scheduleAppRefresh()
