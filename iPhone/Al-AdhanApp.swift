@@ -71,7 +71,7 @@ private struct MainTabView: View {
             IslamView()
                 .tabItem {
                     Image(systemName: "moon.stars")
-                    Text("Islam")
+                    Text("Tools")
                 }
 
             SettingsView()

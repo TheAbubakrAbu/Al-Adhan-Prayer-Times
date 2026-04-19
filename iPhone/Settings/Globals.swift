@@ -7,7 +7,7 @@ import SwiftUI
 enum AppIdentifiers {
     static let appFullName = "Al-Adhan | Prayer Times"
     static let appName = "Al-Adhan"
-    static let toolsView = "Al-Adhan"
+    static let toolsView = "Tools"
     
     static let mainColor = AccentColor.yellow
     static let mainColorString = "yellow"
