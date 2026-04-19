@@ -207,7 +207,7 @@ struct PrayersEntryView: View {
                         
                         Spacer()
                         
-                        Image("Al-Adhan")
+                        Image(AppIdentifiers.appName)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 30, height: 30)

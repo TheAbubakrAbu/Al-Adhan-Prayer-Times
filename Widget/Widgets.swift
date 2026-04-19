@@ -17,5 +17,9 @@ struct Widgets: WidgetBundle {
             LockScreen4Widget()
         }
         #endif
+        
+        /*LastReadSurahWidget()
+        LastListenedSurahWidget()
+        RandomAyahWidget()*/
     }
 }

@@ -5,6 +5,13 @@ import SwiftUI
 /// When you change these, update `Resources/Entitlements-Main.entitlements`,
 /// `Resources/Entitlements-Widget.entitlements`, and `Resources/Info-Main.plist` to match.
 enum AppIdentifiers {
+    static let appFullName = "Al-Adhan | Prayer Times"
+    static let appName = "Al-Adhan"
+    static let toolsView = "Al-Adhan"
+    
+    static let mainColor = AccentColor.yellow
+    static let mainColorString = "yellow"
+    
     /// Shared App Group for `UserDefaults` / data (matches entitlements).
     static let appGroupSuiteName = "group.com.PrayerTimes.AppGroup"
 

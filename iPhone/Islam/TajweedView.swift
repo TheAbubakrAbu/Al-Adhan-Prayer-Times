@@ -13,7 +13,7 @@ struct TajweedFoundationsView: View {
         "Shams and Qamar - Al",
         "Madd (Elongation)",
         "Qalqalah (Echo)",
-        "Idgham / Ikhfaa",
+        "Noon Sakina and Tanwin",
         "Waqf (Stopping)"
     ]
 
@@ -29,7 +29,8 @@ struct TajweedFoundationsView: View {
                         Text("Quick Reference Guide")
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(settings.accentColor.color)
-                        Text("Simple way to view basic Hafs An Assim Tajweed rules with colors")
+                        
+                        Text("Simple way to view basic Hafs an Asim Tajweed rules with colors")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -109,7 +110,7 @@ struct TajweedFoundationsView: View {
                 Text("Learn More About Qiraat, Riwayat, and Ahruf")
                     .font(.subheadline.weight(.semibold))
 
-                Text("See below and in Tools View > Islamic Pillars and Basics.")
+                Text("See below and in \(AppIdentifiers.toolsView) View > Islamic Pillars and Basics.")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -143,15 +144,9 @@ struct TajweedFoundationsView: View {
                     .padding(.vertical, 4)
                 }
             }
-
-            Section("NOTE") {
-                Text("This guide teaches Tajweed rules for Hafs An Assim recitation, the most widely used qiraah. Other qiraat (such as Warsh, Khalaf, etc.) may apply these rules slightly differently.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
         }
-            .applyConditionalListStyle(defaultView: settings.defaultView)
-            .navigationTitle("Tajweed Foundations")
+        .applyConditionalListStyle(defaultView: settings.defaultView)
+        .navigationTitle("Tajweed Foundations")
     }
 
     @ViewBuilder
@@ -172,7 +167,7 @@ struct TajweedFoundationsView: View {
             TajweedMaddView()
         } else if topic == "Qalqalah (Echo)" {
             TajweedQalqalahView()
-        } else if topic == "Idgham / Ikhfaa" {
+        } else if topic == "Noon Sakina and Tanwin" {
             TajweedIdghamIkhfaView()
         } else if topic == "Waqf (Stopping)" {
             TajweedWaqfView()
@@ -1407,8 +1402,8 @@ private struct TajweedIdghamIkhfaView: View {
 
     var body: some View {
         List {
-            Section("IDGHAAM / IKHFAA") {
-                Text("Idgham / Ikhfaa and Related Noon/Tanween Rules")
+            Section("NOON SAKINA AND TANWIN") {
+                Text("Noon Sakina and Tanween Rules")
                     .font(.headline)
                     .foregroundColor(settings.accentColor.color)
 

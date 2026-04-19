@@ -18,6 +18,7 @@ enum LaunchScreenLayout {
 
 struct LaunchScreen: View {
     @EnvironmentObject var settings: Settings
+    @EnvironmentObject var namesData: NamesViewModel
     @Environment(\.colorScheme) private var systemColorScheme
     @Environment(\.customColorScheme) private var customColorScheme
 
@@ -181,6 +182,10 @@ struct LaunchScreen: View {
             leftGlassOffset = 0
             rightGlassOffset = 0
         }
+
+        async let settingsReady: Void = Settings.shared.waitUntilReady()
+        async let namesReady: Void = NamesViewModel.shared.waitUntilLoaded()
+        _ = await (settingsReady, namesReady)
 
         triggerHapticFeedback(.soft)
         withAnimation(.spring(response: 0.42, dampingFraction: 0.8)) {

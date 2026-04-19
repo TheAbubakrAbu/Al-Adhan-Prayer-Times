@@ -5,9 +5,10 @@ import CoreLocation
 
 let logger = Logger(subsystem: AppIdentifiers.bundleIdentifier, category: "Settings")
 
-final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
+final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     static let shared = Settings()
     private let appGroupUserDefaults = UserDefaults(suiteName: AppIdentifiers.appGroupSuiteName)
+    @Published private(set) var isReadyForUI = false
 
     static let encoder: JSONEncoder = {
         let enc = JSONEncoder()
@@ -22,7 +23,7 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
     }()
 
     private override init() {
-        self.accentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "accentColor") ?? "yellow") ?? .yellow
+        self.accentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "accentColor") ?? AppIdentifiers.mainColorString) ?? AppIdentifiers.mainColor
         
         self.prayersData = appGroupUserDefaults?.data(forKey: "prayersData") ?? Data()
         self.travelingMode = appGroupUserDefaults?.bool(forKey: "travelingMode") ?? false
@@ -51,6 +52,16 @@ final class Settings: NSObject, ObservableObject, CLLocationManagerDelegate {
         super.init()
         Self.locationManager.delegate = self
         requestLocationAuthorization()
+
+        isReadyForUI = true
+    }
+
+    func waitUntilReady() async {
+        while true {
+            let isReady = await MainActor.run { self.isReadyForUI }
+            if isReady { return }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
     }
 
     // MARK: - App group — shared with widgets / extensions

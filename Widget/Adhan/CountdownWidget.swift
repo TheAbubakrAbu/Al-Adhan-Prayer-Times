@@ -206,7 +206,7 @@ struct CountdownEntryView: View {
                             
                             Spacer()
                             
-                            Image("Al-Adhan")
+                            Image(AppIdentifiers.appName)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 20, height: 20)
