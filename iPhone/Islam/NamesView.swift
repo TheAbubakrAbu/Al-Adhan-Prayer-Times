@@ -227,7 +227,7 @@ struct NamesView: View {
             }
         }
         #if os(watchOS)
-        .searchable(text: $searchText)
+        .searchable(text: $searchText.animation(.easeInOut))
         #else
         .adaptiveSafeArea(edge: .bottom) {
             VStack(spacing: SafeAreaInsetVStackSpacing.standard) {
@@ -257,10 +257,25 @@ struct NamesView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-            Toggle("Show All Descriptions", isOn: $settings.showDescription.animation(.easeInOut))
+            Toggle("Show All Descriptions", isOn: showAllDescriptionsBinding)
                 .font(.caption)
                 .tint(settings.accentColor.color)
         }
+    }
+
+    private var showAllDescriptionsBinding: Binding<Bool> {
+        Binding(
+            get: { settings.showDescription },
+            set: { newValue in
+                withAnimation(.easeInOut) {
+                    settings.showDescription = newValue
+                    if !newValue {
+                        // User requested global OFF to force every manual expansion closed.
+                        expandedNameNumbers.removeAll()
+                    }
+                }
+            }
+        )
     }
 
     private func namesHeaderSection(resultCount: Int, hasActiveSearch: Bool) -> some View {
@@ -299,7 +314,8 @@ struct NamesView: View {
                         isFavorite: true,
                         accentColor: settings.accentColor,
                         useFontArabic: settings.useFontArabic,
-                        fontArabic: settings.fontArabic
+                        fontArabic: settings.fontArabic,
+                        searchQuery: searchText
                     ) {
                         handleNameTap(name: name, hasActiveSearch: hasActiveSearch, proxy: proxy)
                     }
@@ -321,7 +337,8 @@ struct NamesView: View {
                     isFavorite: favoriteNameNumberSet.contains(name.number),
                     accentColor: settings.accentColor,
                     useFontArabic: settings.useFontArabic,
-                    fontArabic: settings.fontArabic
+                    fontArabic: settings.fontArabic,
+                    searchQuery: searchText
                 ) {
                     handleNameTap(name: name, hasActiveSearch: hasActiveSearch, proxy: proxy)
                 }
@@ -398,6 +415,7 @@ private struct NameRow: View, Equatable {
     let accentColor: AccentColor
     let useFontArabic: Bool
     let fontArabic: String
+    let searchQuery: String
     let onTap: () -> Void
 
     init(
@@ -409,6 +427,7 @@ private struct NameRow: View, Equatable {
         accentColor: AccentColor = Settings.shared.accentColor,
         useFontArabic: Bool = Settings.shared.useFontArabic,
         fontArabic: String = Settings.shared.fontArabic,
+        searchQuery: String = "",
         onTap: @escaping () -> Void
     ) {
         self.name = name
@@ -419,6 +438,7 @@ private struct NameRow: View, Equatable {
         self.accentColor = accentColor
         self.useFontArabic = useFontArabic
         self.fontArabic = fontArabic
+        self.searchQuery = searchQuery
         self.onTap = onTap
     }
 
@@ -426,6 +446,9 @@ private struct NameRow: View, Equatable {
         #if os(iOS)
         content
             .contextMenu {
+                Text("Name Actions")
+                    .foregroundStyle(.secondary)
+
                 favoriteMenuItem
                 Divider()
                 copyMenu
@@ -460,14 +483,22 @@ private struct NameRow: View, Equatable {
 
                 HStack(alignment: .center, spacing: 12) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(name.transliteration)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                        HighlightedSnippet(
+                            source: name.transliteration,
+                            term: searchQuery,
+                            font: .subheadline.weight(.semibold),
+                            accent: accentColor.color,
+                            fg: .primary
+                        )
                             .lineLimit(1)
 
-                        Text(name.meaning)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        HighlightedSnippet(
+                            source: name.meaning,
+                            term: searchQuery,
+                            font: .caption,
+                            accent: accentColor.color,
+                            fg: .secondary
+                        )
                             .lineLimit(1)
 
                         Text("First Found: \(name.firstFoundShort)")
@@ -479,10 +510,16 @@ private struct NameRow: View, Equatable {
                     Spacer(minLength: 8)
 
                     HStack {
-                        Text(name.name.removeDiacriticsFromLastLetter())
-                            .font(useFontArabic ? .custom(fontArabic, size: 24) : .title2)
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
+                        HighlightedSnippet(
+                            source: displayArabicName,
+                            term: searchQuery,
+                            font: useFontArabic ? .custom(fontArabic, size: 24) : .title3,
+                            accent: accentColor.color,
+                            fg: .primary
+                        )
+                            .lineLimit(2)
+                            .multilineTextAlignment(.trailing)
+                            .fixedSize(horizontal: false, vertical: true)
 
                         Text(name.numberArabic)
                             .font(.custom("KFGQPCQUMBULUthmanicScript-Regu", size: 28))
@@ -508,6 +545,11 @@ private struct NameRow: View, Equatable {
                 )
             }
         }
+    }
+
+    private var displayArabicName: String {
+        let text = name.name.removeDiacriticsFromLastLetter()
+        return text.contains(" ") ? text.split(separator: " ").joined(separator: "\n") : text
     }
 
     @ViewBuilder
@@ -587,13 +629,14 @@ private struct NameRow: View, Equatable {
         lhs.isFavorite == rhs.isFavorite &&
         lhs.accentColor == rhs.accentColor &&
         lhs.useFontArabic == rhs.useFontArabic &&
-        lhs.fontArabic == rhs.fontArabic
+        lhs.fontArabic == rhs.fontArabic &&
+        lhs.searchQuery == rhs.searchQuery
     }
 }
 
 private struct NameRowDetails: View {
     @EnvironmentObject var settings: Settings
-
+    
     let name: NameOfAllah
     let firstFoundTarget: (surahID: Int, ayahID: Int)?
     let showDescription: Bool

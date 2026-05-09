@@ -200,7 +200,7 @@ struct LaunchScreen: View {
 
         try? await Task.sleep(nanoseconds: 650_000_000)
 
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.42)) {
             triggerHapticFeedback(.soft)
             isLaunching = false
         }

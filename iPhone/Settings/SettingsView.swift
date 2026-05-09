@@ -268,6 +268,7 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showingCredits) {
             CreditsView()
+                .smallMediumSheetPresentation()
         }
         #endif
     }

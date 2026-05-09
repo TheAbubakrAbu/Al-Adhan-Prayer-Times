@@ -1,12 +1,13 @@
 #if os(iOS)
 import SwiftUI
 
-struct HijriCalendarView: View {
+struct CalendarView: View {
     @EnvironmentObject private var settings: Settings
 
     @State private var nearestEventId = ""
     @State private var hijriYear = 1445
     @State private var hijriMonth = 1
+    @State private var didAutoScrollToNearest = false
 
     private static let monthSymbols = [
         "Muharram", "Safar", "Rabi al-Awwal", "Rabi al-Thani",
@@ -23,20 +24,50 @@ struct HijriCalendarView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List {
+                Section(header: Text("WHAT IS HIJRI?")) {
+                    Text("The Hijri calendar is the Islamic lunar calendar. It tracks months by moon cycles, so dates shift through the solar year and are primarily used for Islamic worship and sacred days.")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+
+                    Text("Islamic events are calculated using the Umm al-Qura Hijri method selected in app settings.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    NavigationLink {
+                        HijriCalendarView()
+                    } label: {
+                        Label("Learn About the Hijri Calendar", systemImage: "book.pages")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(settings.accentColor.color)
+                    }
+                    
+                    NavigationLink {
+                        DateView()
+                    } label: {
+                        Label("Open Hijri Date Converter", systemImage: "calendar.badge.clock")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(settings.accentColor.color)
+                    }
+                }
+
                 Section(header: Text("IMPORTANT ISLAMIC DATES")) {
                     ForEach(eventRows, id: \.id) { row in
-                        HijriEventRow(row: row)
+                        HijriEventRow(row: row, isPast: isPastEvent(row))
                             .id(row.id)
                     }
                 }
             }
             .onAppear {
                 updateInformation()
+                guard !didAutoScrollToNearest else { return }
                 nearestEventId = nearestEventRow?.id ?? ""
+                didAutoScrollToNearest = true
 
-                DispatchQueue.main.async {
-                    withAnimation {
-                        proxy.scrollTo(nearestEventId, anchor: .top)
+                if !nearestEventId.isEmpty {
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            proxy.scrollTo(nearestEventId, anchor: .top)
+                        }
                     }
                 }
             }
@@ -72,6 +103,10 @@ struct HijriCalendarView: View {
         return eventRows.min { lhs, rhs in
             abs(lhs.date.timeIntervalSince(now)) < abs(rhs.date.timeIntervalSince(now))
         }
+    }
+
+    private func isPastEvent(_ row: HijriEventRowModel) -> Bool {
+        row.date < Calendar.current.startOfDay(for: Date())
     }
 
     @ViewBuilder
@@ -118,27 +153,30 @@ private struct HijriEventRow: View {
     @EnvironmentObject private var settings: Settings
 
     let row: HijriEventRowModel
+    let isPast: Bool
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(row.title)
                     .font(.headline)
-                    .foregroundColor(settings.accentColor.color)
+                    .foregroundColor(isPast ? settings.accentColor.color.opacity(0.55) : settings.accentColor.color)
 
                 Text(row.subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(isPast ? .primary.opacity(0.75) : .primary)
 
                 Text(row.description)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            VStack(alignment: .trailing) {
+            VStack(alignment: .trailing, spacing: 3) {
                 Text(row.hijriDateText)
-                    .font(.caption)
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(isPast ? .secondary : .primary)
                     .padding(.vertical, 2)
 
                 Text(row.gregorianDateText)
@@ -148,7 +186,11 @@ private struct HijriEventRow: View {
             }
         }
         .padding(.vertical, 4)
+        .opacity(isPast ? 0.55 : 1)
         .contextMenu {
+            Text("Event Actions")
+                .foregroundStyle(.secondary)
+
             copyButton("Copy Event Name", value: row.title)
             copyButton("Copy Event Subtitle", value: row.subtitle)
             copyButton("Copy Event Description", value: row.description)
@@ -168,7 +210,7 @@ private struct HijriEventRow: View {
 
 #Preview {
     AlIslamPreviewContainer(embedInNavigation: false) {
-        HijriCalendarView()
+        CalendarView()
     }
 }
 #endif

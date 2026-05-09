@@ -110,7 +110,7 @@ struct CreditsView: View {
                 
                 creditLink("Credit for the Adhan sounds goes to Omar Al-Ejel", url: "https://github.com/oalejel/Athan-Utility")
                 
-                creditLink("Credit for the Uthmani Quran font goes to quran-data-kfgqpc (KFGQPC)", url: "https://github.com/thetruetruth/quran-data-kfgqpc/tree/main/qumbul/font")
+                creditLink("Credit for the Uthmani Quran font goes to King Fahad Complex (KFGQPC)", url: "https://qul.tarteel.ai/resources/font/245")
                                 
                 creditLink("Credit for the 99 Names of Allah goes to MyIslam", url: "https://myislam.org/99-names-of-allah/")
             }
