@@ -65,7 +65,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
 
     // MARK: - App group — shared with widgets / extensions
-
+    
     @Published var accentColor: AccentColor {
         didSet {
             guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
@@ -123,6 +123,18 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
                 appGroupUserDefaults?.set(homeLocationData, forKey: "homeLocationData")
             } catch {
                 logger.debug("Failed to encode home location: \(error)")
+            }
+        }
+    }
+
+    @Published var favoriteLocations: [Location] = [] {
+        didSet {
+            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
+            do {
+                let favoriteLocationsData = try Self.encoder.encode(favoriteLocations)
+                appGroupUserDefaults?.set(favoriteLocationsData, forKey: "favoriteLocations")
+            } catch {
+                logger.debug("Failed to encode favorite locations: \(error)")
             }
         }
     }
@@ -313,6 +325,36 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         didSet { self.fetchPrayerTimes(force: true) }
     }
 
+    @AppStorage("preNotificationDuha") var preNotificationDuha: Int = 0 {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+    @AppStorage("notificationDuha") var notificationDuha: Bool = true {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+    @AppStorage("naggingDuha") var naggingDuha: Bool = false {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+
+    @AppStorage("preNotificationIslamicMidnight") var preNotificationIslamicMidnight: Int = 0 {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+    @AppStorage("notificationIslamicMidnight") var notificationIslamicMidnight: Bool = true {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+    @AppStorage("naggingIslamicMidnight") var naggingIslamicMidnight: Bool = false {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+
+    @AppStorage("preNotificationLastThird") var preNotificationLastThird: Int = 0 {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+    @AppStorage("notificationLastThird") var notificationLastThird: Bool = true {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+    @AppStorage("naggingLastThird") var naggingLastThird: Bool = false {
+        didSet { self.fetchPrayerTimes(notification: true) }
+    }
+
     @AppStorage("travelAutomatic") var travelAutomatic: Bool = true
     @AppStorage("travelTurnOffAutomatic") var travelTurnOffAutomatic: Bool = false
     @AppStorage("travelTurnOnAutomatic") var travelTurnOnAutomatic: Bool = false
@@ -338,9 +380,28 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
 
     @AppStorage("showPrayerInfo") var showPrayerInfo: Bool = false
 
+    // MARK: - Optional Prayer Times (shown in app only, never in widgets)
+
+    @AppStorage("showDuha") var showDuha: Bool = false {
+        willSet { objectWillChange.send() }
+        didSet { fetchPrayerTimes(notification: true) }
+    }
+    
+    @AppStorage("showIslamicMidnight") var showIslamicMidnight: Bool = false {
+        willSet { objectWillChange.send() }
+        didSet { fetchPrayerTimes(notification: true) }
+    }
+    @AppStorage("showLastThird") var showLastThird: Bool = false {
+        willSet { objectWillChange.send() }
+        didSet { fetchPrayerTimes(notification: true) }
+    }
+
+    /// Names of optional/informational prayer times shown in the app, but not widgets.
+    static let optionalPrayerNames: Set<String> = ["Duhaa", "Midnight", "Last Third"]
+
     // MARK: - Arabic letters & 99 Names
     
-    @AppStorage("THEfontArabic") var fontArabic: String = "KFGQPCQUMBULUthmanicScript-Regu"
+    @AppStorage("THEfontArabic") var fontArabic: String = "KFGQPCHAFSUthmanicScript-Regula"
     @AppStorage("fontArabicSize") var fontArabicSize: Double = Double(UIFont.preferredFont(forTextStyle: .title1).pointSize)
     @AppStorage("useFontArabic") var useFontArabic = true
 
@@ -407,6 +468,10 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
 
         return cleaned
     }
+
+    func cleanSearchIgnoringSilentArabicLetters(_ text: String, whitespace: Bool = false) -> String {
+        cleanSearch(text.removingSilentArabicLettersForSearch, whitespace: whitespace)
+    }
     
     private func normalizedArabicForSearch(_ text: String) -> String {
         Self.canonicalArabicSearchMap.reduce(text) { partial, pair in
@@ -436,7 +501,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         "ۥ": "و",
         // Ya variants
         "ۦ": "ي",
-        "ى": "ي", // alif maqsurah -> ya
+        "ى": "ا", // alif maqsurah -> alif (matches both ى and ا forms in search)
         // Teh marbuta equivalence (broad)
         "ة": "ه"
     ]

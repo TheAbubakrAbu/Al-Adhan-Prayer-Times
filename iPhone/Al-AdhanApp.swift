@@ -95,7 +95,11 @@ private struct MainTabView: View {
         TabView {
             AdhanView()
                 .tabItem {
-                    Image(systemName: "safari")
+                    if #available(iOS 18.0, *) {
+                        Image(systemName: "mecca")
+                    } else {
+                        Image(systemName: "safari")
+                    }
                     Text("Adhan")
                 }
 

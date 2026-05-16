@@ -3,7 +3,7 @@ import SwiftUI
 struct PrayerList: View {
     @EnvironmentObject private var settings: Settings
 
-    @State private var expandedPrayer: Prayer?
+    @State private var expandedPrayerKey: String?
     @State private var fullPrayers = false
     @State private var animatingBellPrayerName: String?
     @State private var bellAnimationActive = false
@@ -15,6 +15,7 @@ struct PrayerList: View {
     enum PrayerDisplayMode: String, CaseIterable, Identifiable {
         case list = "Prayer List"
         case grid = "Prayer Grid"
+        case tiles = "Prayer Tiles"
         case split = "Prayer Split"
 
         var id: String { rawValue }
@@ -23,6 +24,7 @@ struct PrayerList: View {
             switch self {
             case .list: return "LIST"
             case .grid: return "GRID"
+            case .tiles: return "TILES"
             case .split: return "SPLIT"
             }
         }
@@ -32,18 +34,55 @@ struct PrayerList: View {
         PrayerDisplayMode(rawValue: prayerDisplayModeRawValue) ?? .list
     }
 
+    private static let selectedDateHeaderFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+
+    private func expansionKey(for prayer: Prayer) -> String {
+        prayer.stableDisplayID
+    }
+
+    private func listDisplayName(for prayer: Prayer) -> String {
+        prayer.nameTransliteration == "Midnight" ? "Islamic Midnight" : prayer.nameTransliteration
+    }
+
+    private func togglePrayerExpansion(for prayer: Prayer, animated: Bool = true) {
+        let prayerKey = expansionKey(for: prayer)
+        settings.hapticFeedback()
+        let update = {
+            expandedPrayerKey = expandedPrayerKey == prayerKey ? nil : prayerKey
+        }
+        if animated {
+            withAnimation {
+                update()
+            }
+        } else {
+            update()
+        }
+    }
+
+    private func mergedWithOptional(_ base: [Prayer], for date: Date) -> [Prayer] {
+        settings.prayersIncludingOptional(base, for: date)
+    }
+
     private var displayedPrayers: [Prayer] {
         if settings.changedDate {
-            return fullPrayers ? (settings.dateFullPrayers ?? []) : (settings.datePrayers ?? [])
+            let base = fullPrayers ? (settings.dateFullPrayers ?? []) : (settings.datePrayers ?? [])
+            return mergedWithOptional(base, for: selectedDate)
         }
 
         guard let prayers = settings.prayers else { return [] }
-        return fullPrayers ? prayers.fullPrayers : prayers.prayers
+        let base = fullPrayers ? prayers.fullPrayers : prayers.prayers
+        return mergedWithOptional(base, for: prayers.day)
     }
 
     private var todayPrayers: [Prayer] {
         guard let prayers = settings.prayers else { return [] }
-        return fullPrayers ? prayers.fullPrayers : prayers.prayers
+        let base = fullPrayers ? prayers.fullPrayers : prayers.prayers
+        return mergedWithOptional(base, for: prayers.day)
     }
 
     var body: some View {
@@ -74,10 +113,7 @@ struct PrayerList: View {
     }
 
     private var selectedDateHeaderText: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: selectedDate).uppercased()
+        Self.selectedDateHeaderFormatter.string(from: selectedDate).uppercased()
     }
 
     private func prayerGroupHeader(_ title: String) -> some View {
@@ -119,12 +155,14 @@ struct PrayerList: View {
             gridContent(prayers: prayers, isComparisonBaseline: isComparisonBaseline)
         case .split:
             splitContent(prayers: prayers, isComparisonBaseline: isComparisonBaseline)
+        case .tiles:
+            tilesContent(prayers: prayers, isComparisonBaseline: isComparisonBaseline)
         }
     }
 
     @ViewBuilder
     private func listContent(prayers: [Prayer], isComparisonBaseline: Bool = false) -> some View {
-        ForEach(prayers) { prayer in
+        ForEach(prayers, id: \.stableDisplayID) { prayer in
             listRow(for: prayer, in: prayers, isComparisonBaseline: isComparisonBaseline)
         }
         .onChange(of: settings.travelingMode) { _ in
@@ -135,35 +173,31 @@ struct PrayerList: View {
     }
 
     private func listRow(for prayer: Prayer, in prayers: [Prayer], isComparisonBaseline: Bool = false) -> some View {
-        let isExpanded = expandedPrayer == prayer
+        let prayerKey = expansionKey(for: prayer)
+        let isExpanded = expandedPrayerKey == prayerKey
         let isCurrent = !isComparisonBaseline && isCurrentPrayer(prayer)
         let listIconColor = prayer.nameTransliteration == "Shurooq" ? Color.primary : settings.accentColor.color
-        let bellRowColor = prayer.nameTransliteration == "Shurooq" ? Color.primary : .primary
 
         return Group {
             PrayerListRowCard(
                 prayer: prayer,
+                displayName: listDisplayName(for: prayer),
                 isCurrent: isCurrent,
                 iconColor: listIconColor,
                 trailingContent: {
                     #if os(iOS)
-                    if !isComparisonBaseline {
-                        prayerBell(for: prayer, rowColor: bellRowColor)
-                    }
+                    prayerBell(for: prayer, rowColor: .primary)
                     #endif
                 }
             )
 
             if isExpanded {
-                PrayerDetailBlock(prayer: prayer, referenceText: prayerReferenceText(for: prayer))
+                expandedPrayerDetailContent(for: prayer)
                     .contentShape(Rectangle())
             }
         }
         .onTapGesture {
-            settings.hapticFeedback()
-            withAnimation {
-                expandedPrayer = isExpanded ? nil : prayer
-            }
+            togglePrayerExpansion(for: prayer)
         }
     }
 
@@ -175,16 +209,27 @@ struct PrayerList: View {
         )
 
         LazyVGrid(columns: columns, spacing: 12) {
-            ForEach(prayers) { prayer in
+            ForEach(prayers, id: \.stableDisplayID) { prayer in
+                let color: Color = isComparisonBaseline ? .secondary : legacyGridPrayerColor(for: prayer, in: prayers)
+
                 PrayerGridTile(
                     prayer: prayer,
-                    color: isComparisonBaseline ? .secondary : legacyGridPrayerColor(for: prayer, in: prayers)
+                    color: color,
+                    trailingContent: {
+                        EmptyView()
+                    }
                 )
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    togglePrayerExpansion(for: prayer)
+                }
             }
         }
         .padding(.horizontal, -20)
         .lineLimit(1)
         .minimumScaleFactor(0.5)
+
+        expandedPrayerDetail(for: prayers)
     }
 
     @ViewBuilder
@@ -195,8 +240,20 @@ struct PrayerList: View {
 
         HStack(spacing: 0) {
             VStack(spacing: 4) {
-                ForEach(firstHalf) { prayer in
-                    SplitPrayerRow(prayer: prayer, color: isComparisonBaseline ? .secondary : prayerColor(for: prayer, in: prayers))
+                ForEach(firstHalf, id: \.stableDisplayID) { prayer in
+                    let color: Color = isComparisonBaseline ? .secondary : prayerColor(for: prayer, in: prayers)
+
+                    SplitPrayerRow(
+                        prayer: prayer,
+                        color: color,
+                        trailingContent: {
+                            EmptyView()
+                        }
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        togglePrayerExpansion(for: prayer)
+                    }
                 }
             }
 
@@ -205,13 +262,101 @@ struct PrayerList: View {
                 .padding(.horizontal, 8)
 
             VStack(spacing: 4) {
-                ForEach(secondHalf) { prayer in
-                    SplitPrayerRow(prayer: prayer, color: isComparisonBaseline ? .secondary : prayerColor(for: prayer, in: prayers))
+                ForEach(secondHalf, id: \.stableDisplayID) { prayer in
+                    let color: Color = isComparisonBaseline ? .secondary : prayerColor(for: prayer, in: prayers)
+
+                    SplitPrayerRow(
+                        prayer: prayer,
+                        color: color,
+                        trailingContent: {
+                            EmptyView()
+                        }
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        togglePrayerExpansion(for: prayer)
+                    }
                 }
             }
         }
         .lineLimit(1)
         .minimumScaleFactor(0.5)
+
+        expandedPrayerDetail(for: prayers)
+    }
+
+    @ViewBuilder
+    private func tilesContent(prayers: [Prayer], isComparisonBaseline: Bool = false) -> some View {
+        let columns = Array(
+            repeating: GridItem(.flexible(), spacing: 10),
+            count: settings.travelingMode ? 2 : 3
+        )
+
+        LazyVGrid(columns: columns, spacing: 10) {
+            ForEach(prayers, id: \.stableDisplayID) { prayer in
+                let color: Color = isComparisonBaseline ? .secondary : prayerColor(for: prayer, in: prayers)
+                let isCurrent = !isComparisonBaseline && isCurrentPrayer(prayer)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .top) {
+                        Image(systemName: prayer.image)
+                            .font(.subheadline)
+                            .foregroundColor(color)
+
+                        Spacer()
+                    }
+
+                    Text(prayer.nameTransliteration)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(color)
+
+                    Text(prayer.time, style: .time)
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundColor(color)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .conditionalGlassEffect(
+                    rectangle: true,
+                    useColor: isCurrent ? 0.22 : 0.12,
+                    customTint: isCurrent ? settings.accentColor.color : nil
+                )
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    togglePrayerExpansion(for: prayer)
+                }
+            }
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .onChange(of: settings.travelingMode) { _ in
+            withAnimation { fullPrayers = false }
+        }
+
+        expandedPrayerDetail(for: prayers)
+    }
+
+    @ViewBuilder
+    private func expandedPrayerDetail(for prayers: [Prayer]) -> some View {
+        if let prayer = prayers.first(where: { expansionKey(for: $0) == expandedPrayerKey }) {
+            expandedPrayerDetailContent(for: prayer)
+            .id(prayer.stableDisplayID)
+            .contentShape(Rectangle())
+        }
+    }
+
+    private func expandedPrayerDetailContent(for prayer: Prayer) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            PrayerDetailBlock(prayer: prayer, referenceText: prayerReferenceText(for: prayer))
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            #if os(iOS)
+            if prayerDisplayMode != .list {
+                prayerBell(for: prayer, rowColor: .primary)
+            }
+            #endif
+        }
     }
 
     @ViewBuilder
@@ -352,6 +497,37 @@ struct PrayerList: View {
         if prayer.nameTransliteration == "Isha" {
             return "Prophet Muhammad (peace be upon him) said: \"The time for Isha lasts until the middle of the night\" (Muslim 612)."
         }
+        if prayer.nameTransliteration == "Duhaa" {
+            return """
+            Duhaa is a voluntary prayer prayed after the sun has risen to the height of a spear, roughly 15 minutes after sunrise, until shortly before Dhuhr. Its best time is later in the morning, when the heat of the sun becomes stronger.
+
+            The Prophet ﷺ said: "The prayer of the oft-returning is when the young camels feel the heat of the sun."
+
+            Source: Sahih Muslim 748/784.
+            """
+        }
+        if prayer.nameTransliteration == "Midnight" {
+            return """
+            Midnight is halfway between Maghrib and Fajr. It is used in fiqh discussions such as the end of the preferred or normal time for Isha according to many scholars, and for calculating parts of the night.
+
+            Formula: Midnight = Maghrib + ((Fajr - Maghrib) / 2)
+
+            The Prophet ﷺ said regarding Isha: "The time of Isha prayer is until the middle of the night."
+
+            Source: Sahih Muslim.
+            """
+        }
+        if prayer.nameTransliteration == "Last Third" {
+            return """
+            Tahajjud is commonly prayed during the last third of the night. A voluntary night prayer offered after Isha and before Fajr, its most virtuous time is during the final third of the night.
+
+            The final third of the night before Fajr is a blessed time for prayer, dua, and seeking forgiveness.
+
+            Formula: Last third starts = Fajr - ((Fajr - Maghrib) / 3)
+
+            Source: Sahih al-Bukhari and Sahih Muslim.
+            """
+        }
         return nil
     }
 
@@ -436,6 +612,7 @@ private struct PrayerListRowCard<TrailingContent: View>: View {
     @EnvironmentObject private var settings: Settings
 
     let prayer: Prayer
+    let displayName: String
     let isCurrent: Bool
     let iconColor: Color
     @ViewBuilder let trailingContent: () -> TrailingContent
@@ -460,7 +637,7 @@ private struct PrayerListRowCard<TrailingContent: View>: View {
                         .padding(.trailing, 2)
 
                     VStack(alignment: .leading) {
-                        Text(prayer.nameTransliteration)
+                        Text(displayName)
                             .font(.headline)
                             .foregroundColor(.primary)
                     }
@@ -500,11 +677,16 @@ private struct PrayerDetailBlock: View {
     let prayer: Prayer
     let referenceText: String?
 
+    private var isOptionalPrayer: Bool {
+        Settings.optionalPrayerNames.contains(prayer.nameTransliteration)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("\(prayer.nameEnglish) - \(prayer.nameArabic)")
+            Text(isOptionalPrayer ? prayer.nameEnglish : "\(prayer.nameEnglish) - \(prayer.nameArabic)")
                 .font(.title3)
                 .foregroundColor(settings.accentColor.color)
+                .lineLimit(1)
 
             if prayer.nameTransliteration == "Shurooq" {
                 Text("Shurooq is not a prayer, but marks the end of Fajr.")
@@ -542,9 +724,16 @@ private struct PrayerDetailBlock: View {
     }
 }
 
-private struct PrayerGridTile: View {
+private extension Prayer {
+    var stableDisplayID: String {
+        "\(nameTransliteration)-\(Int(time.timeIntervalSince1970))"
+    }
+}
+
+private struct PrayerGridTile<TrailingContent: View>: View {
     let prayer: Prayer
     let color: Color
+    @ViewBuilder let trailingContent: () -> TrailingContent
 
     var body: some View {
         VStack(alignment: .center, spacing: 4) {
@@ -558,6 +747,8 @@ private struct PrayerGridTile: View {
                     .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundColor(color)
+
+                trailingContent()
             }
 
             Text(prayer.time, style: .time)
@@ -567,9 +758,10 @@ private struct PrayerGridTile: View {
     }
 }
 
-private struct SplitPrayerRow: View {
+private struct SplitPrayerRow<TrailingContent: View>: View {
     let prayer: Prayer
     let color: Color
+    @ViewBuilder let trailingContent: () -> TrailingContent
 
     var body: some View {
         HStack(spacing: 8) {
@@ -587,6 +779,8 @@ private struct SplitPrayerRow: View {
 
             Text(prayer.time, style: .time)
                 .fontWeight(.bold)
+
+            trailingContent()
         }
         .foregroundColor(color)
     }

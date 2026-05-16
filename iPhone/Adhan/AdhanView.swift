@@ -62,9 +62,7 @@ struct AdhanView: View {
 
     private var adhanContent: some View {
         List {
-            Section(header: settings.defaultView ? Text("DATE AND LOCATION") : nil) {
-                DateAndLocationSection(showBigQibla: $showBigQibla)
-            }
+            DateAndLocationSection(showBigQibla: $showBigQibla)
 
             prayersSection
 
@@ -101,6 +99,7 @@ struct AdhanView: View {
             NavigationView {
                 SettingsAdhanView(showNotifications: true, presentedAsSheet: true)
             }
+            .smallMediumSheetPresentation()
         }
         #endif
         .applyConditionalListStyle(defaultView: settings.defaultView)
@@ -321,6 +320,7 @@ private struct CurrentLocationRow: View {
     @EnvironmentObject private var settings: Settings
 
     let showBigQibla: Bool
+    @State private var showingPrayerTimesMap = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -344,6 +344,15 @@ private struct CurrentLocationRow: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             #endif
         }
+        #if os(iOS)
+        .sheet(isPresented: $showingPrayerTimesMap) {
+            NavigationView {
+                PrayerTimesMapView()
+                    .environmentObject(settings)
+            }
+            .smallMediumSheetPresentation()
+        }
+        #endif
     }
 
     @ViewBuilder
@@ -352,29 +361,38 @@ private struct CurrentLocationRow: View {
         if let currentLoc = settings.currentLocation {
             let currentCity = currentLoc.city
 
-            HStack(spacing: 4) {
-                Image(systemName: "location.fill")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 18, height: 18)
-                    .foregroundColor(settings.accentColor.color)
-                    .padding(.trailing, 8)
+            Button {
+                settings.hapticFeedback()
+                showingPrayerTimesMap = true
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "location.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 18, height: 18)
+                        .foregroundColor(settings.accentColor.color)
+                        .padding(.trailing, 8)
 
-                Text(currentCity)
-                    .font(.subheadline)
-                    .lineLimit(nil)
-                    .contextMenu {
-                        Text("City Actions")
-                            .foregroundStyle(.secondary)
+                    Text(currentCity)
+                        .font(.subheadline)
+                        .lineLimit(nil)
+                        .contextMenu {
+                            Text("City Actions")
+                                .foregroundStyle(.secondary)
 
-                        Button {
-                            settings.hapticFeedback()
-                            UIPasteboard.general.string = currentCity
-                        } label: {
-                            Label("Copy City Name", systemImage: "doc.on.doc")
+                            Button {
+                                settings.hapticFeedback()
+                                UIPasteboard.general.string = currentCity
+                            } label: {
+                                Label("Copy City Name", systemImage: "doc.on.doc")
+                            }
                         }
-                    }
+                }
+                .padding(12)
+                .conditionalGlassEffect()
+                .cornerRadius(8)
             }
+            .buttonStyle(.plain)
         } else {
             HStack(spacing: 0) {
                 Image(systemName: "location.slash")
