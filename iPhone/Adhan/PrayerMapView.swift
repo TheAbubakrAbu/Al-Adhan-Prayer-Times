@@ -33,6 +33,7 @@ struct PrayerTimesMapView: View {
 
     var body: some View {
         List {
+            previewNoticeSection
             citySection
             if !settings.favoriteLocations.isEmpty {
                 favoriteCitiesSection
@@ -66,6 +67,19 @@ struct PrayerTimesMapView: View {
         .onChange(of: showCityTime) { _ in refreshTimeZones() }
         .onChange(of: settings.currentLocation) { _ in
             refreshPrayers()
+        }
+    }
+
+    private var previewNoticeSection: some View {
+        Section {
+            Label {
+                Text("This map is only for viewing prayer times in other cities. It does not change your actual prayer-time location, calculation method, notifications, or widgets.")
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+            } icon: {
+                Image(systemName: "eye")
+                    .foregroundStyle(settings.accentColor.color)
+            }
         }
     }
 
@@ -335,12 +349,14 @@ struct PrayerTimesMapView: View {
 
                 Spacer()
 
-                HStack(alignment: .firstTextBaseline, spacing: 18) {
+                HStack(alignment: .firstTextBaseline, spacing: 14) {
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(selected.city)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
+                            .truncationMode(.tail)
+                            .frame(maxWidth: 70, alignment: .trailing)
 
                         Text(formattedTime(row.selected.time, for: selected))
                             .font(.subheadline.monospacedDigit())
@@ -352,6 +368,8 @@ struct PrayerTimesMapView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
+                            .truncationMode(.tail)
+                            .frame(maxWidth: 70, alignment: .trailing)
 
                         Text(formattedTime(row.current.time, for: current))
                             .font(.subheadline.monospacedDigit())

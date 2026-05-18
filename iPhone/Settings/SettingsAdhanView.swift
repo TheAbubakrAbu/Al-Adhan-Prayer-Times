@@ -183,21 +183,21 @@ struct SettingsAdhanView: View {
         Section(header: Text("OPTIONAL PRAYERS")) {
             optionalPrayerToggle(
                 title: "Duhaa",
-                subtitle: "15 min after sunrise until shortly before Dhuhr.",
+                subtitle: "A voluntary forenoon prayer after sunrise and before Dhuhr.",
                 icon: "sun.haze.fill",
                 isOn: $settings.showDuha
             )
 
             optionalPrayerToggle(
                 title: "Islamic Midnight",
-                subtitle: "Midpoint between Maghrib and next Fajr.",
+                subtitle: "Halfway between Maghrib and the next Fajr. It marks the end of Isha.",
                 icon: "moon.fill",
                 isOn: $settings.showIslamicMidnight
             )
 
             optionalPrayerToggle(
                 title: "Last Third of Night",
-                subtitle: "Tahajjud is commonly prayed during the last third of the night — a voluntary night prayer after Isha and before Fajr; the final third is a blessed time for prayer, dua, and seeking forgiveness.",
+                subtitle: "The final third before Fajr is a blessed time for dua and forgiveness.",
                 icon: "moon.stars.fill",
                 isOn: $settings.showLastThird
             )
@@ -969,7 +969,7 @@ struct MoreNotificationView: View {
                     NotificationSettingsSection(prayerName: "Duhaa", preNotificationTime: $settings.preNotificationDuha, isNotificationOn: $settings.notificationDuha)
                 }
                 if settings.showIslamicMidnight {
-                    NotificationSettingsSection(prayerName: "Midnight", preNotificationTime: $settings.preNotificationIslamicMidnight, isNotificationOn: $settings.notificationIslamicMidnight)
+                    NotificationSettingsSection(prayerName: "Islamic Midnight", preNotificationTime: $settings.preNotificationIslamicMidnight, isNotificationOn: $settings.notificationIslamicMidnight)
                 }
                 if settings.showLastThird {
                     NotificationSettingsSection(prayerName: "Last Third", preNotificationTime: $settings.preNotificationLastThird, isNotificationOn: $settings.notificationLastThird)
@@ -997,7 +997,7 @@ struct MoreNotificationView: View {
                     NotificationSettingsSection(prayerName: "Duhaa", preNotificationTime: $settings.preNotificationDuha, isNotificationOn: $settings.notificationDuha)
                 }
                 if settings.showIslamicMidnight {
-                    NotificationSettingsSection(prayerName: "Midnight", preNotificationTime: $settings.preNotificationIslamicMidnight, isNotificationOn: $settings.notificationIslamicMidnight)
+                    NotificationSettingsSection(prayerName: "Islamic Midnight", preNotificationTime: $settings.preNotificationIslamicMidnight, isNotificationOn: $settings.notificationIslamicMidnight)
                 }
                 if settings.showLastThird {
                     NotificationSettingsSection(prayerName: "Last Third", preNotificationTime: $settings.preNotificationLastThird, isNotificationOn: $settings.notificationLastThird)

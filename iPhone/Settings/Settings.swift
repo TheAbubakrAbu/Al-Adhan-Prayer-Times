@@ -397,7 +397,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
 
     /// Names of optional/informational prayer times shown in the app, but not widgets.
-    static let optionalPrayerNames: Set<String> = ["Duhaa", "Midnight", "Last Third"]
+    static let optionalPrayerNames: Set<String> = ["Duhaa", "Islamic Midnight", "Last Third"]
 
     // MARK: - Arabic letters & 99 Names
     

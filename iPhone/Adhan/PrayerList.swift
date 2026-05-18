@@ -46,7 +46,7 @@ struct PrayerList: View {
     }
 
     private func listDisplayName(for prayer: Prayer) -> String {
-        prayer.nameTransliteration == "Midnight" ? "Islamic Midnight" : prayer.nameTransliteration
+        prayer.nameTransliteration
     }
 
     private func togglePrayerExpansion(for prayer: Prayer, animated: Bool = true) {
@@ -304,9 +304,15 @@ struct PrayerList: View {
                             .foregroundColor(color)
 
                         Spacer()
+
+                        #if os(iOS)
+                        if !isComparisonBaseline {
+                            prayerBell(for: prayer, rowColor: color)
+                        }
+                        #endif
                     }
 
-                    Text(prayer.nameTransliteration)
+                    Text(prayer.compactDisplayName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(color)
 
@@ -352,7 +358,7 @@ struct PrayerList: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             #if os(iOS)
-            if prayerDisplayMode != .list {
+            if prayerDisplayMode != .list && prayerDisplayMode != .tiles {
                 prayerBell(for: prayer, rowColor: .primary)
             }
             #endif
@@ -501,20 +507,18 @@ struct PrayerList: View {
             return """
             Duhaa is a voluntary prayer prayed after the sun has risen to the height of a spear, roughly 15 minutes after sunrise, until shortly before Dhuhr. Its best time is later in the morning, when the heat of the sun becomes stronger.
 
-            The Prophet ﷺ said: "The prayer of the oft-returning is when the young camels feel the heat of the sun."
+            "The forenoon prayer of the penitent is when young camels can feel the heat of the sun" (Muslim 784).
 
-            Source: Sahih Muslim 748/784.
+            "My friend (the Prophet (ﷺ) ) advised me to observe three things: (1) to fast three days a month; (2) to pray two rak`at of Duha prayer (forenoon prayer); and (3) to pray witr before sleeping." (Bukhari 1981).
             """
         }
-        if prayer.nameTransliteration == "Midnight" {
+        if prayer.nameTransliteration == "Islamic Midnight" {
             return """
-            Midnight is halfway between Maghrib and Fajr. It is used in fiqh discussions such as the end of the preferred or normal time for Isha according to many scholars, and for calculating parts of the night.
+            Islamic Midnight is halfway between Maghrib and the next Fajr. It marks the end of Isha and is used for calculating parts of the night.
 
-            Formula: Midnight = Maghrib + ((Fajr - Maghrib) / 2)
+            Formula: Islamic Midnight = Maghrib + ((Fajr - Maghrib) / 2)
 
-            The Prophet ﷺ said regarding Isha: "The time of Isha prayer is until the middle of the night."
-
-            Source: Sahih Muslim.
+            "When you pray Isha, its time is until half of the night has passed" (Muslim 612a).
             """
         }
         if prayer.nameTransliteration == "Last Third" {
@@ -525,7 +529,7 @@ struct PrayerList: View {
 
             Formula: Last third starts = Fajr - ((Fajr - Maghrib) / 3)
 
-            Source: Sahih al-Bukhari and Sahih Muslim.
+            "Allah descends every night to the lowest heaven when one-third of the first part of the night is over and says: I am the Lord; I am the Lord: who is there to supplicate Me so that I answer him? Who is there to beg of Me so that I grant him? Who is there to beg forgiveness from Me so that I forgive him? He continues like this till the day breaks" (Muslim 758b).
             """
         }
         return nil
@@ -692,6 +696,10 @@ private struct PrayerDetailBlock: View {
                 Text("Shurooq is not a prayer, but marks the end of Fajr.")
                     .foregroundColor(.primary)
                     .font(.footnote)
+            } else if prayer.nameTransliteration == "Islamic Midnight" {
+                Text("Midnight is not a prayer, but marks the end of Isha.")
+                    .foregroundColor(.primary)
+                    .font(.footnote)
             } else {
                 if prayer.rakah != "0" {
                     Text("Prayer Rakahs: \(prayer.rakah)")
@@ -728,6 +736,10 @@ private extension Prayer {
     var stableDisplayID: String {
         "\(nameTransliteration)-\(Int(time.timeIntervalSince1970))"
     }
+
+    var compactDisplayName: String {
+        nameTransliteration == "Islamic Midnight" ? "Midnight" : nameTransliteration
+    }
 }
 
 private struct PrayerGridTile<TrailingContent: View>: View {
@@ -743,7 +755,7 @@ private struct PrayerGridTile<TrailingContent: View>: View {
                     .foregroundColor(color)
                     .padding(.trailing, -2)
 
-                Text(prayer.nameTransliteration)
+                Text(prayer.compactDisplayName)
                     .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundColor(color)
@@ -769,7 +781,7 @@ private struct SplitPrayerRow<TrailingContent: View>: View {
                 .font(.subheadline)
                 .frame(width: 20, alignment: .center)
 
-            Text(prayer.nameTransliteration)
+            Text(prayer.compactDisplayName)
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .lineLimit(1)
