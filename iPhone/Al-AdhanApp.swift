@@ -105,7 +105,7 @@ private struct MainTabView: View {
                     IslamView()
                 }
 
-                Tab("Settings", systemImage: "gearshape", role: .search) {
+                Tab("Settings", systemImage: "gearshape") {
                     SettingsView()
                 }
             }
