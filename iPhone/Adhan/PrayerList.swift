@@ -10,7 +10,9 @@ struct PrayerList: View {
     @State private var selectedDate = Date()
     @State private var compareToday = true
 
-    @AppStorage("prayerDisplayMode") private var prayerDisplayModeRawValue: String = PrayerDisplayMode.list.rawValue
+    // New storage key (V2) so every existing user is reset to the new Tiles default, regardless of what
+    // they had saved under the old "prayerDisplayMode" key.
+    @AppStorage("prayerDisplayModeV2") private var prayerDisplayModeRawValue: String = PrayerDisplayMode.tiles.rawValue
 
     enum PrayerDisplayMode: String, CaseIterable, Identifiable {
         case list = "Prayer List"
@@ -31,7 +33,7 @@ struct PrayerList: View {
     }
 
     private var prayerDisplayMode: PrayerDisplayMode {
-        PrayerDisplayMode(rawValue: prayerDisplayModeRawValue) ?? .list
+        PrayerDisplayMode(rawValue: prayerDisplayModeRawValue) ?? .tiles
     }
 
     private static let selectedDateHeaderFormatter: DateFormatter = {
@@ -142,6 +144,7 @@ struct PrayerList: View {
             .font(.caption2)
             .pickerStyle(MenuPickerStyle())
             .padding(.vertical, -12)
+            .onChange(of: prayerDisplayModeRawValue) { _ in settings.hapticFeedback() }
             #endif
         }
     }
@@ -287,9 +290,14 @@ struct PrayerList: View {
 
     @ViewBuilder
     private func tilesContent(prayers: [Prayer], isComparisonBaseline: Bool = false) -> some View {
+        #if os(watchOS)
+        let columnCount = 2
+        #else
+        let columnCount = settings.travelingMode ? 2 : 3
+        #endif
         let columns = Array(
             repeating: GridItem(.flexible(), spacing: 10),
-            count: settings.travelingMode ? 2 : 3
+            count: columnCount
         )
 
         LazyVGrid(columns: columns, spacing: 10) {
@@ -325,7 +333,7 @@ struct PrayerList: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .conditionalGlassEffect(
                     rectangle: true,
-                    useColor: isCurrent ? 0.22 : 0.12,
+                    useColor: isCurrent ? 0.25 : 0.10,
                     customTint: isCurrent ? settings.accentColor.color : nil
                 )
                 .contentShape(Rectangle())
@@ -403,6 +411,7 @@ struct PrayerList: View {
             }
         }
         .onChange(of: selectedDate) { value in
+            settings.hapticFeedback()
             updateDisplayedDate(to: value)
         }
         #endif

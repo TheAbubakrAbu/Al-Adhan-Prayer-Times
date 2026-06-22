@@ -4,6 +4,7 @@ import CoreLocation
 import Network
 import UserNotifications
 import WidgetKit
+import WatchConnectivity
 
 struct AdhanSoundOption: Identifiable, Equatable {
     let id: String
@@ -46,10 +47,34 @@ extension Settings {
 
     static let locationManager: CLLocationManager = {
         let lm = CLLocationManager()
-        lm.desiredAccuracy = kCLLocationAccuracyHundredMeters
-        lm.distanceFilter = 500
+        lm.desiredAccuracy = kCLLocationAccuracyBest
+        lm.distanceFilter = halfMile
         return lm
     }()
+
+    // MARK: - Location accuracy / refinement state
+    //
+    // iOS uses coarse significant-location-change monitoring in the background (battery friendly), so a
+    // single, possibly-rough fix tends to "stick" while you stay in one place. When an accuracy-sensitive
+    // view is open we briefly switch to high-accuracy continuous updates to lock in the exact spot, then
+    // stop. While actually moving (road trip / walk / flight) we throttle commits so prayer times and the
+    // city label don't churn on every cell-tower hop.
+    private static var isRefiningLocation = false
+    private static var refinementStartedAt: Date?
+    private static var refinementTimeout: DispatchWorkItem?
+    private static var lastLocationCommitAt: Date?
+    private static var lastFixAccuracy: CLLocationDistance?
+
+    /// Stop the high-accuracy burst once a fix this good arrives.
+    private static let refinementTargetAccuracy: CLLocationDistance = 12   // m
+    /// Hard cap on how long the burst runs, in case a good fix never arrives.
+    private static let refinementMaxDuration: TimeInterval = 25            // s
+    /// Ignore sub-jitter coordinate changes when refining in place.
+    private static let refineMinMove: CLLocationDistance = 8               // m
+    /// While moving, don't recompute more often than this even past the distance threshold.
+    private static let movingCommitMinInterval: TimeInterval = 30          // s
+    /// Refinements that move at least this far also recompute prayer times (smaller moves don't matter).
+    private static let prayerRecomputeDistance: CLLocationDistance = 75    // m
     
     private static let geocoder = CLGeocoder()
     private static var cachedPlacemark: (coord: CLLocationCoordinate2D, city: String, countryCode: String)?
@@ -147,16 +172,104 @@ extension Settings {
         let isFresh = abs(loc.timestamp.timeIntervalSinceNow) <= 300
         guard isValid && isFresh else { return }
 
-        if let cur = currentLocation {
-            let prev = CLLocation(latitude: cur.latitude, longitude: cur.longitude)
-            let distance = prev.distance(from: loc)
-            if distance < Self.halfMile { return }
+        if Self.isRefiningLocation {
+            commitLocation(loc, refining: true)
+            let elapsed = Date().timeIntervalSince(Self.refinementStartedAt ?? Date())
+            if loc.horizontalAccuracy <= Self.refinementTargetAccuracy || elapsed >= Self.refinementMaxDuration {
+                endLocationRefinement()
+            }
+        } else {
+            commitLocation(loc, refining: false)
+        }
+    }
+
+    /// Decide whether a new reading is worth saving, and update only as much as needed.
+    /// - `refining`: true during a high-accuracy burst (accept small accuracy improvements in place);
+    ///   false for passive significant-change updates while moving (only real, throttled moves commit).
+    private func commitLocation(_ loc: CLLocation, refining: Bool) {
+        let newCoord = loc.coordinate
+
+        guard let cur = currentLocation else {
+            Self.lastLocationCommitAt = Date()
+            Self.lastFixAccuracy = loc.horizontalAccuracy
+            Task { @MainActor in
+                await updateCity(latitude: newCoord.latitude, longitude: newCoord.longitude)
+                fetchPrayerTimes(force: false)
+            }
+            return
         }
 
-        Task { @MainActor in
-            await updateCity(latitude: loc.coordinate.latitude, longitude: loc.coordinate.longitude)
-            fetchPrayerTimes(force: false)
+        let prev = CLLocation(latitude: cur.latitude, longitude: cur.longitude)
+        let moved = prev.distance(from: loc)
+
+        if refining {
+            // Sitting in one place: accept a meaningfully better fix (or a small genuine move) so the
+            // saved coordinate converges on the exact spot instead of keeping the first rough fix.
+            let moreAccurate = loc.horizontalAccuracy + 5 < (Self.lastFixAccuracy ?? .greatestFiniteMagnitude)
+            guard moved >= Self.refineMinMove || moreAccurate else { return }
+        } else {
+            // Moving: only commit once you've actually relocated, and not more than once per interval,
+            // so a road trip / walk / flight doesn't constantly recompute.
+            guard moved >= Self.halfMile else { return }
+            if let last = Self.lastLocationCommitAt,
+               Date().timeIntervalSince(last) < Self.movingCommitMinInterval { return }
         }
+
+        Self.lastLocationCommitAt = Date()
+        Self.lastFixAccuracy = loc.horizontalAccuracy
+
+        let cityLikelyChanged = moved >= Self.halfMile
+        let shouldRecomputePrayers = !refining || moved >= Self.prayerRecomputeDistance
+
+        Task { @MainActor in
+            if cityLikelyChanged {
+                await updateCity(latitude: newCoord.latitude, longitude: newCoord.longitude)
+            } else {
+                // Same place, just a sharper fix — keep the city label, sharpen the coordinates so the
+                // Qibla bearing and display use the most accurate position available.
+                withAnimation {
+                    currentLocation = Location(city: cur.city, latitude: newCoord.latitude, longitude: newCoord.longitude)
+                }
+            }
+            if shouldRecomputePrayers {
+                fetchPrayerTimes(force: false)
+            }
+        }
+    }
+
+    /// Briefly switch to high-accuracy continuous updates to lock in a precise fix, then auto-stop.
+    /// Call when an accuracy-sensitive view appears (Qibla / prayer times). Bounded by accuracy target
+    /// and a hard timeout so it never drains battery; coarse significant-change monitoring keeps running.
+    func beginLocationRefinement() {
+        #if os(iOS)
+        let status = Self.locationManager.authorizationStatus
+        guard status == .authorizedAlways || status == .authorizedWhenInUse else { return }
+        guard !Self.isRefiningLocation else { return }
+
+        Self.isRefiningLocation = true
+        Self.refinementStartedAt = Date()
+        Self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        Self.locationManager.distanceFilter = kCLDistanceFilterNone
+        Self.locationManager.startUpdatingLocation()
+
+        let timeout = DispatchWorkItem { [weak self] in self?.endLocationRefinement() }
+        Self.refinementTimeout = timeout
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.refinementMaxDuration, execute: timeout)
+        #endif
+    }
+
+    func endLocationRefinement() {
+        #if os(iOS)
+        guard Self.isRefiningLocation else { return }
+        Self.isRefiningLocation = false
+        Self.refinementStartedAt = nil
+        Self.refinementTimeout?.cancel()
+        Self.refinementTimeout = nil
+
+        // Stop the continuous burst; significant-change monitoring stays active for background movement.
+        Self.locationManager.stopUpdatingLocation()
+        Self.locationManager.distanceFilter = Self.halfMile
+        #endif
     }
 
     // ERROR HANDLER
@@ -915,14 +1028,39 @@ extension Settings {
         return raw.first  // Fajr is always first regardless of mode
     }
     
+    /// Whether THIS device should schedule prayer notifications locally. iPhone always does; the Watch
+    /// only does so when the companion iPhone app isn't installed — otherwise the iPhone handles them and
+    /// scheduling on both would double up the alerts.
+    var shouldScheduleNotificationsLocally: Bool {
+        #if os(iOS)
+        return true
+        #elseif os(watchOS)
+        guard WCSession.isSupported() else { return true }
+        // Only trust isCompanionAppInstalled once the session is activated; before that, skip scheduling
+        // to avoid double notifications, and re-run once activation completes (see WatchConnectivity).
+        guard WCSession.default.activationState == .activated else { return false }
+        return !WCSession.default.isCompanionAppInstalled
+        #else
+        return false
+        #endif
+    }
+
     @MainActor
     func requestNotificationAuthorization() async -> Bool {
-        #if os(iOS)
+        #if os(watchOS)
+        guard shouldScheduleNotificationsLocally else { return true }
+        #endif
+        #if os(iOS) || os(watchOS)
         let center = UNUserNotificationCenter.current()
         let status = await center.notificationSettings().authorizationStatus
 
         switch status {
         case .authorized:
+            showNotificationAlert = false
+            return true
+
+        case .provisional, .ephemeral:
+            // Both allow delivering notifications, so treat them like authorized and keep scheduling.
             showNotificationAlert = false
             return true
 
@@ -943,7 +1081,7 @@ extension Settings {
                 return false
             }
 
-        default:
+        @unknown default:
             return false
         }
         #else
@@ -1014,19 +1152,18 @@ extension Settings {
         return out
     }
 
-    private func scheduleRefreshNag(
+    private func makeRefreshNagRequest(
         inDays offset: Int = 2,
         hour: Int = 12,
-        minute: Int = 0,
-        using center: UNUserNotificationCenter = .current()
-    ) {
-        guard let day = Calendar.current.date(byAdding: .day, value: offset, to: Date()) else { return }
+        minute: Int = 0
+    ) -> (request: UNNotificationRequest, date: Date)? {
+        guard let day = Calendar.current.date(byAdding: .day, value: offset, to: Date()) else { return nil }
 
         var comps = Calendar.current.dateComponents([.year, .month, .day], from: day)
         comps.hour = hour
         comps.minute = minute
 
-        guard (Calendar.current.date(from: comps) ?? Date.distantPast) > Date() else { return }
+        guard let date = Calendar.current.date(from: comps), date > Date() else { return nil }
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
@@ -1044,65 +1181,116 @@ extension Settings {
         let id = String(format: "RefreshReminder-%04d-%02d-%02d", comps.year ?? 0, comps.month ?? 0, comps.day ?? 0)
 
         let req = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-        center.add(req) { error in
+        return (req, date)
+    }
+
+    private func scheduleRefreshNag(
+        inDays offset: Int = 2,
+        hour: Int = 12,
+        minute: Int = 0,
+        using center: UNUserNotificationCenter = .current()
+    ) {
+        guard let built = makeRefreshNagRequest(inDays: offset, hour: hour, minute: minute) else { return }
+        center.add(built.request) { error in
             if let error { logger.debug("Refresh reminder add failed: \(error.localizedDescription)") }
         }
     }
 
     func schedulePrayerTimeNotifications() {
-        #if os(iOS)
+        #if os(watchOS)
+        guard shouldScheduleNotificationsLocally else { return }
+        #endif
+        #if os(iOS) || os(watchOS)
         guard let city = currentLocation?.city, let prayerObj = prayers
         else { return }
 
         logger.debug("Scheduling prayer time notifications")
         let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
-        
-        if dateNotifications {
-            for event in specialEvents {
-                scheduleNotification(for: event, using: center)
+
+        // iOS keeps at most 64 pending notifications and silently drops the rest. The app can build far
+        // more than that (multiple prayers × offsets × days × nags + events), which is why adhan /
+        // notification sounds previously "didn't always work" — later prayers got dropped. Collect every
+        // candidate, then add them in priority order under a safe cap so the at-time adhan always survives.
+        let maxPending = 60
+
+        var adhanRequests: [(request: UNNotificationRequest, date: Date)] = []
+        var reminderRequests: [(request: UNNotificationRequest, date: Date)] = []
+
+        func collectPrayer(_ prayer: Prayer, _ minutes: Int?) {
+            guard let built = makePrayerNotificationRequest(for: prayer, preNotificationTime: minutes, city: city) else { return }
+            if built.isAdhan {
+                adhanRequests.append((built.request, built.date))
+            } else {
+                reminderRequests.append((built.request, built.date))
             }
         }
 
         for prayer in prayersIncludingOptional(prayerObj.prayers, for: prayerObj.day) {
             guard let prefs = Self.notifTable[prayer.nameTransliteration] else { continue }
-
             for minutes in offsets(for: prefs) {
-                scheduleNotification(
-                    for: prayer,
-                    preNotificationTime: minutes == 0 ? nil : minutes,
-                    city: city,
-                    using: center
-                )
+                collectPrayer(prayer, minutes == 0 ? nil : minutes)
             }
         }
-        
+
         let futureDays = naggingMode ? 1 : 3
         if futureDays > 0 {
             for dayOffset in 1...futureDays {
                 let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: prayerObj.day) ?? Date()
                 guard let list = getPrayerTimes(for: date) else { continue }
-                
                 for prayer in prayersIncludingOptional(list, for: date) {
                     guard let prefs = Self.notifTable[prayer.nameTransliteration] else { continue }
-                    
                     for minutes in offsets(for: prefs) {
-                        scheduleNotification(
-                            for: prayer,
-                            preNotificationTime: minutes == 0 ? nil : minutes,
-                            city: city,
-                            using: center
-                        )
+                        collectPrayer(prayer, minutes == 0 ? nil : minutes)
                     }
                 }
             }
         }
 
-        if naggingMode {
-            scheduleRefreshNag(inDays: 1, using: center)
+        var eventRequests: [(request: UNNotificationRequest, date: Date)] = []
+        if dateNotifications {
+            for event in specialEvents {
+                if let built = makeEventNotificationRequest(for: event) { eventRequests.append(built) }
+            }
         }
-        scheduleRefreshNag(inDays: 2, using: center)
-        scheduleRefreshNag(inDays: 3, using: center)
+
+        var nagRequests: [(request: UNNotificationRequest, date: Date)] = []
+        if naggingMode, let built = makeRefreshNagRequest(inDays: 1) { nagRequests.append(built) }
+        if let built = makeRefreshNagRequest(inDays: 2) { nagRequests.append(built) }
+        if let built = makeRefreshNagRequest(inDays: 3) { nagRequests.append(built) }
+
+        // Add in priority order, soonest-first within each tier, capped under iOS's 64 limit:
+        //   1. at-time adhan (the actual sound) — must never be dropped
+        //   2. refresh nags — keep the rolling schedule alive so future days get rescheduled
+        //   3. special-event reminders
+        //   4. pre-/nagging reminders — fill whatever budget remains
+        var finalRequests: [UNNotificationRequest] = []
+        func appendCapped(_ items: [(request: UNNotificationRequest, date: Date)]) {
+            for item in items.sorted(by: { $0.date < $1.date }) where finalRequests.count < maxPending {
+                finalRequests.append(item.request)
+            }
+        }
+        appendCapped(adhanRequests)
+        appendCapped(nagRequests)
+        appendCapped(eventRequests)
+        appendCapped(reminderRequests)
+
+        // Incremental refresh instead of wiping everything first: adding a request with an existing
+        // identifier replaces it in place (all our identifiers are stable), so unchanged notifications are
+        // never torn down — no brief window with zero pending, less churn, faster, and the system keeps the
+        // already-scheduled fire times steady. Afterwards, prune only the now-stale ones (past days,
+        // prayers turned off, items pushed out by the cap).
+        let desiredIDs = Set(finalRequests.map { $0.identifier })
+        for req in finalRequests {
+            center.add(req) { error in
+                if let error { logger.debug("Notification add failed: \(error.localizedDescription)") }
+            }
+        }
+        center.getPendingNotificationRequests { pending in
+            let stale = pending.map(\.identifier).filter { !desiredIDs.contains($0) }
+            if !stale.isEmpty {
+                center.removePendingNotificationRequests(withIdentifiers: stale)
+            }
+        }
 
         prayers?.setNotification = true
         #else
@@ -1110,6 +1298,44 @@ extension Settings {
         #endif
     }
     
+    #if os(iOS)
+    /// The next at-time adhan the in-app foreground player should sound: a main prayer (not Shurooq /
+    /// optional) whose "at time" notification is enabled, with a fire time still ahead. Returns its date,
+    /// name, and the matching scheduled-notification identifier so the now-redundant notification can be
+    /// pruned when the app plays the adhan itself.
+    func nextForegroundAdhan(after now: Date = Date()) -> (date: Date, name: String, notificationID: String)? {
+        guard let prayerObj = prayers else { return nil }
+
+        var candidates: [(date: Date, name: String)] = []
+        for prayer in prayersIncludingOptional(prayerObj.prayers, for: prayerObj.day) {
+            candidates.append((prayer.time, prayer.nameTransliteration))
+        }
+        // Include tomorrow so the Isha → next-Fajr gap is covered.
+        if let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: prayerObj.day),
+           let list = getPrayerTimes(for: tomorrow) {
+            for prayer in prayersIncludingOptional(list, for: tomorrow) {
+                candidates.append((prayer.time, prayer.nameTransliteration))
+            }
+        }
+
+        guard let next = candidates
+            .filter({ $0.date > now && isForegroundAdhanEligible($0.name) })
+            .min(by: { $0.date < $1.date })
+        else { return nil }
+
+        // Mirrors the at-time identifier built in makePrayerNotificationRequest (minutes == nil → "0").
+        let comps = Calendar.current.dateComponents([.year, .month, .day], from: next.date)
+        let id = "\(next.name)-0-\(comps.year ?? 0)-\(comps.month ?? 0)-\(comps.day ?? 0)"
+        return (next.date, next.name, id)
+    }
+
+    private func isForegroundAdhanEligible(_ name: String) -> Bool {
+        guard name != "Shurooq", !Self.optionalPrayerNames.contains(name) else { return false }
+        guard let prefs = Self.notifTable[name] else { return false }
+        return self[keyPath: prefs.enabled]
+    }
+    #endif
+
     private func buildBody(prayer: Prayer, minutesBefore: Int?, city: String) -> String {
         let englishPart: String = {
             switch prayer.nameTransliteration {
@@ -1158,7 +1384,9 @@ extension Settings {
         #endif
     }
 
-    func scheduleNotification(for prayer: Prayer, preNotificationTime minutes: Int?, city: String, using center: UNUserNotificationCenter = .current()) {
+    /// Builds an at-time / pre-notification prayer request. `isAdhan` marks the at-time notification of a
+    /// main prayer (the one that carries the adhan sound) so the scheduler can prioritize it.
+    private func makePrayerNotificationRequest(for prayer: Prayer, preNotificationTime minutes: Int?, city: String) -> (request: UNNotificationRequest, date: Date, isAdhan: Bool)? {
         let triggerTime: Date = {
             if let m = minutes, m != 0 {
                 return Calendar.current.date(byAdding: .minute, value: -m, to: prayer.time) ?? prayer.time
@@ -1166,7 +1394,7 @@ extension Settings {
             return prayer.time
         }()
 
-        guard triggerTime > Date() else { return }
+        guard triggerTime > Date() else { return nil }
 
         let content = UNMutableNotificationContent()
         content.title = AppIdentifiers.appName
@@ -1184,48 +1412,62 @@ extension Settings {
         let id = "\(prayer.nameTransliteration)-\(minutes ?? 0)-\(comps.year ?? 0)-\(comps.month ?? 0)-\(comps.day ?? 0)"
         let req  = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
 
-        center.add(req) { error in
+        let isAdhan = minutes == nil
+            && prayer.nameTransliteration != "Shurooq"
+            && !Self.optionalPrayerNames.contains(prayer.nameTransliteration)
+        return (req, triggerTime, isAdhan)
+    }
+
+    func scheduleNotification(for prayer: Prayer, preNotificationTime minutes: Int?, city: String, using center: UNUserNotificationCenter = .current()) {
+        guard let built = makePrayerNotificationRequest(for: prayer, preNotificationTime: minutes, city: city) else { return }
+        center.add(built.request) { error in
             if let error { logger.debug("Notification add failed: \(error.localizedDescription)") }
         }
     }
-    
-    func scheduleNotification(for event: (String, DateComponents, String, String), using center: UNUserNotificationCenter = .current()) {
+
+    private func makeEventNotificationRequest(for event: (String, DateComponents, String, String)) -> (request: UNNotificationRequest, date: Date)? {
         let (titleText, hijriComps, eventSubTitle, _) = event
-        
-        if let hijriDate = hijriCalendar.date(from: hijriComps) {
-            let gregorianCalendar = Calendar(identifier: .gregorian)
-            var gregorianComps = gregorianCalendar.dateComponents([.year, .month, .day], from: hijriDate)
-            gregorianComps.hour = 9
-            gregorianComps.minute = 0
-            
-            guard
-                let finalDate = gregorianCalendar.date(from: gregorianComps),
-                finalDate > Date()
-            else {
-                return
-            }
-            
-            let content = UNMutableNotificationContent()
-            content.title = AppIdentifiers.appName
-            content.body = "\(titleText) (\(eventSubTitle))"
-            content.sound = .default
-            #if os(iOS)
-            if #available(iOS 15.0, *) {
-                content.interruptionLevel = .timeSensitive
-            }
-            #endif
-            
-            let trigger = UNCalendarNotificationTrigger(dateMatching: gregorianComps, repeats: false)
-            let request = UNNotificationRequest(
-                identifier: UUID().uuidString,
-                content: content,
-                trigger: trigger
-            )
-            
-            center.add(request) { error in
-                if let error = error {
-                    logger.debug("Failed to schedule special event notification: \(error)")
-                }
+
+        guard let hijriDate = hijriCalendar.date(from: hijriComps) else { return nil }
+        let gregorianCalendar = Calendar(identifier: .gregorian)
+        var gregorianComps = gregorianCalendar.dateComponents([.year, .month, .day], from: hijriDate)
+        gregorianComps.hour = 9
+        gregorianComps.minute = 0
+
+        guard
+            let finalDate = gregorianCalendar.date(from: gregorianComps),
+            finalDate > Date()
+        else {
+            return nil
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = AppIdentifiers.appName
+        content.body = "\(titleText) (\(eventSubTitle))"
+        content.sound = .default
+        #if os(iOS)
+        if #available(iOS 15.0, *) {
+            content.interruptionLevel = .timeSensitive
+        }
+        #endif
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: gregorianComps, repeats: false)
+        // Stable identifier (title + date) so incremental rescheduling updates the same request in place
+        // instead of churning a new UUID every refresh.
+        let id = "Event-\(titleText)-\(gregorianComps.year ?? 0)-\(gregorianComps.month ?? 0)-\(gregorianComps.day ?? 0)"
+        let request = UNNotificationRequest(
+            identifier: id,
+            content: content,
+            trigger: trigger
+        )
+        return (request, finalDate)
+    }
+
+    func scheduleNotification(for event: (String, DateComponents, String, String), using center: UNUserNotificationCenter = .current()) {
+        guard let built = makeEventNotificationRequest(for: event) else { return }
+        center.add(built.request) { error in
+            if let error = error {
+                logger.debug("Failed to schedule special event notification: \(error)")
             }
         }
     }

@@ -10,7 +10,12 @@ struct AlAdhanApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var isLaunching = true
-    
+
+    init() {
+        // Activate WatchConnectivity so settings sync (and watch app-installed detection) work both ways.
+        _ = WatchConnectivityManager.shared
+    }
+
     private enum RootStage: Equatable {
         case launch
         case splash
@@ -36,8 +41,6 @@ struct AlAdhanApp: App {
                 .accentColor(settings.accentColor.color)
                 .tint(settings.accentColor.color)
                 .preferredColorScheme(settings.colorScheme)
-                .animation(.easeInOut, value: settings.firstLaunch)
-                .animation(.easeInOut, value: isLaunching)
                 .appReviewPrompt()
                 .onAppear(perform: refreshPrayerTimes)
         }
@@ -92,28 +95,40 @@ struct AlAdhanApp: App {
 
 private struct MainTabView: View {
     var body: some View {
-        TabView {
-            AdhanView()
-                .tabItem {
-                    if #available(iOS 18.0, *) {
-                        Image(systemName: "mecca")
-                    } else {
+        if #available(iOS 18.0, *) {
+            TabView {
+                Tab("Adhan", systemImage: "mecca") {
+                    AdhanView()
+                }
+
+                Tab("Islam", systemImage: "moon.stars") {
+                    IslamView()
+                }
+
+                Tab("Settings", systemImage: "gearshape", role: .search) {
+                    SettingsView()
+                }
+            }
+        } else {
+            TabView {
+                AdhanView()
+                    .tabItem {
                         Image(systemName: "safari")
+                        Text("Adhan")
                     }
-                    Text("Adhan")
-                }
 
-            IslamView()
-                .tabItem {
-                    Image(systemName: "moon.stars")
-                    Text("Tools")
-                }
+                IslamView()
+                    .tabItem {
+                        Image(systemName: "moon.stars")
+                        Text("Islam")
+                    }
 
-            SettingsView()
-                .tabItem {
-                    Image(systemName: "gearshape")
-                    Text("Settings")
-                }
+                SettingsView()
+                    .tabItem {
+                        Image(systemName: "gearshape")
+                        Text("Settings")
+                    }
+            }
         }
     }
 }

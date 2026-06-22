@@ -62,26 +62,57 @@ struct AdhanView: View {
 
     private var adhanContent: some View {
         List {
-            DateAndLocationSection(showBigQibla: $showBigQibla)
+            Group {
+                #if os(iOS)
+                DateAndLocationSection(showBigQibla: $showBigQibla)
 
-            prayersSection
+                prayersSection
 
-            #if os(iOS)
-            Section(header: Text("LOCATION AND CALCULATION")) {
-                LocationCalculationCard()
+                Section(header: Text("LOCATION AND CALCULATION")) {
+                    LocationCalculationCard()
+                }
+                #else
+                // Watch order: prayer times first (2 per row), then countdown, then city, then qibla.
+                prayersSection
+
+                watchCityRow
+                watchQiblaRow
+
+                if let hijriDate = settings.hijriDate {
+                    HijriDateRow(hijriDate: hijriDate)
+                }
+                #endif
             }
-            #endif
+            .themedListRowBackground()
         }
         .refreshable {
             prayerTimeRefresh(force: true)
         }
         .onAppear {
             prayerTimeRefresh(force: false)
+            settings.beginLocationRefinement()
+        }
+        .onDisappear {
+            settings.endLocationRefinement()
         }
         .onChange(of: scenePhase) { newScenePhase in
             if newScenePhase == .active {
                 prayerTimeRefresh(force: false)
+                settings.beginLocationRefinement()
             }
+        }
+        // Present the automatic-change confirmation the moment the flag flips, from ANY code path that runs
+        // checkIfTraveling()/the auto-calculation change — not only after a prayer-fetch completion. That
+        // gating made the dialog lag (waited for the fetch) and often never appear (when the flag flipped
+        // from a fetch not routed through prayerTimeRefresh).
+        .onChange(of: settings.travelTurnOnAutomatic) { on in
+            if on { showAlert = .travelTurnOnAutomatic }
+        }
+        .onChange(of: settings.travelTurnOffAutomatic) { off in
+            if off { showAlert = .travelTurnOffAutomatic }
+        }
+        .onChange(of: settings.calculationAutoChanged) { changed in
+            if changed { showAlert = .calculationAutomaticChanged }
         }
         .navigationTitle("Al-Adhan")
         #if os(iOS)
@@ -114,11 +145,42 @@ struct AdhanView: View {
         }
         #else
         if settings.prayers != nil {
-            PrayerCountdown()
             PrayerList()
+            PrayerCountdown()
         }
         #endif
     }
+
+    #if os(watchOS)
+    private var watchCityRow: some View {
+        HStack(spacing: 6) {
+            Image(systemName: settings.currentLocation != nil ? "location.fill" : "location.slash")
+                .foregroundColor(settings.accentColor.color)
+            Text((settings.prayers != nil ? settings.currentLocation?.city : nil) ?? "No location")
+                .font(.subheadline)
+                .lineLimit(2)
+                .minimumScaleFactor(0.6)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var watchQiblaRow: some View {
+        VStack(spacing: 6) {
+            QiblaView(size: showBigQibla ? 100 : 50)
+                .animation(.easeInOut, value: showBigQibla)
+                .onTapGesture {
+                    settings.hapticFeedback()
+                    withAnimation { showBigQibla.toggle() }
+                }
+
+            Text("Compass may not be accurate on Apple Watch")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    #endif
 
     private func prayerTimeRefresh(force: Bool) {
         settings.requestNotificationAuthorization {
@@ -172,48 +234,74 @@ struct AdhanView: View {
         switch showAlert {
         case .travelTurnOnAutomatic:
             Button("Override: Turn Off", role: .destructive) {
-                settings.overrideTravelingMode(keepOn: false)
+                settings.hapticFeedback()
+                withAnimation(.easeInOut) {
+                    settings.overrideTravelingMode(keepOn: false)
+                }
             }
 
-            Button("Confirm: Keep On", role: .cancel) {
-                settings.confirmTravelAutomaticChange()
+            Button("Confirm: Keep On") {
+                settings.hapticFeedback()
+                withAnimation(.easeInOut) {
+                    settings.confirmTravelAutomaticChange()
+                }
             }
 
         case .travelTurnOffAutomatic:
             Button("Override: Keep On", role: .destructive) {
-                settings.overrideTravelingMode(keepOn: true)
+                settings.hapticFeedback()
+                withAnimation(.easeInOut) {
+                    settings.overrideTravelingMode(keepOn: true)
+                }
             }
 
-            Button("Confirm: Turn Off", role: .cancel) {
-                settings.confirmTravelAutomaticChange()
+            Button("Confirm: Turn Off") {
+                settings.hapticFeedback()
+                withAnimation(.easeInOut) {
+                    settings.confirmTravelAutomaticChange()
+                }
             }
 
         case .calculationAutomaticChanged:
             Button("Override: Keep \(settings.calculationAutoPreviousMethod)", role: .destructive) {
-                settings.overrideAutomaticCalculationKeepingPrevious()
+                settings.hapticFeedback()
+                withAnimation(.easeInOut) {
+                    settings.overrideAutomaticCalculationKeepingPrevious()
+                }
             }
 
-            Button("Confirm: Use \(settings.calculationAutoDetectedMethod)", role: .cancel) {
-                settings.confirmAutomaticCalculationChange()
+            Button("Confirm: Use \(settings.calculationAutoDetectedMethod)") {
+                settings.hapticFeedback()
+                withAnimation(.easeInOut) {
+                    settings.confirmAutomaticCalculationChange()
+                }
             }
 
         case .locationAlert:
             Button("Open Settings") {
+                settings.hapticFeedback()
                 openAppSettings()
             }
             Button("Never Ask Again", role: .destructive) {
+                settings.hapticFeedback()
                 settings.locationNeverAskAgain = true
             }
-            Button("Ignore", role: .cancel) { }
+            Button("Ignore") {
+                settings.hapticFeedback()
+            }
 
         case .notificationAlert:
             Button("Open Settings") {
+                settings.hapticFeedback()
                 openAppSettings()
             }
             Button("Never Ask Again", role: .destructive) {
+                settings.hapticFeedback()
                 settings.notificationNeverAskAgain = true
             }
-            Button("Ignore", role: .cancel) { }
+            Button("Ignore") {
+                settings.hapticFeedback()
+            }
 
         case .none:
             EmptyView()
@@ -341,7 +429,7 @@ private struct CurrentLocationRow: View {
             Text("Compass may not be accurate on Apple Watch")
                 .font(.caption2)
                 .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
             #endif
         }
         #if os(iOS)
@@ -389,8 +477,9 @@ private struct CurrentLocationRow: View {
                         }
                 }
                 .padding(12)
+                // Clean capsule glass — no .cornerRadius() clip, which previously cut the capsule into a
+                // hard-edged box that looked wrong in Sepia.
                 .conditionalGlassEffect()
-                .cornerRadius(8)
             }
             .buttonStyle(.plain)
         } else {

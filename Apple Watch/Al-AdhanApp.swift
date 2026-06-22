@@ -5,8 +5,15 @@ import WidgetKit
 struct AlAdhanApp: App {
     @StateObject private var settings = Settings.shared
     @StateObject private var namesData = NamesViewModel.shared
-    
+
+    @Environment(\.scenePhase) private var scenePhase
     @State private var isLaunching = true
+
+    init() {
+        // Activate WatchConnectivity early so we can tell whether the iPhone app is installed
+        // (used to decide if the watch should schedule prayer notifications itself).
+        _ = WatchConnectivityManager.shared
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -16,9 +23,9 @@ struct AlAdhanApp: App {
                 } else {
                     TabView {
                         AdhanView()
-                        
+                                                
                         IslamView()
-                        
+                                                
                         SettingsView()
                     }
                 }
@@ -36,8 +43,6 @@ struct AlAdhanApp: App {
                 }
             }
         }
-        .onChange(of: settings.favoriteLetters) { _ in
-        }
         .onChange(of: settings.accentColor) { _ in
             WidgetCenter.shared.reloadAllTimelines()
         }
@@ -53,6 +58,12 @@ struct AlAdhanApp: App {
         .onChange(of: settings.hijriOffset) { _ in
             settings.updateDates()
             WidgetCenter.shared.reloadAllTimelines()
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase != .active {
+                // Flush any just-made setting change before suspension so it reliably reaches the iPhone.
+                WatchConnectivityManager.shared.flushPendingSync()
+            }
         }
     }
 }

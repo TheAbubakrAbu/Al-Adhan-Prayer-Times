@@ -22,6 +22,7 @@ struct TajweedFoundationsView: View {
 
     var body: some View {
         List {
+            Group {
             Section("TAJWEED LEGEND") {
                 #if os(iOS)
                 Button {
@@ -113,7 +114,7 @@ struct TajweedFoundationsView: View {
                 Text("Learn More About Qiraat, Riwayat, and Ahruf")
                     .font(.subheadline.weight(.semibold))
 
-                Text("See below and in \(AppIdentifiers.toolsView) View > Islamic Pillars and Basics.")
+                Text("See below and in Al-Islam View > Islamic Pillars and Basics.")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -147,6 +148,8 @@ struct TajweedFoundationsView: View {
                     .padding(.vertical, 4)
                 }
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Tajweed Foundations")
@@ -191,6 +194,7 @@ private struct TajweedImprovingRecitationView: View {
 
     var body: some View {
         List {
+            Group {
             Section("VIDEO REFERENCES") {
                 VStack(alignment: .leading, spacing: 6) {
                     Link("How to Improve Your Recitation 1", destination: URL(string: "https://www.youtube.com/watch?v=_acpVGn0ys0")!)
@@ -313,6 +317,8 @@ private struct TajweedImprovingRecitationView: View {
                 Text("If a formal teacher is not available, try to practice with someone knowledgeable who has strong tajweed and is willing to listen to your recitation and offer corrections.")
                     .font(.body)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Improving Your Recitation")
@@ -324,6 +330,7 @@ private struct TajweedFoundationsTopicView: View {
 
     var body: some View {
         List {
+            Group {
             Section("NATURAL QURANIC RECITATION") {
                 Text("Foundations of Natural Quranic Recitation")
                     .font(.headline)
@@ -370,6 +377,8 @@ private struct TajweedFoundationsTopicView: View {
                 Text("Think of the lips as folding together, not squeezing.")
                     .font(.body)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Lip Movement")
@@ -389,6 +398,7 @@ private struct TajweedInMushafView: View {
 
     var body: some View {
         List {
+            Group {
             Section("TAJWEED IN THE MUSHAF") {
                 Text("Reading Tajweed Directly from the Mushaf")
                     .font(.headline)
@@ -601,6 +611,8 @@ private struct TajweedInMushafView: View {
                 Text("If you do not see a sukun, the laam is not read.")
                     .font(.body)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Tajweed Hints in the Mushaf")
@@ -620,6 +632,7 @@ private struct TajweedMakharijView: View {
 
     var body: some View {
         List {
+            Group {
             Section("VIDEO REFERENCES") {
                 VStack(alignment: .leading, spacing: 6) {
                     if let url = URL(string: "https://www.youtube.com/watch?v=-YrfRpwFMe8&list=PL6TlMIZ5ylgpmlnN3EpkOec0tJ8OJZ5re") {
@@ -838,6 +851,8 @@ private struct TajweedMakharijView: View {
                     .font(.body)
                     .foregroundColor(settings.accentColor.color)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Makhaarij")
@@ -853,6 +868,7 @@ private struct TajweedHeavyLightView: View {
 
     var body: some View {
         List {
+            Group {
             Section("HEAVY AND LIGHT") {
                 Text("Heavy and Light Letters")
                     .font(.headline)
@@ -1031,6 +1047,8 @@ private struct TajweedHeavyLightView: View {
                     .font(.body)
                     .foregroundColor(settings.accentColor.color)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Heavy and Light")
@@ -1046,6 +1064,7 @@ private struct TajweedShamsQamarView: View {
 
     var body: some View {
         List {
+            Group {
             Section("SHAMS AND QAMAR") {
                 Text("Shamsiyyah and Qamariyyah Letters")
                     .font(.headline)
@@ -1153,6 +1172,8 @@ private struct TajweedShamsQamarView: View {
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Shams and Qamar")
@@ -1168,6 +1189,7 @@ private struct TajweedMaddView: View {
 
     var body: some View {
         List {
+            Group {
             Section("MADD") {
                 Text("Madd (Elongation) Rules")
                     .font(.headline)
@@ -1408,6 +1430,8 @@ private struct TajweedMaddView: View {
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Madd")
@@ -1423,6 +1447,7 @@ private struct TajweedQalqalahView: View {
 
     var body: some View {
         List {
+            Group {
             Section("QALQALAH") {
                 Text("Qalqalah (Echo) Letters")
                     .font(.headline)
@@ -1518,6 +1543,8 @@ private struct TajweedQalqalahView: View {
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Qalqalah")
@@ -1533,6 +1560,7 @@ private struct TajweedIdghamIkhfaView: View {
 
     var body: some View {
         List {
+            Group {
             Section("NOON SAKINAH AND TANWEEN") {
                 Text("Noon Sakinah and Tanween Rules")
                     .font(.headline)
@@ -1744,6 +1772,8 @@ private struct TajweedIdghamIkhfaView: View {
                     .font(.body)
                     .foregroundColor(settings.accentColor.color)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Noon Sakinah and Tanween")
@@ -1755,6 +1785,7 @@ private struct TajweedMeemSakinahView: View {
 
     var body: some View {
         List {
+            Group {
             Section("VIDEO REFERENCES") {
                 Link("Meem Sakinah Rules", destination: URL(string: "https://www.youtube.com/watch?v=MAvDrZgWRTs")!)
             }
@@ -1907,6 +1938,8 @@ private struct TajweedMeemSakinahView: View {
                 Text("Meem Sakinah has three rules. If it is followed by Ba, it is read with Ikhfaa Shafawi, meaning the meem is hidden with ghunnah. If it is followed by another Meem, it is read with Idgham Shafawi, meaning the two meems merge with ghunnah. If it is followed by any other letter, it is read with Idhaar Shafawi, meaning the meem is pronounced clearly.")
                     .font(.body)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Meem Sakinah")
@@ -1918,6 +1951,7 @@ private struct TajweedAaridLisSukoonView: View {
 
     var body: some View {
         List {
+            Group {
             Section("VIDEO REFERENCES") {
                 Link("Tajweed Hints: 4 Types of Sukoon", destination: URL(string: "https://www.youtube.com/watch?v=MAvDrZgWRTs")!)
             }
@@ -2011,6 +2045,8 @@ private struct TajweedAaridLisSukoonView: View {
                 .font(.body)
                 .foregroundColor(.secondary)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("4 Sukoon")
@@ -2022,6 +2058,7 @@ private struct TajweedHamzatulWaslView: View {
 
     var body: some View {
         List {
+            Group {
             Section("VIDEO REFERENCES") {
                 VStack(alignment: .leading, spacing: 6) {
                     Link("Hamzatul-Wasl short 1", destination: URL(string: "https://www.youtube.com/shorts/SpA7EtX3jMA")!)
@@ -2159,6 +2196,8 @@ private struct TajweedHamzatulWaslView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Hamzatul-Wasl")
@@ -2174,6 +2213,7 @@ private struct TajweedWaqfView: View {
 
     var body: some View {
         List {
+            Group {
             Section("WAQF") {
                 Text("Waqf (Stopping in the Quran)")
                     .font(.headline)
@@ -2447,6 +2487,8 @@ private struct TajweedWaqfView: View {
                 Text("You stop where the meaning stops, not where the lungs give up.")
                     .font(.body)
             }
+            }
+            .themedListRowBackground()
         }
         .applyConditionalListStyle(defaultView: settings.defaultView)
         .navigationTitle("Waqf")

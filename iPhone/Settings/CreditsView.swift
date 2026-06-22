@@ -46,6 +46,9 @@ struct CreditsView: View {
                     .padding(.vertical, 4)
                     .padding(.bottom, 8)
                     .contextMenu {
+                        Text("Copy")
+                            .foregroundStyle(.secondary)
+
                         Button {
                             settings.hapticFeedback()
                             UIPasteboard.general.string = "https://abubakrelmallah.com/"
@@ -58,9 +61,7 @@ struct CreditsView: View {
                     }
             }
 
-            Divider()
-                .background(settings.accentColor.color)
-                .padding(.trailing, -100)
+            Divider().background(settings.accentColor.color)
         }
         .listRowSeparator(.hidden)
     }
@@ -110,8 +111,28 @@ struct CreditsView: View {
                 
                 creditLink("Credit for the Adhan sounds goes to Omar Al-Ejel", url: "https://github.com/oalejel/Athan-Utility")
                 
+                creditLink("Credit for the English transliteration of the Quran data goes to Risan Bagja Pradana", url: "https://github.com/risan/quran-json")
+                
+                creditLink("Credit for the English Saheeh International translation of the Quran data goes to Global Quran", url: "https://globalquran.com/download/data/")
+                
+                creditLink("Credit for all the Quranic Arabic text and all qiraat/riwayaat data goes to quran-data-kfgqpc (KFGQPC)", url: "https://github.com/thetruetruth/quran-data-kfgqpc")
+                
+                // https://qul.tarteel.ai/resources/font/458 SURAH HEADER FULL LINE
+                
                 creditLink("Credit for the Uthmani Quran font goes to King Fahad Complex (KFGQPC)", url: "https://qul.tarteel.ai/resources/font/245")
-                                
+                
+                creditLink("Credit for the Indopak Nastaleeq Quran font goes to Ayman Siddiqui and R. Siddiqua", url: "https://qul.tarteel.ai/resources/font/242")
+                
+                creditLink("Credit for the Surah Quran Recitations goes to MP3 Quran", url: "https://mp3quran.net/eng")
+                
+                creditLink("Credit for the Ayah Quran Recitations goes to Al Quran", url: "https://alquran.cloud/cdn")
+
+                creditLink("Credit for the English Quran translation comparison API goes to Al Quran Cloud", url: "https://alquran.cloud/api")
+
+                creditLink("Credit for the Tafsir API goes to Quran API Pages", url: "https://quranapi.pages.dev/")
+
+                creditLink("Credit for the Surah Info goes to Quran.com (Quran Foundation)", url: "https://api-docs.quran.foundation/docs/content_apis_versioned/4.0.0/get-chapter-info/#get-chapter-info")
+
                 creditLink("Credit for the 99 Names of Allah goes to MyIslam", url: "https://myislam.org/99-names-of-allah/")
             }
             .foregroundColor(settings.accentColor.color)
@@ -140,9 +161,12 @@ struct CreditsView: View {
         if let destination = URL(string: url) {
             Link(title, destination: destination)
                 .contextMenu {
+                    Text("Copy")
+                        .foregroundStyle(.secondary)
+
                     Button {
                         settings.hapticFeedback()
-                        UIPasteboard.general.string = title
+                        UIPasteboard.general.string = url
                     } label: {
                         Label("Copy Link", systemImage: "doc.on.doc")
                     }
@@ -211,6 +235,9 @@ struct AppLinkRow: View {
             }
         }
         .contextMenu {
+            Text("Copy")
+                .foregroundStyle(.secondary)
+
             Button {
                 settings.hapticFeedback()
                 UIPasteboard.general.string = url
