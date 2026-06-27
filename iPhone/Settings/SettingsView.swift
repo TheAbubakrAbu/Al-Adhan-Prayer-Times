@@ -523,6 +523,7 @@ struct SettingsAppearanceView: View {
                     .labelsHidden()
                     .tint(Color(hex: settings.customAccentColorHex) ?? .green)
             }
+            .padding(.horizontal, 23)
             .onChange(of: settings.accentColor) { _ in settings.hapticFeedback() }
             #endif
             
@@ -531,6 +532,7 @@ struct SettingsAppearanceView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.vertical, 2)
+                .padding(.top, 10)
             #endif
         }
         
