@@ -40,7 +40,6 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     private override init() {
         self.accentColor = AccentColor(rawValue: appGroupUserDefaults?.string(forKey: "accentColor") ?? AppIdentifiers.mainColorString) ?? AppIdentifiers.mainColor
         self.customAccentColorHex = appGroupUserDefaults?.string(forKey: "customAccentColorHex") ?? "34C759"
-        self.nowPlayingExpanded = appGroupUserDefaults?.bool(forKey: "nowPlayingExpanded") ?? false
         
         self.prayersData = appGroupUserDefaults?.data(forKey: "prayersData") ?? Data()
         self.travelingMode = appGroupUserDefaults?.bool(forKey: "travelingMode") ?? false
@@ -103,14 +102,6 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         didSet {
             guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
             appGroupUserDefaults?.setValue(customAccentColorHex, forKey: "customAccentColorHex")
-        }
-    }
-    
-    /// Big vs. small in-app Now Playing player. A @Published (not @AppStorage) so `withAnimation` animates it.
-    @Published var nowPlayingExpanded: Bool {
-        didSet {
-            guard Bundle.main.bundleIdentifier?.contains("Widget") != true else { return }
-            appGroupUserDefaults?.setValue(nowPlayingExpanded, forKey: "nowPlayingExpanded")
         }
     }
     
