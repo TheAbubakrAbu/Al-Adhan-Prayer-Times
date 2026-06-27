@@ -202,7 +202,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     // MARK: - Prayer — live state & hijri (app-storage persistence)
-    
+
     @AppStorage("hijriDate") private var hijriDateData: String?
     var hijriDate: HijriDate? {
         get {
@@ -221,43 +221,43 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
             }
         }
     }
-    
+
     @AppStorage("currentPrayerData") var currentPrayerData: Data?
     @Published var currentPrayer: Prayer? {
         didSet {
             currentPrayerData = try? Self.encoder.encode(currentPrayer)
         }
     }
-    
+
     @AppStorage("nextPrayerData") var nextPrayerData: Data?
     @Published var nextPrayer: Prayer? {
         didSet {
             nextPrayerData = try? Self.encoder.encode(nextPrayer)
         }
     }
-    
+
     @Published var datePrayers: [Prayer]?
     @Published var dateFullPrayers: [Prayer]?
     @Published var changedDate = false
-    
+
     var hijriCalendar: Calendar = {
         var calendar = Calendar(identifier: .islamicUmmAlQura)
         calendar.locale = Locale(identifier: "ar")
         return calendar
     }()
-    
+
     var specialEvents: [(String, DateComponents, String, String)] {
         let currentHijriYear = hijriCalendar.component(.year, from: effectiveHijriReferenceDate())
         return [
             ("Islamic New Year", DateComponents(year: currentHijriYear, month: 1, day: 1), "Start of Hijri year", "The first day of the Islamic calendar; no special acts of worship or celebration are prescribed."),
             ("Day Before Ashura", DateComponents(year: currentHijriYear, month: 1, day: 9), "Recommended to fast", "The Prophet ﷺ intended to fast the 9th to differ from the Jews, making it Sunnah to do so before Ashura."),
             ("Day of Ashura", DateComponents(year: currentHijriYear, month: 1, day: 10), "Recommended to fast", "Ashura marks the day Allah saved Musa (Moses) and the Israelites from Pharaoh; fasting expiates sins of the previous year."),
-            
+
             ("First Day of Ramadan", DateComponents(year: currentHijriYear, month: 9, day: 1), "Begin obligatory fast", "The month of fasting begins; all Muslims must fast from Fajr (dawn) to Maghrib (sunset)."),
             ("Last 10 Nights of Ramadan", DateComponents(year: currentHijriYear, month: 9, day: 21), "Seek Laylatul Qadr", "The most virtuous nights of the year; increase worship as these nights are beloved to Allah and contain Laylatul Qadr."),
             ("27th Night of Ramadan", DateComponents(year: currentHijriYear, month: 9, day: 27), "Likely Laylatul Qadr", "A strong possibility for Laylatul Qadr — the Night of Decree when the Qur’an was sent down — though not confirmed."),
             ("Eid Al-Fitr", DateComponents(year: currentHijriYear, month: 10, day: 1), "Celebration of ending the fast", "Celebration marking the end of Ramadan; fasting is prohibited on this day; encouraged to fast 6 days in Shawwal."),
-            
+
             ("First 10 Days of Dhul-Hijjah", DateComponents(year: currentHijriYear, month: 12, day: 1), "Most beloved days", "The best days for righteous deeds; fasting and dhikr are highly encouraged."),
             ("Beginning of Hajj", DateComponents(year: currentHijriYear, month: 12, day: 8), "Pilgrimage begins", "Pilgrims begin the rites of Hajj, heading to Mina to start the sacred journey."),
             ("Day of Arafah", DateComponents(year: currentHijriYear, month: 12, day: 9), "Recommended to fast", "Fasting for non-pilgrims expiates sins of the past and coming year."),
@@ -265,19 +265,19 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
             ("End of Eid Al-Adha", DateComponents(year: currentHijriYear, month: 12, day: 13), "Hajj and Eid end", "Final day of Eid Al-Adha; pilgrims and non-pilgrims return to daily life."),
         ]
     }
-    
+
     @AppStorage("lastScheduledHijriYear") private var lastScheduledHijriYear: Int = 0
-    
+
     // MARK: - Prayer — @AppStorage (notifications, travel, calculation, alerts)
-    
+
     @AppStorage("dateNotifications") var dateNotifications = true {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
-    
+
     @AppStorage("switchHijriDateAtMaghrib") var switchHijriDateAtMaghrib: Bool = false {
         didSet { self.updateDates() }
     }
-    
+
     @AppStorage("naggingMode") var naggingMode: Bool = false {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -287,7 +287,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("adhanNotificationSound") var adhanNotificationSound: String = "egypt-30" {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
-    
+
     @AppStorage("preNotificationFajr") var preNotificationFajr: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -300,7 +300,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("offsetFajr") var offsetFajr: Int = 0 {
         didSet { self.fetchPrayerTimes(force: true) }
     }
-    
+
     @AppStorage("preNotificationSunrise") var preNotificationSunrise: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -313,7 +313,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("offsetSunrise") var offsetSunrise: Int = 0 {
         didSet { self.fetchPrayerTimes(force: true) }
     }
-    
+
     @AppStorage("preNotificationDhuhr") var preNotificationDhuhr: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -326,7 +326,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("offsetDhuhr") var offsetDhuhr: Int = 0 {
         didSet { self.fetchPrayerTimes(force: true) }
     }
-    
+
     @AppStorage("preNotificationAsr") var preNotificationAsr: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -339,7 +339,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("offsetAsr") var offsetAsr: Int = 0 {
         didSet { self.fetchPrayerTimes(force: true) }
     }
-    
+
     @AppStorage("preNotificationMaghrib") var preNotificationMaghrib: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -352,7 +352,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("offsetMaghrib") var offsetMaghrib: Int = 0 {
         didSet { self.fetchPrayerTimes(force: true) }
     }
-    
+
     @AppStorage("preNotificationIsha") var preNotificationIsha: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -365,7 +365,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("offsetIsha") var offsetIsha: Int = 0 {
         didSet { self.fetchPrayerTimes(force: true) }
     }
-    
+
     @AppStorage("preNotificationDuha") var preNotificationDuha: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -375,7 +375,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("naggingDuha") var naggingDuha: Bool = false {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
-    
+
     @AppStorage("preNotificationIslamicMidnight") var preNotificationIslamicMidnight: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -385,7 +385,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("naggingIslamicMidnight") var naggingIslamicMidnight: Bool = false {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
-    
+
     @AppStorage("preNotificationLastThird") var preNotificationLastThird: Int = 0 {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
@@ -395,13 +395,13 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("naggingLastThird") var naggingLastThird: Bool = false {
         didSet { self.fetchPrayerTimes(notification: true) }
     }
-    
+
     @AppStorage("travelAutomatic") var travelAutomatic: Bool = true
     @AppStorage("travelTurnOffAutomatic") var travelTurnOffAutomatic: Bool = false
     @AppStorage("travelTurnOnAutomatic") var travelTurnOnAutomatic: Bool = false
     /// Set by the UI when the user toggles Traveling Mode; fetchPrayerTimes skips checkIfTraveling once so we don’t override or notify.
     var travelingModeManuallyToggled: Bool = false
-    
+
     @AppStorage("calculationAutomatic") var calculationAutomatic: Bool = true
     @AppStorage("calculationAutoChanged") var calculationAutoChanged: Bool = false
     @AppStorage("calculationAutoPreviousMethod") var calculationAutoPreviousMethod: String = ""
@@ -410,19 +410,19 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("currentCountryCode") var currentCountryCode: String = ""
     /// Set by the UI when the user manually picks a method while automatic mode is enabled.
     var calculationManuallyToggled: Bool = false
-    
+
     @AppStorage("showLocationAlert") var showLocationAlert: Bool = false {
         willSet { objectWillChange.send() }
     }
     @AppStorage("showNotificationAlert") var showNotificationAlert: Bool = false
-    
+
     @AppStorage("locationNeverAskAgain") var locationNeverAskAgain = false
     @AppStorage("notificationNeverAskAgain") var notificationNeverAskAgain = false
-    
+
     @AppStorage("showPrayerInfo") var showPrayerInfo: Bool = false
-    
+
     // MARK: - Optional Prayer Times (shown in app only, never in widgets)
-    
+
     @AppStorage("showDuha") var showDuha: Bool = false {
         willSet { objectWillChange.send() }
         didSet { fetchPrayerTimes(notification: true) }
@@ -436,7 +436,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         willSet { objectWillChange.send() }
         didSet { fetchPrayerTimes(notification: true) }
     }
-    
+
     /// Names of optional/informational prayer times shown in the app, but not widgets.
     static let optionalPrayerNames: Set<String> = ["Duhaa", "Islamic Midnight", "Last Third"]
     
@@ -445,7 +445,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     @AppStorage("THEfontArabic") var fontArabic: String = "KFGQPCHAFSUthmanicScript-Regula"
     @AppStorage("fontArabicSize") var fontArabicSize: Double = Double(UIFont.preferredFont(forTextStyle: .title1).pointSize)
     @AppStorage("useFontArabic") var useFontArabic = true
-    
+
     @AppStorage("favoriteLetterData") private var favoriteLetterData = Data()
     var favoriteLetters: [LetterData] {
         get {
@@ -465,7 +465,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
             }
         }
     }
-    
+
     func isLetterFavorite(letterData: LetterData) -> Bool {
         favoriteLetters.contains { $0.id == letterData.id }
     }
@@ -479,9 +479,9 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
             favoriteNameNumbersData = (try? Self.encoder.encode(newValue)) ?? Data()
         }
     }
-    
+
     @AppStorage("showDescription") var showDescription = false
-    
+
     func toggleNameFavorite(number: Int) {
         withAnimation {
             if isNameFavorite(number: number) {
@@ -491,37 +491,37 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
             }
         }
     }
-    
+
     func isNameFavorite(number: Int) -> Bool {
         favoriteNameNumbers.contains(number)
     }
     
     // MARK: Arabic search normalization
-    
+
     func cleanSearch(_ text: String, whitespace: Bool = false) -> String {
         let normalized = normalizedArabicForSearch(text)
         var cleaned = String(normalized.unicodeScalars
             .filter { !Self.unwantedCharSet.contains($0) }
         ).lowercased()
         cleaned = collapsingWhitespace(cleaned)
-        
+
         if whitespace {
             cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
         }
-        
+
         return cleaned
     }
-    
+
     func cleanSearchIgnoringSilentArabicLetters(_ text: String, whitespace: Bool = false) -> String {
         cleanSearch(text.removingSilentArabicLettersForSearch, whitespace: whitespace)
     }
-    
+
     private func normalizedArabicForSearch(_ text: String) -> String {
         Self.canonicalArabicSearchMap.reduce(text) { partial, pair in
             partial.replacingOccurrences(of: pair.key, with: pair.value)
         }
     }
-    
+
     private static let canonicalArabicSearchMap: [String: String] = [
         // Alif family
         "\u{0670}": "ا", // dagger alif
@@ -548,7 +548,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         // Teh marbuta equivalence (broad)
         "ة": "ه"
     ]
-    
+
     private static let unwantedCharSet: CharacterSet = {
         var set = CharacterSet.punctuationCharacters
             .union(.symbols)
@@ -557,7 +557,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         set.remove(charactersIn: "&|!#")
         return set
     }()
-    
+
     private func collapsingWhitespace(_ text: String) -> String {
         text
             .components(separatedBy: .whitespacesAndNewlines)
@@ -566,13 +566,13 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     // MARK: - App-wide appearance & misc @AppStorage
-    
+
     @AppStorage("THEfirstLaunch") var firstLaunch = true
-    
+
     @AppStorage("hapticOn") var hapticOn: Bool = true
-    
+
     @AppStorage("defaultView") var defaultView: Bool = true
-    
+
     @AppStorage("colorSchemeString") var colorSchemeString: String = "system"
     var colorScheme: ColorScheme? {
         get {
@@ -582,19 +582,19 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
             colorSchemeString = colorSchemeToString(newValue)
         }
     }
-    
+
     // MARK: - Global helpers (not Quran- or Adhan-specific)
-    
+
     func hapticFeedback() {
-#if os(iOS)
+        #if os(iOS)
         if hapticOn { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
-#endif
-        
-#if os(watchOS)
+        #endif
+
+        #if os(watchOS)
         if hapticOn { WKInterfaceDevice.current().play(.click) }
-#endif
+        #endif
     }
-    
+
     func colorSchemeFromString(_ colorScheme: String) -> ColorScheme? {
         switch colorScheme {
         case "light", "sepia":
@@ -605,17 +605,17 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
             return nil
         }
     }
-    
+
     // MARK: - Reading themes (Sepia / Gray)
     // These layer custom background + row colors on top of a light (Sepia) or dark (Gray) base, so the app
     // offers warm/neutral reading looks beyond plain Light / Dark / System. Light/Dark/System return nil here
     // and keep the standard system grouped colors (no behavior change for existing users).
-    
+
     /// True when the active theme paints its own background/row colors instead of the system grouped colors.
     var hasCustomThemeColors: Bool {
         colorSchemeString == "sepia" || colorSchemeString == "gray"
     }
-    
+
     /// Background shown behind list content for custom themes (warm cream / neutral charcoal).
     var themeBackgroundColor: Color? {
         switch colorSchemeString {
@@ -624,7 +624,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         default:      return nil
         }
     }
-    
+
     /// Row / card color for plain (non-glass) list rows in custom themes, set apart from the background.
     var themeRowBackgroundColor: Color? {
         switch colorSchemeString {
@@ -633,7 +633,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         default:      return nil
         }
     }
-    
+
     /// Tint blended into Liquid Glass cards/controls for custom themes, so glass reads as warm cream
     /// (Sepia) or neutral charcoal (Gray) instead of plain white/black. Nil = untinted system glass.
     var themeGlassTint: Color? {
@@ -643,7 +643,7 @@ final class Settings: NSObject, CLLocationManagerDelegate, ObservableObject {
         default:      return nil
         }
     }
-    
+
     func colorSchemeToString(_ colorScheme: ColorScheme?) -> String {
         switch colorScheme {
         case .light:

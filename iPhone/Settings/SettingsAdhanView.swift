@@ -71,7 +71,7 @@ struct SettingsAdhanView: View {
             }
             .themedListRowBackground()
         }
-        .applyConditionalListStyle(defaultView: settings.defaultView)
+        .applyConditionalListStyle()
         .compactListSectionSpacing()
         .navigationTitle("Al-Adhan Settings")
         #if os(iOS)
@@ -110,14 +110,26 @@ struct SettingsAdhanView: View {
         // refresh) — not gated behind a specific prayer-fetch completion. The old approach only checked the
         // flag inside a couple of fetch completions, so the dialog lagged (waited for the fetch) and often
         // never appeared (when the flag flipped from a fetch not triggered here).
+        // Consume each flag the instant it flips (see AdhanView for the full rationale): capture it into
+        // `showAlert` and reset the @AppStorage flag so the dialog can't re-present on re-entry or after a
+        // tap-outside dismissal.
         .onChange(of: settings.travelTurnOnAutomatic) { on in
-            if on { showAlert = .travelTurnOnAutomatic }
+            if on {
+                showAlert = .travelTurnOnAutomatic
+                settings.travelTurnOnAutomatic = false
+            }
         }
         .onChange(of: settings.travelTurnOffAutomatic) { off in
-            if off { showAlert = .travelTurnOffAutomatic }
+            if off {
+                showAlert = .travelTurnOffAutomatic
+                settings.travelTurnOffAutomatic = false
+            }
         }
         .onChange(of: settings.calculationAutoChanged) { changed in
-            if changed { showAlert = .calculationAutomaticChanged }
+            if changed {
+                showAlert = .calculationAutomaticChanged
+                settings.calculationAutoChanged = false
+            }
         }
         // NOTE: Confirmation-dialog buttons intentionally avoid `role: .cancel`. On iOS 26+ a `.cancel`
         // button is hidden from the action sheet (the system expects you to cancel by tapping outside / the
@@ -204,7 +216,7 @@ struct SettingsAdhanView: View {
             }
             .themedListRowBackground()
         }
-        .applyConditionalListStyle(defaultView: settings.defaultView)
+        .applyConditionalListStyle()
         .navigationTitle(title)
     }
 
@@ -567,6 +579,19 @@ struct NotificationView: View {
                 Section {
                     permissionCard
                 }
+                #else
+                // watchOS has no detailed permission card UI; offer a simple request-access row instead.
+                Section(header: Text("PERMISSION")) {
+                    Label("Request Access", systemImage: "checkmark.seal")
+                        .font(.subheadline)
+                        .foregroundColor(settings.accentColor.color)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            settings.hapticFeedback()
+                            Task { @MainActor in await onRequestAccessTapped() }
+                        }
+                }
+                #endif
 
                 Section(header: Text("HIJRI CALENDAR")) {
                     Toggle("Islamic Calendar Notifications", isOn: $settings.dateNotifications.animation(.easeInOut))
@@ -574,6 +599,7 @@ struct NotificationView: View {
                         .onChange(of: settings.dateNotifications) { _ in settings.hapticFeedback() }
                 }
 
+                #if os(iOS)
                 Section(header: Text("ADHAN SOUND")) {
                     Picker("Adhan Sound", selection: $settings.adhanNotificationSound.animation(.easeInOut)) {
                         Section {
@@ -648,7 +674,7 @@ struct NotificationView: View {
                 Text(msg)
             }
         }
-        .applyConditionalListStyle(defaultView: settings.defaultView)
+        .applyConditionalListStyle()
         .navigationTitle("Notification Settings")
     }
     
@@ -1137,7 +1163,7 @@ struct MoreNotificationView: View {
         } message: {
             Text("Please go to Settings and enable notifications to be notified of prayer times.")
         }
-        .applyConditionalListStyle(defaultView: settings.defaultView)
+        .applyConditionalListStyle()
         .navigationTitle("Prayer Notifications")
     }
 }

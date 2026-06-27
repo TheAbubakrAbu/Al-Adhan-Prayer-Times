@@ -22,11 +22,9 @@ struct CreditsView: View {
             creditsLinksSection
             appsSection
             botsSection
+            intentSection
         }
-        .listStyle(.plain)
-        .navigationBarTitleDisplayMode(.inline)
-        .accentColor(settings.accentColor.color)
-        .tint(settings.accentColor.color)
+        .applyConditionalListStyle()
         .navigationTitle("Credits")
     }
 
@@ -76,16 +74,17 @@ struct CreditsView: View {
                 .font(.body)
                 .multilineTextAlignment(.leading)
 
-            if let url = URL(string: "https://github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times") {
+            let urlText = "https://github.com/TheAbubakrAbu/Al-Adhan-iOS"
+            if let url = URL(string: urlText) {
                 Link(
-                    "View the source code: github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times",
+                    "View the source code: \(urlText)",
                     destination: url
                 )
                 .font(.body)
                 .foregroundColor(settings.accentColor.color)
                 .contextMenu {
                     Button(action: {
-                        UIPasteboard.general.string = "https://github.com/TheAbubakrAbu/Al-Adhan-Prayer-Times"
+                        UIPasteboard.general.string = urlText
                     }) {
                         HStack {
                             Image(systemName: "doc.on.doc")
@@ -111,27 +110,7 @@ struct CreditsView: View {
                 
                 creditLink("Credit for the Adhan sounds goes to Omar Al-Ejel", url: "https://github.com/oalejel/Athan-Utility")
                 
-                creditLink("Credit for the English transliteration of the Quran data goes to Risan Bagja Pradana", url: "https://github.com/risan/quran-json")
-                
-                creditLink("Credit for the English Saheeh International translation of the Quran data goes to Global Quran", url: "https://globalquran.com/download/data/")
-                
-                creditLink("Credit for all the Quranic Arabic text and all qiraat/riwayaat data goes to quran-data-kfgqpc (KFGQPC)", url: "https://github.com/thetruetruth/quran-data-kfgqpc")
-                
-                // https://qul.tarteel.ai/resources/font/458 SURAH HEADER FULL LINE
-                
                 creditLink("Credit for the Uthmani Quran font goes to King Fahad Complex (KFGQPC)", url: "https://qul.tarteel.ai/resources/font/245")
-                
-                creditLink("Credit for the Indopak Nastaleeq Quran font goes to Ayman Siddiqui and R. Siddiqua", url: "https://qul.tarteel.ai/resources/font/242")
-                
-                creditLink("Credit for the Surah Quran Recitations goes to MP3 Quran", url: "https://mp3quran.net/eng")
-                
-                creditLink("Credit for the Ayah Quran Recitations goes to Al Quran", url: "https://alquran.cloud/cdn")
-
-                creditLink("Credit for the English Quran translation comparison API goes to Al Quran Cloud", url: "https://alquran.cloud/api")
-
-                creditLink("Credit for the Tafsir API goes to Quran API Pages", url: "https://quranapi.pages.dev/")
-
-                creditLink("Credit for the Surah Info goes to Quran.com (Quran Foundation)", url: "https://api-docs.quran.foundation/docs/content_apis_versioned/4.0.0/get-chapter-info/#get-chapter-info")
 
                 creditLink("Credit for the 99 Names of Allah goes to MyIslam", url: "https://myislam.org/99-names-of-allah/")
             }
@@ -153,6 +132,14 @@ struct CreditsView: View {
             ForEach(botsByAbubakr) { bot in
                 AppLinkRow(imageName: bot.imageName, title: bot.title, url: bot.url)
             }
+        }
+    }
+
+    private var intentSection: some View {
+        Section(header: Text("A NOTE ON INTENT")) {
+            Text("This app is offered as *sadaqah jariyah* — a contribution for the benefit of the Muslim community and anyone building tools to read, learn, and listen to the Quran. If it helps you, please keep the chain of attribution intact and consider contributing improvements back.")
+                .font(.body)
+                .multilineTextAlignment(.leading)
         }
     }
 

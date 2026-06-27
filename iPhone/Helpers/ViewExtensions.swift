@@ -20,8 +20,8 @@ extension View {
         #endif
     }
 
-    func applyConditionalListStyle(defaultView: Bool) -> some View {
-        modifier(ConditionalListStyle(defaultView: defaultView))
+    func applyConditionalListStyle(disableNowPlayingInset: Bool = false, topContentMargin: CGFloat = 0) -> some View {
+        modifier(ConditionalListStyle(disableNowPlayingInset: disableNowPlayingInset, topContentMargin: topContentMargin))
     }
 
     /// Tints list rows for the Sepia / Gray reading themes. Apply this to the rows/sections INSIDE a `List`
@@ -83,12 +83,12 @@ struct ConditionalListStyle: ViewModifier {
     @Environment(\.colorScheme) private var systemColorScheme
     @Environment(\.customColorScheme) private var customColorScheme
 
-    let defaultView: Bool
+    let disableNowPlayingInset: Bool
+    var topContentMargin: CGFloat = 0
 
     private var currentColorScheme: ColorScheme {
         settings.colorScheme ?? systemColorScheme
     }
-
     func body(content: Content) -> some View {
         Group {
             #if os(iOS)
@@ -101,7 +101,7 @@ struct ConditionalListStyle: ViewModifier {
         .accentColor(settings.accentColor.color)
         .tint(settings.accentColor.color)
         .dismissKeyboardOnScroll()
-        .topContentMargin(0)
+        .topContentMargin(topContentMargin)
         // Force the theme's light/dark base here (not just at the app root) so sheets — which are their own
         // presentation contexts and don't inherit the root's preferredColorScheme — also adopt the theme.
         .preferredColorScheme(settings.colorScheme)
@@ -114,7 +114,7 @@ struct ConditionalListStyle: ViewModifier {
     // (Row colors are handled separately by `themedListRowBackground()` applied inside each List.)
     @ViewBuilder
     private func styledContent(_ content: Content) -> some View {
-        let base = defaultView ? AnyView(content) : AnyView(content.listStyle(.plain))
+        let base = settings.defaultView ? AnyView(content) : AnyView(content.listStyle(.plain))
 
         if #available(iOS 16.0, *) {
             base
@@ -130,7 +130,7 @@ struct ConditionalListStyle: ViewModifier {
         if settings.hasCustomThemeColors {
             return settings.themeBackgroundColor ?? Color(.systemGroupedBackground)
         }
-        if defaultView {
+        if settings.defaultView {
             return Color(.systemGroupedBackground)
         }
         return currentColorScheme == .dark ? .black : .white

@@ -15,25 +15,31 @@ struct PrayerList: View {
     @AppStorage("prayerDisplayModeV2") private var prayerDisplayModeRawValue: String = PrayerDisplayMode.tiles.rawValue
 
     enum PrayerDisplayMode: String, CaseIterable, Identifiable {
-        case list = "Prayer List"
-        case grid = "Prayer Grid"
         case tiles = "Prayer Tiles"
+        case grid = "Prayer Grid"
+        case list = "Prayer List"
         case split = "Prayer Split"
 
         var id: String { rawValue }
 
         var displayName: String {
             switch self {
-            case .list: return "LIST"
-            case .grid: return "GRID"
             case .tiles: return "TILES"
+            case .grid: return "GRID"
+            case .list: return "LIST"
             case .split: return "SPLIT"
             }
         }
     }
 
     private var prayerDisplayMode: PrayerDisplayMode {
-        PrayerDisplayMode(rawValue: prayerDisplayModeRawValue) ?? .tiles
+        #if os(watchOS)
+        // The watch only has room for the compact tile grid, and its display-mode picker is hidden, so
+        // always render tiles regardless of the stored (iPhone-set) preference.
+        return .tiles
+        #else
+        return PrayerDisplayMode(rawValue: prayerDisplayModeRawValue) ?? .tiles
+        #endif
     }
 
     private static let selectedDateHeaderFormatter: DateFormatter = {
@@ -812,5 +818,6 @@ private struct SplitPrayerRow<TrailingContent: View>: View {
         List {
             PrayerList()
         }
+        .applyConditionalListStyle(disableNowPlayingInset: true)
     }
 }

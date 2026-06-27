@@ -900,6 +900,10 @@ extension Settings {
         
         guard let loc = currentLocation, loc.latitude  != 1000, loc.longitude != 1000 else {
             logger.debug("No valid location – skip refresh")
+            // Hijri-event reminders are date-based and don't need a location, so still (re)schedule
+            // them even when prayer times can't be computed yet (the scheduler skips the prayer
+            // parts and leaves existing prayer notifications untouched when there's no location).
+            schedulePrayerTimeNotifications()
             completion?()
             return
         }
@@ -1028,18 +1032,18 @@ extension Settings {
         return raw.first  // Fajr is always first regardless of mode
     }
     
-    /// Whether THIS device should schedule prayer notifications locally. iPhone always does; the Watch
-    /// only does so when the companion iPhone app isn't installed — otherwise the iPhone handles them and
-    /// scheduling on both would double up the alerts.
+    /// Whether THIS device should schedule prayer notifications locally. Both the iPhone and the Watch
+    /// always do.
+    ///
+    /// The Watch must schedule its OWN notifications: a native watchOS app is responsible for its own
+    /// alerts, and iOS does NOT forward the iPhone's local notifications to a watch that has its own app.
+    /// The previous "only schedule on the Watch when the companion iPhone app isn't installed" logic meant
+    /// the Watch (whose app is always installed via the iPhone app) never scheduled anything, so it showed
+    /// no prayer notifications when the iPhone wasn't around. Each device fires its own locally, so there's
+    /// no double-alert on a single device.
     var shouldScheduleNotificationsLocally: Bool {
-        #if os(iOS)
+        #if os(iOS) || os(watchOS)
         return true
-        #elseif os(watchOS)
-        guard WCSession.isSupported() else { return true }
-        // Only trust isCompanionAppInstalled once the session is activated; before that, skip scheduling
-        // to avoid double notifications, and re-run once activation completes (see WatchConnectivity).
-        guard WCSession.default.activationState == .activated else { return false }
-        return !WCSession.default.isCompanionAppInstalled
         #else
         return false
         #endif
@@ -1201,9 +1205,6 @@ extension Settings {
         guard shouldScheduleNotificationsLocally else { return }
         #endif
         #if os(iOS) || os(watchOS)
-        guard let city = currentLocation?.city, let prayerObj = prayers
-        else { return }
-
         logger.debug("Scheduling prayer time notifications")
         let center = UNUserNotificationCenter.current()
 
@@ -1216,31 +1217,37 @@ extension Settings {
         var adhanRequests: [(request: UNNotificationRequest, date: Date)] = []
         var reminderRequests: [(request: UNNotificationRequest, date: Date)] = []
 
-        func collectPrayer(_ prayer: Prayer, _ minutes: Int?) {
-            guard let built = makePrayerNotificationRequest(for: prayer, preNotificationTime: minutes, city: city) else { return }
-            if built.isAdhan {
-                adhanRequests.append((built.request, built.date))
-            } else {
-                reminderRequests.append((built.request, built.date))
+        // Prayer notifications need a resolved location + computed prayer times. Hijri-event reminders and
+        // refresh nags below do NOT, so they're collected regardless of location — date notifications work
+        // even before (or without) a location fix, instead of being silently skipped by an early return.
+        let hasPrayers = currentLocation?.city != nil && prayers != nil
+        if let city = currentLocation?.city, let prayerObj = prayers {
+            func collectPrayer(_ prayer: Prayer, _ minutes: Int?) {
+                guard let built = makePrayerNotificationRequest(for: prayer, preNotificationTime: minutes, city: city) else { return }
+                if built.isAdhan {
+                    adhanRequests.append((built.request, built.date))
+                } else {
+                    reminderRequests.append((built.request, built.date))
+                }
             }
-        }
 
-        for prayer in prayersIncludingOptional(prayerObj.prayers, for: prayerObj.day) {
-            guard let prefs = Self.notifTable[prayer.nameTransliteration] else { continue }
-            for minutes in offsets(for: prefs) {
-                collectPrayer(prayer, minutes == 0 ? nil : minutes)
+            for prayer in prayersIncludingOptional(prayerObj.prayers, for: prayerObj.day) {
+                guard let prefs = Self.notifTable[prayer.nameTransliteration] else { continue }
+                for minutes in offsets(for: prefs) {
+                    collectPrayer(prayer, minutes == 0 ? nil : minutes)
+                }
             }
-        }
 
-        let futureDays = naggingMode ? 1 : 3
-        if futureDays > 0 {
-            for dayOffset in 1...futureDays {
-                let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: prayerObj.day) ?? Date()
-                guard let list = getPrayerTimes(for: date) else { continue }
-                for prayer in prayersIncludingOptional(list, for: date) {
-                    guard let prefs = Self.notifTable[prayer.nameTransliteration] else { continue }
-                    for minutes in offsets(for: prefs) {
-                        collectPrayer(prayer, minutes == 0 ? nil : minutes)
+            let futureDays = naggingMode ? 1 : 3
+            if futureDays > 0 {
+                for dayOffset in 1...futureDays {
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: prayerObj.day) ?? Date()
+                    guard let list = getPrayerTimes(for: date) else { continue }
+                    for prayer in prayersIncludingOptional(list, for: date) {
+                        guard let prefs = Self.notifTable[prayer.nameTransliteration] else { continue }
+                        for minutes in offsets(for: prefs) {
+                            collectPrayer(prayer, minutes == 0 ? nil : minutes)
+                        }
                     }
                 }
             }
@@ -1286,7 +1293,14 @@ extension Settings {
             }
         }
         center.getPendingNotificationRequests { pending in
-            let stale = pending.map(\.identifier).filter { !desiredIDs.contains($0) }
+            let stale = pending.map(\.identifier).filter { id in
+                guard !desiredIDs.contains(id) else { return false }
+                // When there were no prayers to rebuild (no location yet), only prune the categories we DID
+                // rebuild — events and refresh nags. Leaving prayer notifications alone means a momentary
+                // location gap can't wipe a working adhan schedule.
+                if !hasPrayers { return id.hasPrefix("Event-") || id.hasPrefix("RefreshReminder-") }
+                return true
+            }
             if !stale.isEmpty {
                 center.removePendingNotificationRequests(withIdentifiers: stale)
             }
@@ -1428,22 +1442,45 @@ extension Settings {
     private func makeEventNotificationRequest(for event: (String, DateComponents, String, String)) -> (request: UNNotificationRequest, date: Date)? {
         let (titleText, hijriComps, eventSubTitle, _) = event
 
-        guard let hijriDate = hijriCalendar.date(from: hijriComps) else { return nil }
         let gregorianCalendar = Calendar(identifier: .gregorian)
-        var gregorianComps = gregorianCalendar.dateComponents([.year, .month, .day], from: hijriDate)
-        gregorianComps.hour = 9
-        gregorianComps.minute = 0
 
-        guard
-            let finalDate = gregorianCalendar.date(from: gregorianComps),
-            finalDate > Date()
-        else {
-            return nil
+        // The Hijri components carry the current Hijri year, so an event that already passed this year
+        // would otherwise produce no notification at all (its Gregorian date is in the past). Roll the
+        // occurrence forward one Hijri year at a time until it lands in the future, so each event always
+        // has an upcoming reminder scheduled — even late in the Hijri year after all of this year's
+        // events are behind us.
+        var comps = hijriComps
+        var finalDate: Date?
+        var beforeFajr = false
+        for _ in 0...1 {
+            guard let hijriDate = hijriCalendar.date(from: comps) else { return nil }
+            let eventDay = gregorianCalendar.startOfDay(for: hijriDate)
+            // Fire 30 minutes before Fajr on the event day (useful for fasting days — suhoor / intention).
+            // Fajr needs computed prayer times, which need a location; if those aren't available, fall back
+            // to 5:00 AM so the reminder still lands pre-dawn.
+            let candidate: Date?
+            if let fajr = getPrayerTimes(for: eventDay, fullPrayers: true)?.first {
+                candidate = gregorianCalendar.date(byAdding: .minute, value: -30, to: fajr.time)
+                beforeFajr = true
+            } else {
+                candidate = gregorianCalendar.date(bySettingHour: 5, minute: 0, second: 0, of: eventDay)
+                beforeFajr = false
+            }
+            if let candidate, candidate > Date() {
+                finalDate = candidate
+                break
+            }
+            comps.year = (comps.year ?? hijriCalendar.component(.year, from: Date())) + 1
         }
+
+        guard let finalDate else { return nil }
+        let gregorianComps = gregorianCalendar.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
 
         let content = UNMutableNotificationContent()
         content.title = AppIdentifiers.appName
-        content.body = "\(titleText) (\(eventSubTitle))"
+        content.body = beforeFajr
+            ? "\(titleText) is today — \(eventSubTitle). Sent 30 minutes before Fajr."
+            : "\(titleText) is today — \(eventSubTitle)."
         content.sound = .default
         #if os(iOS)
         if #available(iOS 15.0, *) {

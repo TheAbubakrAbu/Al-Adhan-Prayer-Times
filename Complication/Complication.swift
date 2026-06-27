@@ -13,11 +13,29 @@ struct PrayersEntryView: View {
         switch family {
         case .accessoryRectangular:
             rectangular
+        case .accessoryCorner:
+            corner
         default:
             circular
         }
     }
-    
+
+    @ViewBuilder
+    var corner: some View {
+        if let nextPrayer = entry.nextPrayer {
+            Image(systemName: nextPrayer.image)
+                .font(.title3)
+                .foregroundColor(accent(for: nextPrayer))
+                .widgetLabel {
+                    Text("\(nextPrayer.nameTransliteration) \(nextPrayer.time, style: .time)")
+                }
+        } else {
+            Image(systemName: "moon.stars.fill")
+                .foregroundColor(entry.accentColor.color)
+                .widgetLabel { Text("Open app") }
+        }
+    }
+
     var circular: some View {
         VStack(spacing: 4) {
             if let nextPrayer = entry.nextPrayer {
@@ -78,7 +96,6 @@ struct PrayersEntryView: View {
     }
 }
 
-@main
 struct Complication: Widget {
     let kind: String = "Complication"
 
@@ -90,7 +107,137 @@ struct Complication: Widget {
         .supportedFamilies([
             .accessoryInline,
             .accessoryCircular,
+            .accessoryCorner,
             .accessoryRectangular
         ])
+    }
+}
+
+// MARK: - Countdown complication
+
+/// A complication focused purely on the live countdown to the next prayer. Uses WidgetKit's self-updating
+/// `Text(_, style: .timer)` / `ProgressView(timerInterval:)`, so it ticks down on its own between timeline
+/// refreshes (the shared `PrayersProvider` refreshes at the next prayer time, when the target prayer rolls).
+struct CountdownComplicationView: View {
+    var entry: PrayersProvider.Entry
+    @Environment(\.widgetFamily) private var family
+
+    private func accent(for prayer: Prayer) -> Color {
+        prayer.nameTransliteration == "Shurooq" ? .primary : entry.accentColor.color
+    }
+
+    /// `currentPrayer.time ... nextPrayer.time` is always valid (current is the last prayer <= now, next is
+    /// the first > now), but fall back to the entry date and clamp defensively so the gauge can never get an
+    /// inverted range.
+    private func interval(to next: Prayer) -> ClosedRange<Date> {
+        let start = entry.currentPrayer?.time ?? entry.date
+        return min(start, next.time)...next.time
+    }
+
+    var body: some View {
+        if let next = entry.nextPrayer {
+            switch family {
+            case .accessoryInline:
+                Label {
+                    Text("\(next.nameTransliteration) \(next.time, style: .timer)")
+                } icon: {
+                    Image(systemName: next.image)
+                }
+            case .accessoryCorner:
+                Image(systemName: next.image)
+                    .font(.title3)
+                    .foregroundColor(accent(for: next))
+                    .widgetLabel {
+                        Text(next.time, style: .timer)
+                    }
+            case .accessoryRectangular:
+                rectangular(next: next)
+            default:
+                circular(next: next)
+            }
+        } else {
+            switch family {
+            case .accessoryCorner:
+                Image(systemName: "moon.stars.fill")
+                    .widgetLabel { Text("Open app") }
+            default:
+                Text("Open app")
+                    .font(.caption2)
+                    .minimumScaleFactor(0.6)
+            }
+        }
+    }
+
+    private func circular(next: Prayer) -> some View {
+        // The ring itself is the live, second-by-second countdown. Inside it we show the prayer logo and a
+        // `.relative` label (e.g. "3 hr") instead of a ticking `.timer` H:MM:SS, which was too wide and
+        // overflowed the small circular face.
+        ProgressView(timerInterval: interval(to: next), countsDown: true) {
+            EmptyView()
+        } currentValueLabel: {
+            VStack(spacing: 0) {
+                Image(systemName: next.image)
+                    .font(.system(size: 12))
+                Text(next.time, style: .relative)
+                    .font(.system(size: 12, design: .rounded))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+            }
+        }
+        .progressViewStyle(.circular)
+        .tint(accent(for: next))
+    }
+
+    private func rectangular(next: Prayer) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 4) {
+                Image(systemName: next.image)
+                    .font(.subheadline)
+                Text(next.nameTransliteration)
+                    .font(.headline)
+            }
+            .foregroundColor(accent(for: next))
+
+            // Countdown and target time share one baseline-aligned row so the three lines no longer have
+            // the loose vertical gaps they used to.
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text(next.time, style: .timer)
+                    .font(.system(.title3, design: .rounded).bold())
+                    .foregroundColor(accent(for: next))
+
+                Text("at \(next.time, style: .time)")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct CountdownComplication: Widget {
+    let kind: String = "CountdownComplication"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayersProvider()) { entry in
+            CountdownComplicationView(entry: entry)
+        }
+        .configurationDisplayName("Prayer Countdown")
+        .description("Live countdown to the next prayer.")
+        .supportedFamilies([
+            .accessoryInline,
+            .accessoryCircular,
+            .accessoryCorner,
+            .accessoryRectangular
+        ])
+    }
+}
+
+@main
+struct AlIslamComplications: WidgetBundle {
+    var body: some Widget {
+        Complication()
+        CountdownComplication()
     }
 }
