@@ -345,8 +345,8 @@
 			children = (
 				724D09352FEFA921002C32AB /* ViewExtensions.swift */,
 				724D09362FEFA921002C32AB /* SearchBar.swift */,
-				724D09372FEFA921002C32AB /* Highlighted.swift */,
 				724D09382FEFA921002C32AB /* GlassEffect.swift */,
+				724D09372FEFA921002C32AB /* Highlighted.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
