@@ -43,6 +43,7 @@ struct AlAdhanApp: App {
                 .preferredColorScheme(settings.colorScheme)
                 .appReviewPrompt()
                 .onAppear(perform: refreshPrayerTimes)
+                //.statusBarHidden()
         }
         .onChange(of: settings.accentColor) { _ in
             WidgetCenter.shared.reloadAllTimelines()
