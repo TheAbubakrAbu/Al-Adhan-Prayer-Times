@@ -42,7 +42,7 @@ struct AlAdhanApp: App {
                 .tint(settings.accentColor.color)
                 .preferredColorScheme(settings.colorScheme)
                 .appReviewPrompt()
-                .onAppear(perform: refreshPrayerTimes)
+                .onAppear { settings.fetchPrayerTimes() }
                 //.statusBarHidden()
         }
         .onChange(of: settings.accentColor) { _ in
@@ -86,51 +86,57 @@ struct AlAdhanApp: App {
         }
         .animation(rootTransitionAnimation, value: rootStage)
     }
-
-    private func refreshPrayerTimes() {
-        withAnimation {
-            settings.fetchPrayerTimes()
-        }
-    }
 }
 
 private struct MainTabView: View {
+    @EnvironmentObject private var settings: Settings
+
+    private enum AppTab: Hashable { case adhan, islam, settings }
+    @State private var selectedTab: AppTab = .adhan
+
     var body: some View {
+        tabs
+    }
+
+    @ViewBuilder
+    private var tabs: some View {
         if #available(iOS 18.0, *) {
-            TabView {
-                Tab("Adhan", systemImage: "mecca") {
+            TabView(selection: $selectedTab) {
+                Tab("Adhan", systemImage: "mecca", value: AppTab.adhan) {
                     AdhanView()
                 }
 
-                Tab("Islam", systemImage: "moon.stars") {
+                Tab("Islam", systemImage: "moon.stars", value: AppTab.islam) {
                     IslamView()
                 }
 
-                Tab("Settings", systemImage: "gearshape") {
+                Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
                     SettingsView()
                 }
             }
         } else {
-            TabView {
+            TabView(selection: $selectedTab) {
                 AdhanView()
                     .tabItem {
                         Image(systemName: "safari")
                         Text("Adhan")
                     }
+                    .tag(AppTab.adhan)
 
                 IslamView()
                     .tabItem {
                         Image(systemName: "moon.stars")
                         Text("Islam")
                     }
+                    .tag(AppTab.islam)
 
                 SettingsView()
                     .tabItem {
                         Image(systemName: "gearshape")
                         Text("Settings")
                     }
+                    .tag(AppTab.settings)
             }
         }
     }
 }
-
