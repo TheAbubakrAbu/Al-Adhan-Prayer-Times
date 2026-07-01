@@ -169,7 +169,7 @@ struct LaunchScreen: View {
         // realized and retained, then we settle on Adhan). Waiting here means the flourish + hand-off below run
         // against an already-built UI, so the reveal is instant and the first Quran tap doesn't stall. Capped so
         // a failed warm can never strand us on the launch screen. iPhone-only: the Watch has no such tab warm.
-        await LaunchWarmup.shared.waitUntilWarm(maxWaitNanos: 6_000_000_000)
+        await LaunchWarmup.shared.waitUntilWarm(maxWaitNanos: 1_000_000_000)
         #endif
 
         // 3) Everything is ready and the CPU is free, so the finale plays smoothly on top of the resting icon:
