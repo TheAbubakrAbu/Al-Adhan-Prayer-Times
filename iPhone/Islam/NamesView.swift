@@ -263,7 +263,8 @@ struct NamesView: View {
                     Text("Basic Font").tag(false)
                 }
                 .pickerStyle(.segmented)
-                .conditionalGlassEffect()
+                // Non-interactive glass: interactive Liquid Glass steals per-segment taps on real iOS 26 hardware.
+                .conditionalGlassEffect(interactive: false)
                 .onChange(of: settings.useFontArabic) { _ in settings.hapticFeedback() }
                 
                 SearchBar(text: $searchText.animation(.easeInOut))
@@ -754,6 +755,8 @@ private struct NameRowDetails: View {
 }
 
 private struct VerseReflectionCard: View {
+    @EnvironmentObject var settings: Settings
+    
     let title: String
     let contentText: String
 
@@ -765,7 +768,7 @@ private struct VerseReflectionCard: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.primary)
+                .foregroundColor(settings.accentColor.color)
 
             Text(contentText)
                 .font(.footnote)
